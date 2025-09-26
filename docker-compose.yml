@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sistema-salones-app
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db  # Cambia esto al nombre del servicio
+    networks:
+      - red_sistema
+
+  db:
+    image: mysql:8.0
+    container_name: sistema-salones-db    
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: sistema_salones
+      MYSQL_USER: laravel_user      # Agrega esto
+      MYSQL_PASSWORD: laravel_pass  # Agrega esto
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"  # Expone el puerto para debugging
+    networks:
+      - red_sistema  
+
+volumes:
+  db_data:
+
+networks:
+  red_sistema:
+    driver: bridge
