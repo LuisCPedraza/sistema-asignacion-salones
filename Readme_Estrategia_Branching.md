@@ -314,6 +314,7 @@ git checkout -b feature/HU18-historial-cambios feature/historial-auditoria
 
 echo "Estructura de ramas creada exitosamente!"
 
+```
 ---
 
 # Flujo de Trabajo Visual por Fases
