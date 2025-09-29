@@ -316,7 +316,7 @@ echo "Estructura de ramas creada exitosamente!"
 
 ---
 
-## Flujo de Trabajo Visual por Fases
+# Flujo de Trabajo Visual por Fases
 
 ```mermaid
 graph TB
