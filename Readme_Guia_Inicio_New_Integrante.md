@@ -21,6 +21,16 @@ Esta guía te ayudará a configurar tu entorno de trabajo y a obtener el código
     
 **Comandos de instalación (si son necesarios)**
 * Para instalar **Git**: `sudo apt update && sudo apt install git`
+* Para instalar **Ubuntu** `wsl --install -d Ubuntu`
+* Para instalar **Docker Desktop en Windows**
+  - Ve a la página oficial: Docker Desktop Windows.
+  - Descarga e instala la versión para Windows 10/11.
+  - Durante la instalación, asegúrate de habilitar WSL2 backend.
+  - Reinicia tu laptop.
+  - Abre Docker Desktop → en Settings revisa que “Use the WSL2 based engine” esté activado.
+  - Desde Ubuntu Terminal (WSL2), prueba:
+    * docker --version
+    * docker run hello-world
 * Para instalar **Docker**: `sudo apt update && sudo apt install docker.io`
 * Para instalar **Docker Compose**: Sigue las instrucciones oficiales de la documentación de Docker para tu sistema operativo, ya que su instalación puede variar.
 * Para instalar **PHP**: `sudo apt update && sudo apt install php8.3-fpm`
