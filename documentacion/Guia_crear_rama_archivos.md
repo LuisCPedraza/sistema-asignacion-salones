@@ -64,15 +64,15 @@ principal.
 ---
 ### Paso 6: Actualizar el Repositorio Local del repositorio del administrador (Mantenedor)
 Aunque el repositorio del administrador (LuisCPedraza) el merge en GitHub, es posible que su repositorio local necesite actualizarse.
-	- Asegúrate de estar en la rama principal:
+- Asegúrate de estar en la rama principal:
 	```bash 
 	git checkout main
 	```
-	- Descarga y fusiona los cambios remotos:
+- Descarga y fusiona los cambios remotos:
 	```bash 
 	git pull
 	``` 
-		- (git pull es equivalente a git fetch (descargar historial) seguido de git merge (fusionar cambios)).
+    - git pull es equivalente a git fetch (descargar historial) seguido de git merge (fusionar cambios).
 ---
 ### Paso 7: Sincronizar el Fork de su repositorio (Colaborador)
 Debe asegurarse de que su fork esté al día con el repositorio original (Repositorio administrador).
@@ -95,12 +95,12 @@ Debe asegurarse de que su fork esté al día con el repositorio original (Reposi
 ---
 ## Paso 8: Eliminar Ramas Innecesarias
 Una vez que la funcionalidad ha sido fusionada en main, la rama de trabajo ya no es necesaria y se puede eliminar.
-	- Eliminar localmente (asumiendo que ya está en main):
+- Eliminar localmente (asumiendo que ya está en main):
 	```bash
 	git branch -d feature/login
 	```
-		- Si la rama no se ha fusionado completamente, Git te pedirá que uses -D (mayúscula) para forzar la eliminación.
-	- Eliminar remotamente (en el fork de tu repositorio):
+    - Si la rama no se ha fusionado completamente, Git te pedirá que uses -D (mayúscula) para forzar la eliminación.
+- Eliminar remotamente (en el fork de tu repositorio):
 	```bash
 	git push origin --delete feature/login
 	```
