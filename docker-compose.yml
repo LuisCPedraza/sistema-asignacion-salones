@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8' <-- Puedes borrar esta línea, ya no se usa.
 
 services:
   app:
@@ -8,12 +8,13 @@ services:
     container_name: sistema-salones-app
     ports:
       - "8000:80"
+    # BORRA la sección de ports de aquí. El contenedor de la app no usa el puerto 3306.
     volumes:
       - .:/var/www/html
     depends_on:
       - db
     environment:
-      - DB_HOST=db  # Cambia esto al nombre del servicio
+      - DB_HOST=db
     networks:
       - red_sistema
 
@@ -23,12 +24,14 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_DATABASE: sistema_salones
-      MYSQL_USER: laravel_user      # Agrega esto
-      MYSQL_PASSWORD: laravel_pass  # Agrega esto
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: laravel_pass
     volumes:
       - db_data:/var/lib/mysql
     ports:
-      - "3306:3306"  # Expone el puerto para debugging
+      # AQUÍ es donde va el cambio de puerto.
+      # Usaremos el puerto 3307 de tu PC para conectarnos al 3306 del contenedor.
+      - "3307:3306"
     networks:
       - red_sistema  
 
