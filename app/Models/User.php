@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',  // Agrega esto para CRUD
     ];
 
     /**
@@ -33,11 +34,6 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'role' => 'string',  // Agrega esta línea
-    ];
-
     /**
      * Get the attributes that should be cast.
      *
@@ -48,6 +44,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => 'string',  // Agrega esto aquí
         ];
     }
 }
