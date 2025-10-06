@@ -30,6 +30,8 @@ class AuthenticatedSessionController extends Controller
 
         // Redirección basada en rol (HU2)
         $role = Auth::user()->role;
+        //dd($role);  // Debug temporal: Imprime rol y para (borra después)
+
         return match ($role) {
             'admin' => redirect()->intended('/admin/dashboard'),
             'profesor' => redirect()->intended('/profesor/perfil'),
