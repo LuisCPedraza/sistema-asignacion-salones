@@ -22,4 +22,17 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('users', UserController::class);
 });
 
+// Rutas protegidas por rol (HU2) - Temporal sin role middleware para pruebas
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', function () { return view('admin.dashboard'); })->name('dashboard');
+});
+
+Route::middleware(['auth'])->prefix('profesor')->name('profesor.')->group(function () {
+    Route::get('/perfil', function () { return view('profesor.perfil'); })->name('perfil');
+});
+
+Route::middleware(['auth'])->prefix('coordinador')->name('coordinador.')->group(function () {
+    Route::get('/asignaciones', function () { return view('coordinador.asignaciones'); })->name('asignaciones');
+});
+
 require __DIR__.'/auth.php';
