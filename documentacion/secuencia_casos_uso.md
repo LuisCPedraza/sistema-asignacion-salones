@@ -1,5 +1,3 @@
----
-
 ## Caso de Uso: Iniciar Sesión (HU2)
 secuencia_iniciar_sesion.mmdmermaid
 
@@ -176,23 +174,20 @@ sequenceDiagram
 ```
 ---
 
----
-
 ## Caso de Uso: Visualizar Horarios (HU13, HU14)
 secuencia_visualizar_horarios.mmdmermaid
 
 ```mermaid
 sequenceDiagram
-    actor Actor as Coordinador/Profesor
-    participant Sistema
-    participant BD as Base de Datos
-    Actor->>Sistema: Seleccionar tipo de horario (completo/personal)
-    Sistema->>BD: Consultar asignacion, bloque_horario, periodo_academico
-    BD-->>Sistema: Datos horarios
-    Sistema->>Actor: Mostrar horario
-```
----
+actor CoordinadorProfesor as "Coordinador/Profesor"
+participant Sistema
+participant BD as "Base de Datos"
 
+CoordinadorProfesor->>Sistema: Seleccionar tipo de horario (completo/personal)
+Sistema->>BD: Consultar asignacion, bloque_horario, periodo_academico
+BD-->>Sistema: Datos horarios
+Sistema-->>CoordinadorProfesor: Mostrar horario
+```
 ---
 
 ## Caso de Uso: Generar Reportes (HU15)
@@ -200,13 +195,15 @@ secuencia_generar_reportes.mmdmermaid
 
 ```mermaid
 sequenceDiagram
-    actor Actor as Administrador/Coordinador
-    participant Sistema
-    participant BD as Base de Datos
-    Actor->>Sistema: Seleccionar tipo de reporte
-    Sistema->>BD: Consultar reporte_ocupacion, vistas conflictos
-    BD-->>Sistema: Datos reportes
-    Sistema->>Actor: Generar y mostrar reporte
+actor AdminCoord as "Administrador/Coordinador"
+participant Sistema
+participant BD as "Base de Datos"
+
+%% separación
+AdminCoord->>Sistema: Seleccionar tipo de reporte
+Sistema->>BD: Consultar reporte_ocupacion y vistas de conflictos
+BD-->>Sistema: Datos de reportes
+Sistema-->>AdminCoord: Generar y mostrar reporte
 ```
 ---
 
