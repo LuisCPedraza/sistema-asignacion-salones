@@ -24,7 +24,7 @@ Para llevar a cabo este ambicioso proyecto, hemos seleccionado un conjunto de te
 
 - **Sistema Operativo:** Ubuntu (recomendado para desarrollo)
 - **Contenedores:** Docker Desktop
-- **Framework:** Laravel
+- **Framework:** Laravel, patrón arquitectónico Modelo-Vista-Controlador (MVC) 
 - **Gestor de Dependencias:** Composer
 - **Lenguaje Backend:** PHP
 - **Base de Datos:** MySQL
@@ -52,6 +52,69 @@ La segunda entrega se enfoca en el desarrollo, la integración y el despliegue c
 - **Desarrollo Continuo (25%):** Se evaluará el uso del repositorio de GitHub, la estrategia de branching y los Pull Requests.
 - **Integración y Despliegue Continuo (25%):** Se verificará la implementación de GitHub Actions para las pruebas unitarias y el despliegue continuo en Render.
 - **Funcionalidad (25%):** Se evaluará la funcionalidad de los módulos desarrollados.
+
+## Roles del equipo
+
+### 🧭 Product Owner (PO): **Luis Carlos Pedraza**
+- Responsable de **maximizar el valor del producto** y mantener el **Product Backlog** priorizado.
+- Define las **épicas e historias de usuario** junto con el equipo y valida su cumplimiento.
+- Se comunica con el profesor (cliente) para **aclarar requerimientos y priorizar entregas**.
+- Aprueba los incrementos al final de cada sprint (aceptación de HU).
+- Supervisa la alineación entre los objetivos del curso y el progreso del proyecto.
+
+### ⚙️ Scrum Master (SM): **Luis Carlos Pedraza**
+- Facilita las **ceremonias Scrum** (planning, daily, review, retrospective).
+- Asegura que el equipo entienda y aplique correctamente el **marco Scrum**.
+- Elimina **bloqueos o impedimentos** que afecten el avance del equipo.
+- Promueve la **mejora continua**, la colaboración y la transparencia.
+- Cuida el cumplimiento del **Definition of Ready (DoR)** y **Definition of Done (DoD)**.
+
+### 💻 Development Team (Dev Team)
+**Integrantes:**  
+- Johan Alejandro Rodríguez  
+- Kevin Andrés Galeano  
+- Katherin Acevedo
+- Luis Carlos Pedraza 
+
+**Responsabilidades:**
+- Desarrollar las historias de usuario acordadas en cada sprint.  
+- Implementar tanto el **backend (API REST Laravel)** como el **frontend (React + Vite)**.  
+- Diseñar y mantener la base de datos, integrando el ciclo **TDD (pruebas unitarias, integración y refactorización)**.  
+- Participar en las revisiones, retrospectivas y decisiones técnicas.  
+- Asegurar la calidad, el versionamiento y los **commits siguiendo las convenciones** del equipo.
+
+---
+
+## Acuerdos del equipo
+
+### ⏳ Duración de los Sprints
+- Cada **sprint dura 2 semanas** (10 a 14 días hábiles).  
+- El último día del sprint se realiza la **Sprint Review** (demostración) y la **Retrospective** (análisis de mejora).
+
+### 🕐 Daily Scrum
+- Se realiza de lunes a viernes a las **8:00 a.m. (hora Colombia)** vía reunión corta (5-10 min) o comentarios en GitHub Project.
+- Cada integrante responde tres preguntas:
+  1. ¿Qué hice ayer?
+  2. ¿Qué haré hoy?
+  3. ¿Qué impedimentos tengo?
+
+### ✅ Definition of Ready (DoR)
+Una historia se considera **lista para ser desarrollada** cuando cumple:
+- Tiene descripción clara en formato: *Como [rol] quiero [necesidad] para [beneficio]*.  
+- Posee **criterios de aceptación** definidos.  
+- Está estimada en **Story Points**.  
+- Está priorizada por el **PO** y visible en el **Project (Backlog)**.  
+- No depende de otra historia sin completar.
+
+### 🧩 Definition of Done (DoD)
+Una historia se considera **terminada** cuando:
+- El código está **implementado, probado y revisado** (tests y lint pasan en CI).  
+- Los cambios fueron **mergeados a `develop` mediante Pull Request aprobado**.  
+- La documentación (Swagger/README) está actualizada.  
+- El incremento fue **desplegado y verificado en Render (entorno funcional)**.  
+- El PO validó que cumple los criterios de aceptación.
+
+---
 
 ## 📝 Tareas del Proyecto (GitHub Issues)
 
