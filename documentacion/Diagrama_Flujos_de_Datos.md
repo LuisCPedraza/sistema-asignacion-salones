@@ -1,37 +1,36 @@
 # Diagrama Flujo de Datos
 ---
-```## Enfoque para el Diagrama de Flujo de Datos
-Un DFD muestra cómo los datos fluyen entre entidades externas, procesos, almacenes de datos, y flujos de datos. Basado en el sistema descrito en el documento, el DFD nivel 0 (diagrama de contexto) y nivel 1 (desglose de procesos principales) cubrirán las funcionalidades clave del sistema de gestión de asignaciones académicas. A continuación, detallo el enfoque:```
+## Enfoque para el Diagrama de Flujo de Datos
+Un DFD muestra cómo los datos fluyen entre entidades externas, procesos, almacenes de datos, y flujos de datos. Basado en el sistema descrito en el documento, el DFD nivel 0 (diagrama de contexto) y nivel 1 (desglose de procesos principales) cubrirán las funcionalidades clave del sistema de gestión de asignaciones académicas. A continuación, detallo el enfoque:
 
 - Entidades Externas:
-	```- Administrador: Gestiona usuarios, parámetros del sistema, y auditorías (HU1, HU2, HU19).
-	- Coordinador: Configura periodos académicos, grupos, salones, y restricciones; realiza asignaciones manuales
-(HU3-HU6, HU9-HU12, HU16-HU17).
+	- Administrador: Gestiona usuarios, parámetros del sistema, y auditorías (HU1, HU2, HU19).
+	- Coordinador: Configura periodos académicos, grupos, salones, y restricciones; realiza asignaciones manuales (HU3-HU6, HU9-HU12, HU16-HU17).
 	- Profesor: Registra disponibilidades y consulta asignaciones (HU7-HU8, HU11).
-	- Sistema Externo: Genera reportes de ocupación y detecta conflictos (HU13-HU15).```
+	- Sistema Externo: Genera reportes de ocupación y detecta conflictos (HU13-HU15).
 
-```- Procesos Principales (basados en épicas):
+- Procesos Principales (basados en épicas):
 	- Gestión de Usuarios: Autenticación y gestión de roles (HU1-HU2).
 	- Gestión de Recursos Académicos: Configuración de periodos, grupos, salones, y profesores (HU3-HU8).
 	- Gestión de Asignaciones: Asignaciones automáticas y manuales, validación de restricciones (HU9-HU12, HU16-HU17).
 	- Generación de Reportes: Reportes de ocupación y auditorías (HU13-HU15, HU18).
-	- Configuración del Sistema: Gestión de parámetros del sistema (HU19).```
+	- Configuración del Sistema: Gestión de parámetros del sistema (HU19).
 
-```- Almacenes de Datos:
-	- Cada tabla del modelo físico (periodo_academico, usuario, profesor, grupo, salon, recurso, salon_recurso, recurso_disponibilidad, disp_profesor, disp_salon, asignacion, tipo_restriccion, restriccion, auditoria, reporte_ocupacion, parametro_sistema) se representa como un almacén de datos. Las vistas (vista_conflictos_salon, vista_conflictos_profesor) se incluirán como almacenes derivados para reportes de conflictos.```
+- Almacenes de Datos:
+	- Cada tabla del modelo físico (periodo_academico, usuario, profesor, grupo, salon, recurso, salon_recurso, recurso_disponibilidad, disp_profesor, disp_salon, asignacion, tipo_restriccion, restriccion, auditoria, reporte_ocupacion, parametro_sistema) se representa como un almacén de datos. Las vistas (vista_conflictos_salon, vista_conflictos_profesor) se incluirán como almacenes derivados para reportes de conflictos.
 
-```- Flujos de Datos:
-	- Representan la información que se mueve entre entidades externas, procesos, y almacenes (e.g., credenciales de usuario, asignaciones propuestas, reportes de ocupación). Basados en las interacciones descritas en las épicas (e.g., HU1: autenticación envía credenciales, HU9: asignación automática genera horarios).```
+- Flujos de Datos:
+	- Representan la información que se mueve entre entidades externas, procesos, y almacenes (e.g., credenciales de usuario, asignaciones propuestas, reportes de ocupación). Basados en las interacciones descritas en las épicas (e.g., HU1: autenticación envía credenciales, HU9: asignación automática genera horarios).
 
-```- Mermaid Sintaxis:
+- Mermaid Sintaxis:
 	- Usaré la sintaxis de Mermaid para diagramas de flujo (graph TD), ya que Mermaid no tiene una sintaxis específica para DFD, pero los diagramas de flujo pueden adaptarse.
 	- Entidades externas: Representadas como nodos rectangulares ([Entidad]).
 	- Procesos: Representados como círculos ((Proceso)).
 	- Almacenes de datos: Representados como nodos con líneas laterales abiertas ((Almacen)) para indicar almacenamiento.
-	- Flujos de datos: Representados como flechas con etiquetas (--> |etiqueta|).```
+	- Flujos de datos: Representados como flechas con etiquetas (--> |etiqueta|).
 
-```- Cumplimiento:
-	- El DFD reflejará las funcionalidades descritas en las épicas (HU1-HU19) y soportará las historias técnicas (TH1-TH4). Cumplirá los criterios de aceptación: rendimiento (< 2 segundos, soportado por índices y particiones), seguridad (autenticación, auditoría), compatibilidad (API RESTful), y mantenibilidad (diseño modular).```
+- Cumplimiento:
+	- El DFD reflejará las funcionalidades descritas en las épicas (HU1-HU19) y soportará las historias técnicas (TH1-TH4). Cumplirá los criterios de aceptación: rendimiento (< 2 segundos, soportado por índices y particiones), seguridad (autenticación, auditoría), compatibilidad (API RESTful), y mantenibilidad (diseño modular).
 ---
 - Código Fuente Mermaid para el Diagrama de Flujo de Datos (DFD Nivel 1)diagrama_flujo_datos.mmdmermaid•Detalles del Diagrama de Flujo de Datos
 
@@ -41,7 +40,7 @@ graph TD
     A[Administrador]:::external
     B[Coordinador]:::external
     C[Profesor]:::external
-    D[Sistema Externo]:::external```
+    D[Sistema Externo]:::external
 
     %% Almacenes de Datos (basados en tablas del modelo físico)
     D1[(Usuario)]:::store
@@ -219,4 +218,4 @@ TH4 (Interfaz responsive): Índices y particiones (en notas del modelo físico) 
 - Cómo Usar el Código:
 Copia el código dentro del <xaiArtifact> y pégalo en Mermaid Live Editor para renderizar el diagrama.
 En plataformas compatibles con Mermaid (e.g., GitHub), colócalo en un bloque ```mermaid:disable-run
-Usa el diagrama para documentación técnica, análisis de flujos de datos, o revisiones con stakeholders.```
+Usa el diagrama para documentación técnica, análisis de flujos de datos, o revisiones con stakeholders.
