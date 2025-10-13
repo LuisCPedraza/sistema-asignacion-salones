@@ -1,8 +1,12 @@
 # Sistema de Asignación de Salones para Centro Educativo 🏫
 
-¡Bienvenidos a nuestro proyecto! Este sistema web nace de la emocionante idea de revolucionar la gestión de recursos en centros educativos. Imagina un mundo sin el caos de las asignaciones manuales, donde cada grupo, profesor y salón encajan perfectamente, como piezas de un rompecabezas bien diseñado. Nuestro objetivo es crear una herramienta intuitiva y poderosa que automatice y simplifique la programación semestral, liberando a los coordinadores y profesores para que se enfoquen en lo que realmente importa: la educación.
+¡Bienvenidos! Nos complace presentar nuestro sistema web, desarrollado para transformar la administración de recursos en instituciones educativas. Esta iniciativa surge de la necesidad identificada de optimizar los procesos de asignación académica, eliminando las ineficiencias asociadas a la gestión manual tradicional.
 
-Estamos construyendo este proyecto con pasión y dedicación, utilizando metodologías ágiles como Scrum y tableros Kanban, y las mejores prácticas de DevOps para asegurar que el resultado sea no solo funcional, sino también robusto, mantenible y escalable. ¡Estamos listos para transformar la manera en que se gestionan los recursos educativos!
+Nuestra plataforma está diseñada para crear un ecosistema integrado donde grupos estudiantiles, cuerpo docente y espacios físicos interactúen de manera armónica y eficiente. El objetivo fundamental es proporcionar una herramienta intuitiva y robusta que automatice la programación académica semestral, permitiendo que coordinadores y educadores dediquen su valioso tiempo a lo esencial: la formación y el desarrollo estudiantil.
+
+Este proyecto se desarrolla mediante metodologías ágiles estructuradas, implementando Scrum para la gestión del ciclo de desarrollo y tableros Kanban para el flujo de trabajo continuo. Complementamos estos enfoques con prácticas DevOps que garantizan no solo la funcionalidad del sistema, sino también su robustez, mantenibilidad y capacidad de escalamiento futuro.
+
+Estamos comprometidos con la excelencia técnica y la creación de valor real para la comunidad educativa, convencidos de que la tecnología bien aplicada puede redefinir positivamente los procesos académicos administrativos.
 
 ## Descripción del Proyecto
 Sistema web para la gestión integral de recursos educativos (grupos, salones, profesores) y la programación semestral de asignaciones, tanto automática como manualmente.
@@ -13,10 +17,10 @@ Integrar todas las tecnologías y conceptos necesarios para la implementación d
 
 ## 👥 Integrantes del Equipo
 
-- [Luis Carlos Pedraza]
-- [Johan Alejandro Rodriguez] 
-- [Kevin Andres Galeano]
-- [Katherin Acevedo]
+- Luis Carlos Pedraza
+- Johan Alejandro Rodriguez 
+- Kevin Andres Galeano
+- Katherin Acevedo
 
 ## 🚀 Tecnologías y Lenguajes
 
@@ -94,9 +98,9 @@ La segunda entrega se enfoca en el desarrollo, la integración y el despliegue c
 ### 🕐 Daily Scrum
 - Se realiza de lunes a viernes a las **8:00 a.m. (hora Colombia)** vía reunión corta (5-10 min) o comentarios en GitHub Project.
 - Cada integrante responde tres preguntas:
-  1. ¿Qué hice ayer?
-  2. ¿Qué haré hoy?
-  3. ¿Qué impedimentos tengo?
+  - ¿Qué hice ayer?
+  - ¿Qué haré hoy?
+  - ¿Qué impedimentos tengo?
 
 ### ✅ Definition of Ready (DoR)
 Una historia se considera **lista para ser desarrollada** cuando cumple:
