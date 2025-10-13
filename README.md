@@ -43,7 +43,10 @@ Nuestro trabajo se divide en dos entregas principales, enfocadas en diferentes e
 ### Primera Entrega (Aproximadamente, Clase 9)
 
 La primera entrega se centra en la fase de análisis, diseño e infraestructura.
-
+#### Enlace Diagramas en Draw.io
+    
+https://drive.google.com/file/d/15zuAVwyVuvfje4TfutLYILP8fPk8Fikk/view?usp=sharing
+    
 - **Análisis, levantamiento de requerimientos y diseño (50%):** Se entregará la documentación completa de la fase inicial.
   - **Diagramas:** Se incluirán el diagrama de casos de uso y casos de uso, diagrama de clases / diagrama de flujo de datos, y el diagrama Entidad Relación, Modelo Relacional y Modelo Físico.
 - **Configuración de la Infraestructura de Desarrollo (50%):** Se revisará la configuración del repositorio de GitHub y la estrategia de branching, la configuración de la base de datos y la configuración del entorno de desarrollo.
