@@ -219,7 +219,7 @@ DEFAULT: Valor por defecto (e.g., Propuesta en asignacion.estado).
 }o--o{: Relación muchos a muchos.
 
 
-	- Vistas y Triggers: No se representan gráficamente (Mermaid ERD se centra en tablas y relaciones), pero el comentario en restriccion menciona el trigger trg_valida_restriccion para validar objetivo_id.
+- Vistas y Triggers: No se representan gráficamente (Mermaid ERD se centra en tablas y relaciones), pero el comentario en restriccion menciona el trigger trg_valida_restriccion para validar objetivo_id.
 
 ### Cumplimiento con el Documento
 El modelo relacional cumple con los requisitos de la primera entrega (clase 9) del documento, específicamente el Modelo Relacional y el Diagrama Entidad-Relación (complementado por el ERD previo). 
@@ -234,4 +234,5 @@ El modelo relacional cumple con los requisitos de la primera entrega (clase 9) d
 
 Copia el código dentro del <xaiArtifact> y pégalo en Mermaid Live Editor para renderizar el diagrama.
 En plataformas compatibles con Mermaid (e.g., GitHub), el código puede renderizarse directamente en un bloque ```mermaid:disable-run
+
 El diagrama es ideal para documentación técnica, presentaciones, o revisión con stakeholders.
