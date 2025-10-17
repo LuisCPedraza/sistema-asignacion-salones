@@ -11,7 +11,7 @@ class LoginRoleTest extends TestCase
 {
     use RefreshDatabase;  // Limpia DB entre tests
 
-    #[Test]
+    #[Test]  // Cambiado de /** @test */
     public function login_redirects_to_correct_dashboard_by_role()
     {
         // Arrange: Crea users con diferentes roles y passwords hashed
@@ -47,7 +47,7 @@ class LoginRoleTest extends TestCase
         $this->assertStringContainsString('/coordinador/asignaciones', $response->headers->get('Location', ''));
     }
 
-    #[Test]
+    #[Test]  // Cambiado de /** @test */
     public function middleware_blocks_access_for_wrong_role()
     {
         // Arrange: Crea user profesor
