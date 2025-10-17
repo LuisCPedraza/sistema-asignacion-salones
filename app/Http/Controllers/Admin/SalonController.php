@@ -11,7 +11,7 @@ class SalonController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');  // Protege todos los métodos
+        // $this->middleware('auth');  // Protege todos los métodos
         // $this->middleware('role:admin');  // Pendiente para HU2 si no está
     }
 
