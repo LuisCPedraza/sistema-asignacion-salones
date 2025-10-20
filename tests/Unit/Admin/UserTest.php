@@ -10,7 +10,7 @@ class UserTest extends TestCase
 {
     use RefreshDatabase;  // Limpia DB entre tests
 
-    /** @test */
+    #[Test]  // Mantén attribute para compatibilidad
     public function index_returns_view_with_users()
     {
         // Arrange: Crea user autenticado (admin) y 2 users de prueba
@@ -21,15 +21,15 @@ class UserTest extends TestCase
         // Act: Simula request a index
         $response = $this->get('/admin/users');
 
-        // Assert: Respuesta OK y vista con 2 users
+        // Assert: Respuesta OK y vista con 3 users (incluye autenticado)
         $response->assertStatus(200);
         $response->assertViewIs('admin.users.index');
         $response->assertViewHas('users', function ($users) {
-            return $users->count() === 3;  // Incluye el admin autenticado
+            return $users->count() === 3;
         });
     }
 
-    /** @test */
+    #[Test]  // Mantén attribute para compatibilidad
     public function store_creates_user_with_role()
     {
         // Arrange: Crea user autenticado (admin)
