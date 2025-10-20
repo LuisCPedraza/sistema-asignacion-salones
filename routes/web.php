@@ -26,6 +26,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 // Rutas protegidas por rol (HU2) con full class path
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () { return view('admin.dashboard'); })->name('dashboard');
+    Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class);  // CRUD salones
+    Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);  // CRUD grupos
 });
 
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':profesor'])->prefix('profesor')->name('profesor.')->group(function () {
