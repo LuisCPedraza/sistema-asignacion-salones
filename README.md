@@ -1,12 +1,8 @@
 # Sistema de Asignación de Salones para Centro Educativo 🏫
 
-¡Bienvenidos! Nos complace presentar nuestro sistema web, desarrollado para transformar la administración de recursos en instituciones educativas. Esta iniciativa surge de la necesidad identificada de optimizar los procesos de asignación académica, eliminando las ineficiencias asociadas a la gestión manual tradicional.
+¡Hola! Bienvenidos a nuestro sistema web para simplificar la vida en las escuelas. Imagina coordinar grupos, salones y profesores sin el caos de las agendas manuales: eso es lo que hemos construido aquí, una herramienta que automatiza la programación semestral, ya sea de forma automática o manual, para que los equipos educativos se enfoquen en lo que realmente importa.
 
-Nuestra plataforma está diseñada para crear un ecosistema integrado donde grupos estudiantiles, cuerpo docente y espacios físicos interactúen de manera armónica y eficiente. El objetivo fundamental es proporcionar una herramienta intuitiva y robusta que automatice la programación académica semestral, permitiendo que coordinadores y educadores dediquen su valioso tiempo a lo esencial: la formación y el desarrollo estudiantil.
-
-Este proyecto se desarrolla mediante metodologías ágiles estructuradas, implementando Scrum para la gestión del ciclo de desarrollo y tableros Kanban para el flujo de trabajo continuo. Complementamos estos enfoques con prácticas DevOps que garantizan no solo la funcionalidad del sistema, sino también su robustez, mantenibilidad y capacidad de escalamiento futuro.
-
-Estamos comprometidos con la excelencia técnica y la creación de valor real para la comunidad educativa, convencidos de que la tecnología bien aplicada puede redefinir positivamente los procesos académicos administrativos.
+Este proyecto surgió de la necesidad real de hacer más eficiente la gestión académica, y lo hemos desarrollado con un enfoque natural: usando metodologías ágiles como Scrum con toques de Kanban, DevOps para un flujo continuo y TDD para que todo funcione sin sorpresas. El resultado es un sistema modular, fácil de mantener y escalable, listo para crecer con el centro educativo.
 
 ## Descripción del Proyecto
 Sistema web para la gestión integral de recursos educativos (grupos, salones, profesores) y la programación semestral de asignaciones, tanto automática como manualmente.
@@ -18,8 +14,8 @@ Integrar todas las tecnologías y conceptos necesarios para la implementación d
 ## 👥 Integrantes del Equipo
 
 - Luis Carlos Pedraza
-- Johan Alejandro Rodriguez 
-- Kevin Andres Galeano
+- Johan Alejandro Rodríguez 
+- Kevin Andrés Galeano
 - Katherin Acevedo
 
 ## 🚀 Tecnologías y Lenguajes
@@ -60,7 +56,7 @@ La segunda entrega se enfoca en el desarrollo, la integración y el despliegue c
 - **Integración y Despliegue Continuo (25%):** Se verificará la implementación de GitHub Actions para las pruebas unitarias y el despliegue continuo en Render.
 - **Funcionalidad (25%):** Se evaluará la funcionalidad de los módulos desarrollados.
 
-## Roles del equipo
+## Roles del Equipo
 
 ### 🧭 Product Owner (PO): **Luis Carlos Pedraza**
 - Responsable de **maximizar el valor del producto** y mantener el **Product Backlog** priorizado.
@@ -73,14 +69,13 @@ La segunda entrega se enfoca en el desarrollo, la integración y el despliegue c
 - Facilita las **ceremonias Scrum** (planning, daily, review, retrospective).
 - Asegura que el equipo entienda y aplique correctamente el **marco Scrum**.
 - Elimina **bloqueos o impedimentos** que afecten el avance del equipo.
-- Promueve la **mejora continua**, la colaboración y la transparencia.
-- Cuida el cumplimiento del **Definition of Ready (DoR)** y **Definition of Done (DoD)**.
+- Asegura el cumplimiento del **Definition of Ready (DoR)** y **Definition of Done (DoD)**.
 
 ### 💻 Development Team (Dev Team)
 **Integrantes:**  
 - Johan Alejandro Rodríguez  
 - Kevin Andrés Galeano  
-- Katherin Acevedo
+- Katherin Acevedo  
 - Luis Carlos Pedraza 
 
 **Responsabilidades:**
@@ -92,7 +87,7 @@ La segunda entrega se enfoca en el desarrollo, la integración y el despliegue c
 
 ---
 
-## Acuerdos del equipo
+## Acuerdos del Equipo
 
 ### ⏳ Duración de los Sprints
 - Cada **sprint dura 2 semanas** (10 a 14 días hábiles).  
@@ -111,11 +106,11 @@ Una historia se considera **lista para ser desarrollada** cuando cumple:
 - Posee **criterios de aceptación** definidos.  
 - Está estimada en **Story Points**.  
 - Está priorizada por el **PO** y visible en el **Project (Backlog)**.  
-- No depende de otra historia sin completar.
+- No depende de otra historia sin completada.
 
 ### 🧩 Definition of Done (DoD)
 Una historia se considera **terminada** cuando:
-- El código está **implementado, probado y revisado** (tests y lint pasan en CI).  
+- El código está **implementado, probado y revisado** (pruebas y lint pasan en CI).  
 - Los cambios fueron **mergeados a `develop` mediante Pull Request aprobado**.  
 - La documentación (Swagger/README) está actualizada.  
 - El incremento fue **desplegado y verificado en Render (entorno funcional)**.  
