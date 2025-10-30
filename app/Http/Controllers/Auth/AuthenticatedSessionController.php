@@ -29,13 +29,14 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         // Redirección basada en rol (HU2)
-        $role = Auth::user()->role;
+        $role = Auth::user()->rol;  // Cambiado 'role' a 'rol' para coincidir con DB/model
         //dd($role);  // Debug temporal: Imprime rol y para (borra después)
 
         return match ($role) {
-            'admin' => redirect()->intended('/admin/dashboard'),
+            'admin', 'superadmin' => redirect()->intended('/admin/dashboard'),  // Jerarquía: ambos a admin dashboard
             'profesor' => redirect()->intended('/profesor/perfil'),
-            'coordinador' => redirect()->intended('/coordinador/asignaciones'),
+            'coordinador', 'coordinador_infra' => redirect()->intended('/coordinador/asignaciones'),  // Jerarquía: ambos a coordinador
+            'secretaria' => redirect()->intended('/profile'),  // Secretaría a profile (o /secretaria/dashboard si existe)
             default => redirect()->intended('/dashboard'),
         };
     }
