@@ -1,7 +1,7 @@
 # Diagrama de Casos de Uso: Sistema de Asignación de Salones
 
 ## Introducción
-Este diagrama de casos de uso modela el Sistema de Asignación de Salones para un centro educativo, integrando roles principales y adicionales para una gestión robusta de recursos, asignaciones y reportes. Utiliza un flujo vertical para claridad.
+Este diagrama de casos de uso modela el Sistema de Asignación de Salones para un centro educativo, integrando roles principales y adicionales para una gestión robusta de recursos, asignaciones y reportes. Usa un flujo vertical para claridad.
 
 ## Descripciones de Casos de Uso
 A continuación, una breve descripción de cada caso de uso (UC), agrupados por épica para referencia:
@@ -26,148 +26,123 @@ A continuación, una breve descripción de cada caso de uso (UC), agrupados por 
 - **UC10: Configurar Parámetros**: Define prioridades para el algoritmo (ej: proximidad de salones).
 
 ### Épica 6: Asignación Manual
-- **UC11: Asignaciones Manuales**: Asigna grupos a salones vía interfaz drag-and-drop (incluye visualización de conflictos en UC12).
-- **UC12: Visualizar Conflictos**: Muestra en tiempo real sobrecupos o colisiones de horarios.
+- **UC11: Realizar Asignación Manual**: Asigna recursos manualmente con interfaz visual.
+- **UC12: Visualizar Conflictos**: Visualiza conflictos en tiempo real.
 
 ### Épica 7: Visualización y Reportes
-- **UC13: Horario Semestral**: Visualiza el horario completo de asignaciones por coordinadores.
-- **UC14: Horario Personal**: Muestra horarios individuales de profesores o invitados.
-- **UC15: Generar Reportes**: Crea estadísticas de uso de recursos por administradores o secretarias.
+- **UC13: Visualizar Horario Semestral**: Ve el horario completo.
+- **UC14: Visualizar Horario Personal**: Consulta horarios personales.
+- **UC15: Generar Reportes**: Genera reportes de utilización.
 
-### Épica 8: Conflictos
-- **UC16: Notificaciones y Alternativas**: Alerta sobre conflictos y sugiere soluciones (extiende UC17).
-- **UC17: Establecer Restricciones**: Define reglas específicas para recursos o usuarios.
+### Épica 8: Gestión de Conflictos
+- **UC16: Notificar Conflictos**: Notifica conflictos y sugiere alternativas.
+- **UC17: Establecer Restricciones**: Establece restricciones para recursos.
 
-### Épica 9: Historial
-- **UC18: Visualizar Historial**: Revisa cambios en asignaciones y auditoría de usuarios.
+### Épica 9: Historial y Auditoría
+- **UC18: Visualizar Historial**: Ve historial de cambios.
 
 ### Épica 10: Configuración
-- **UC19: Parámetros Generales**: Configura aspectos globales como períodos académicos o días laborables por administradores.
+- **UC19: Configurar Sistema**: Configura parámetros generales.
 
-## Diagrama Mermaid
+### Diagrama de Casos de Uso (Actualizado)
 ```mermaid
-flowchart TD
-    %% Título
-    Title[📋 Diagrama de Casos de Uso General: Sistema de Asignación de Salones]
-
-    %% Actores Actualizados (con adicionales incorporados)
-    Admin[👨‍💼 Administrador]
-    SuperAdmin[🔧 Superadministrador]
-    Coord[👨‍🏫 Coordinador]
-    CoordAcad[📚 Coordinador Académico]
-    CoordInfra[🏗️ Coordinador de Infraestructura]
-    Prof[👨‍🏫 Profesor]
-    ProfInv[👤 Profesor Invitado]
-    Secre[💼 Secretaria]
-    SecreAcad[📖 Secretaria Académica]
-    SecreInfra[🔨 Secretaria de Infraestructura]
-
-    %% Subgráficos (mismos que antes, abreviados para espacio)
-    subgraph Épica1 ["🛡️ Usuarios y Autenticación"]
-        UC1(("Crear/Gestionar Cuentas"))
-        UC2(("Iniciar Sesión"))
+graph TD
+    %% Actores (con sub-roles para visibilidad)
+    subgraph "Actores/Roles"
+        A[Administrador]:::actor
+        SA[Superadministrador]:::actor
+        C[Coordinador General]:::actor
+        CA[Coordinador Académico]:::actor
+        CI[Coordinador de Infraestructura]:::actor
+        S[Secretaría General]:::actor
+        SAca[Secretaría Académica]:::actor
+        SInf[Secretaría de Infraestructura]:::actor
+        P[Profesor]:::actor
+        PI[Profesor Invitado]:::actor
     end
 
-    subgraph Épica2 ["👥 Grupos"]
-        UC3(("Registrar/Editar Grupos"))
+    %% Casos de Uso por Épica
+    subgraph "Épica 1: Usuarios"
+        UC1((UC1: Crear/Gestionar Cuentas)):::usecase
+        UC2((UC2: Iniciar Sesión)):::usecase
     end
 
-    subgraph Épica3 ["🏫 Salones"]
-        UC5(("Registrar/Gestionar Salones"))
-        UC6(("Gestionar Disponibilidad"))
+    subgraph "Épica 2: Grupos"
+        UC3((UC3: Registrar/Editar Grupos)):::usecase
     end
 
-    subgraph Épica4 ["👨‍🏫 Profesores"]
-        UC7(("Registrar/Gestionar Profesores"))
-        UC8(("Gestionar Disponibilidad"))
+    subgraph "Épica 3: Salones"
+        UC5((UC5: Registrar/Gestionar Salones)):::usecase
+        UC6((UC6: Gestionar Disponibilidad)):::usecase
     end
 
-    subgraph Épica5 ["🤖 Asignación Automática"]
-        UC9(("Ejecutar Algoritmo"))
-        UC10(("Configurar Parámetros"))
+    subgraph "Épica 4: Profesores"
+        UC7((UC7: Registrar/Gestionar Profesores)):::usecase
+        UC8((UC8: Gestionar Disponibilidad)):::usecase
     end
 
-    subgraph Épica6 ["✋ Asignación Manual"]
-        UC11(("Asignaciones Manuales"))
-        UC12(("Visualizar Conflictos"))
+    subgraph "Épica 5: Automática"
+        UC9((UC9: Ejecutar Algoritmo)):::usecase
+        UC10((UC10: Configurar Parámetros)):::usecase
     end
 
-    subgraph Épica7 ["📊 Visualización y Reportes"]
-        UC13(("Horario Semestral"))
-        UC14(("Horario Personal"))
-        UC15(("Generar Reportes"))
+    subgraph "Épica 6: Manual"
+        UC11((UC11: Asignación Manual)):::usecase
+        UC12((UC12: Visualizar Conflictos)):::usecase
     end
 
-    subgraph Épica8 ["⚠️ Conflictos"]
-        UC16(("Notificaciones y Alternativas"))
-        UC17(("Establecer Restricciones"))
+    subgraph "Épica 7: Visualización"
+        UC13((UC13: Horario Semestral)):::usecase
+        UC14((UC14: Horario Personal)):::usecase
+        UC15((UC15: Reportes)):::usecase
     end
 
-    subgraph Épica9 ["📜 Historial"]
-        UC18(("Visualizar Historial"))
+    subgraph "Épica 8: Conflictos"
+        UC16((UC16: Notificar Conflictos)):::usecase
+        UC17((UC17: Restricciones)):::usecase
     end
 
-    subgraph Épica10 ["⚙️ Configuración"]
-        UC19(("Parámetros Generales"))
+    subgraph "Épica 9: Historial"
+        UC18((UC18: Visualizar Historial)):::usecase
     end
 
-    %% Relaciones Principales (enfocadas) - Corrección: Todos conectados a UC2
-    Admin --> UC2
-    SuperAdmin --> UC2
-    Coord --> UC2
-    CoordAcad --> UC2
-    CoordInfra --> UC2
-    Prof --> UC2
-    ProfInv --> UC2
-    Secre --> UC2
-    SecreAcad --> UC2
-    SecreInfra --> UC2
+    subgraph "Épica 10: Configuración"
+        UC19((UC19: Configurar Sistema)):::usecase
+    end
 
-    Admin --> UC1
-    Admin --> UC15
-    Admin --> UC18
-    Admin --> UC19
-    SuperAdmin --> UC1
-    SuperAdmin --> UC18
-    SuperAdmin --> UC19
+    %% Relaciones (flujo vertical, con extend para herencia)
+    A -.-> UC1
+    A -.-> UC2
+    A -.-> UC15
+    A -.-> UC18
+    A -.-> UC19
+    SA -.-> UC1
+    SA -.-> UC2
+    C -.-> UC2
+    C -.-> UC3
+    C -.-> UC7
+    C -.-> UC9
+    C -.-> UC11
+    C -.-> UC13
+    C -.-> UC16
+    CA -.-> UC3
+    CA -.-> UC7
+    CI -.-> UC5
+    CI -.-> UC6
+    S -.-> UC1
+    S -.-> UC15
+    SAca -.-> UC3
+    SInf -.-> UC5
+    P -.-> UC2
+    P -.-> UC8
+    P -.-> UC14
+    PI -.-> UC2
+    PI -.-> UC8
 
-    Coord --> UC3
-    Coord --> UC7
-    Coord --> UC9
-    Coord --> UC11
-    Coord --> UC13
-    Coord --> UC16
-    CoordAcad --> UC3
-    CoordAcad --> UC7
-    CoordAcad --> UC13
-    CoordInfra --> UC5
-    CoordInfra --> UC6
-
-    Prof --> UC14
-    Prof --> UC8
-    ProfInv --> UC14
-
-    Secre --> UC15
-    Secre --> UC18
-    SecreAcad --> UC3
-    SecreAcad --> UC15
-    SecreInfra --> UC5
-    SecreInfra --> UC15
-
-    %% Relaciones entre casos
-    UC9 -.->|<<include>>| UC10
-    UC11 -.->|<<include>>| UC12
-    UC16 -.->|<<extend>>| UC17
-
-    %% Estilos
-    classDef actorFill fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
-    classDef usecaseFill fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
-    classDef epicFill fill:#e8f5e8,stroke:#1b5e20,stroke-width:1px
-    classDef titleFill fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#000
-
-    class Admin,SuperAdmin,Coord,CoordAcad,CoordInfra,Prof,ProfInv,Secre,SecreAcad,SecreInfra actorFill
-    class UC1,UC2,UC3,UC5,UC6,UC7,UC8,UC9,UC10,UC11,UC12,UC13,UC14,UC15,UC16,UC17,UC18,UC19 usecaseFill
-    class Title titleFill
+    %% Estilos Atractivo
+    classDef actor fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000
+    classDef usecase fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,shape:ellipse,color:#000
+    classDef epic fill:#f5f5f5,stroke:#666,stroke-width:1px
 ```
 
 ### Roles en el Sistema de Asignación de Salones
@@ -184,5 +159,5 @@ Todos estos roles deben **iniciar sesión** (UC2) para acceder al sistema, con r
 | **Coordinador Académico**   | Registra/edita grupos y profesores (enfoque en datos académicos como niveles/especialidades), coordina preferencias pedagógicas y aprueba horarios propuestos. | No gestiona infraestructura física; reporta a coordinador general. Limitado a filtros académicos, sin configs globales. |
 | **Secretaria Académica**    | Maneja registros administrativos de grupos/profesores, distribuye horarios a estudiantes/familias y exporta a calendarios externos. | No asigna salones ni edita disponibilidades; solo datos no sensibles. Acceso temporal a info de estudiantes (con privacidad GDPR-like). |
 | **Profesor Invitado**       | Visualiza horarios temporales y salones asignados, reporta disponibilidades limitadas y recibe notificaciones por email/SMS. | Acceso caduco (expira automáticamente); sin edición profunda ni gestión de recursos. Solo para sesiones puntuales. |
-| **Coordinador** (General)   | Registra/edita grupos/profesores, ejecuta asignaciones automáticas/manuales, visualiza horarios/conflictos y establece restricciones. | Dependiente de disponibilidades reales; no configs globales (eso es de admin). Acceso amplio pero no ilimitado a datos sensibles. |
+| **Coordinador General**   | Registra/edita grupos/profesores, ejecuta asignaciones automáticas/manuales, visualiza horarios/conflictos y establece restricciones. | Dependiente de disponibilidades reales; no configs globales (eso es de admin). Acceso amplio pero no ilimitado a datos sensibles. |
 | **Coordinador de Infraestructura** | Registra/gestiona salones (capacidad, recursos, ubicación) y configura su disponibilidad horaria/restricciones de uso. | Enfocado solo en recursos físicos; no ve/edita datos académicos. Cambios requieren validación para evitar conflictos. |
