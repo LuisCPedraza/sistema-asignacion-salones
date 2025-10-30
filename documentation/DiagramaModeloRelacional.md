@@ -13,20 +13,11 @@ Diferencia con ERD: Más orientado a BD (tipos de datos explícitos, constraints
 Cada rol se modela como tabla hija de `USUARIO` (FK para herencia), con atributos/relaciones específicas. Restricciones se implementan vía CHECK constraints o triggers.
 
 - **Administrador**: Tabla para acceso global; FK a USUARIO, relaciona con REPORTE/PARAMETRO (1:N). Constraints: nivel_acceso = 'alto' (CHECK).
-- **Superadministrador**: Tabla exclusiva; FK a USUARIO, 1:1 con PARAMETRO. Constraints: api_keys ENCRYPTED (via app logic).
-- **Coordinador (General)**: Tabla para gestión; FK a USUARIO, 1:N con GRUPO/HORARIO. Constraints: especialidad NOT NULL.
-- **Coordinador Académico**: Subtabla; FK a COORDINADOR, 1:N con HORARIO. Constraints: foco_academico IN ('acad1', 'acad2').
-- **Coordinador de Infraestructura**: Subtabla; FK a COORDINADOR, 1:N con SALON. Constraints: area_mantenimiento NOT NULL.
-- **Profesor**: Tabla recurso; FK a USUARIO, 1:N con ASIGNACION. Constraints: hoja_vida TEXT, especialidad UNIQUE.
-- **Profesor Invitado**: Subtabla; FK a PROFESOR, temporal. Constraints: fecha_expiracion > CURRENT_DATE (CHECK).
-- **Secretaria (General)**: Tabla soporte; FK a USUARIO, 1:N con AUDITORIA. Constraints: departamento IN ('acad', 'infra').
-- **Secretaria Académica**: Subtabla; FK a SECRETARIA, 1:N con GRUPO. Constraints: contacto_familias EMAIL (CHECK).
-- **Secretaria de Infraestructura**: Subtabla; FK a SECRETARIA, 1:N con SALON. Constraints: alertas_mantenimiento BOOLEAN DEFAULT TRUE.
+- **Superadministrador**: Tabla exclusiva; FK a USUARIO; acceso a backups.
 
-## Diagrama Mermaid (Modelo Relacional - Tablas con Relaciones)
+### Diagrama Modelo Relacional (Actualizado)
 ```mermaid
 erDiagram
-    %% Tabla Base Usuario (arriba)
     USUARIO {
         int id PK
         string nombre
@@ -34,64 +25,55 @@ erDiagram
         string password
         string rol
     }
-    note for USUARIO "Constraints: email UNIQUE, password HASHED, rol ENUM('admin','superadmin','coord','prof','sec')"
+    note for USUARIO "rol ENUM: 'admin', 'superadmin', 'coordinador', 'profesor', 'secretaria', 'coordinador_infra' (DEFAULT 'profesor')"
 
-    %% Tablas de Roles (agrupadas)
     ADMINISTRADOR {
         int id PK
         int usuario_id FK
         string nivel_acceso
     }
-    note for ADMINISTRADOR "Constraints: nivel_acceso ENUM('bajo','medio','alto') DEFAULT 'medio'"
 
     SUPERADMINISTRADOR {
         int id PK
         int usuario_id FK
         string api_keys
     }
-    note for SUPERADMINISTRADOR "Constraints: api_keys ENCRYPTED"
 
     COORDINADOR {
         int id PK
         int usuario_id FK
         string especialidad
     }
-    note for COORDINADOR "Constraints: especialidad NOT NULL"
 
     COORDINADOR_ACADEMICO {
         int id PK
         int coordinador_id FK
         string foco_academico
     }
-    note for COORDINADOR_ACADEMICO "Constraints: foco_academico NOT NULL"
 
     COORDINADOR_INFRAESTRUCTURA {
         int id PK
         int coordinador_id FK
         string area_mantenimiento
     }
-    note for COORDINADOR_INFRAESTRUCTURA "Constraints: area_mantenimiento NOT NULL"
 
     SECRETARIA {
         int id PK
         int usuario_id FK
         string departamento
     }
-    note for SECRETARIA "Constraints: departamento ENUM('acad','infra','gen') NOT NULL"
 
     SECRETARIA_ACADEMICA {
         int id PK
         int secretaria_id FK
         string contacto_familias
     }
-    note for SECRETARIA_ACADEMICA "Constraints: contacto_familias EMAIL CHECK"
 
     SECRETARIA_INFRAESTRUCTURA {
         int id PK
         int secretaria_id FK
         boolean alertas_mantenimiento
     }
-    note for SECRETARIA_INFRAESTRUCTURA "Constraints: DEFAULT TRUE"
 
     PROFESOR {
         int id PK
@@ -99,16 +81,13 @@ erDiagram
         string especialidad
         text hoja_vida
     }
-    note for PROFESOR "Constraints: especialidad UNIQUE"
 
     PROFESOR_INVITADO {
         int id PK
         int profesor_id FK
         date fecha_expiracion
     }
-    note for PROFESOR_INVITADO "Constraints: fecha_expiracion > CURRENT_DATE CHECK"
 
-    %% Tablas de Recursos (medio)
     GRUPO {
         int id PK
         string nombre
@@ -117,7 +96,6 @@ erDiagram
         string caracteristicas
         int coordinador_id FK
     }
-    note for GRUPO "Constraints: numEstudiantes > 0, INDEX on coordinador_id"
 
     SALON {
         int id PK
@@ -126,9 +104,7 @@ erDiagram
         string ubicacion
         int coordinador_infra_id FK
     }
-    note for SALON "Constraints: capacidad > 0, INDEX on coordinador_infra_id"
 
-    %% Tablas de Gestión (abajo)
     ASIGNACION {
         int id PK
         date fecha
@@ -137,14 +113,12 @@ erDiagram
         int profesor_id FK
         int horario_id FK
     }
-    note for ASIGNACION "Constraints: UNIQUE (grupo_id, fecha), ON DELETE RESTRICT"
 
     HORARIO {
         int id PK
         date periodo
         int coordinador_id FK
     }
-    note for HORARIO "Constraints: INDEX on periodo"
 
     REPORTE {
         int id PK
@@ -152,7 +126,6 @@ erDiagram
         datetime fechaGeneracion
         int admin_id FK
     }
-    note for REPORTE "Constraints: tipo ENUM('uso_recursos','estadisticas'), DEFAULT CURRENT_TIMESTAMP"
 
     RESTRICCION {
         int id PK
@@ -161,7 +134,6 @@ erDiagram
         int asignacion_id FK
         int coordinador_id FK
     }
-    note for RESTRICCION "Constraints: tipo ENUM('capacidad','horario'), ON DELETE CASCADE"
 
     AUDITORIA {
         int id PK
@@ -169,16 +141,14 @@ erDiagram
         string accion
         int usuario_id FK
     }
-    note for AUDITORIA "Constraints: accion ENUM('create','update','delete'), TRIGGER AFTER ops"
 
     PARAMETRO {
         string clave PK
         string valor
         int admin_id FK
     }
-    note for PARAMETRO "Constraints: valor NOT NULL"
 
-    %% Relaciones (con constraints para integridad)
+    %% Relaciones con cardinalidades
     USUARIO ||--o{ ADMINISTRADOR : "es (1:N)"
     USUARIO ||--|| SUPERADMINISTRADOR : "es (1:1)"
     USUARIO ||--o{ COORDINADOR : "es (1:N)"
