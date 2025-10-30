@@ -26,13 +26,17 @@
             <input type="password" name="password_confirmation" id="password_confirmation" class="border rounded px-2 py-1 w-full">
         </div>
         <div class="mb-4">
-            <label for="role" class="block font-medium">Rol</label>
-            <select name="role" id="role" class="border rounded px-2 py-1 w-full @error('role') border-red-500 @enderror" required>
-                <option value="profesor" {{ $user->role == 'profesor' ? 'selected' : '' }}>Profesor</option>
-                <option value="coordinador" {{ $user->role == 'coordinador' ? 'selected' : '' }}>Coordinador</option>
-                <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
+            <label for="rol" class="block font-medium">Rol</label>
+            <select name="rol" id="rol" class="border rounded px-2 py-1 w-full @error('rol') border-red-500 @enderror" required>
+                <option value="" disabled {{ old('rol') ? '' : 'selected' }}>Selecciona un rol</option>
+                <option value="admin" {{ old('rol', $user->rol) == 'admin' ? 'selected' : '' }}>Admin</option>
+                <option value="superadmin" {{ old('rol', $user->rol) == 'superadmin' ? 'selected' : '' }}>Superadmin</option>
+                <option value="coordinador" {{ old('rol', $user->rol) == 'coordinador' ? 'selected' : '' }}>Coordinador</option>
+                <option value="profesor" {{ old('rol', $user->rol) == 'profesor' ? 'selected' : '' }}>Profesor</option>
+                <option value="secretaria" {{ old('rol', $user->rol) == 'secretaria' ? 'selected' : '' }}>Secretaria</option>
+                <option value="coordinador_infra" {{ old('rol', $user->rol) == 'coordinador_infra' ? 'selected' : '' }}>Coord. Infra</option>
             </select>
-            @error('role') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            @error('rol') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
         </div>
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Actualizar Usuario</button>
         <a href="{{ route('admin.users.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 ml-2">Cancelar</a>
