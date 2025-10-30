@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +14,49 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Seed admin con password 'password123' (para login en browser)
+        User::create([
+            'name' => 'Admin Test',
+            'email' => 'admin@test.com',
+            'password' => Hash::make('password123'),  // Hash para 'password123' (CRUD)
+            'rol' => 'admin',
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Seed ejemplos para roles ampliados (para tests y CRUD)
+        User::create([
+            'name' => 'Super Admin Test',
+            'email' => 'superadmin@test.com',
+            'password' => Hash::make('password123'),
+            'rol' => 'superadmin',
+        ]);
+
+        User::create([
+            'name' => 'Secretaria Test',
+            'email' => 'secretaria@test.com',
+            'password' => Hash::make('password123'),
+            'rol' => 'secretaria',
+        ]);
+
+        User::create([
+            'name' => 'Coordinador Infra Test',
+            'email' => 'coord_infra@test.com',
+            'password' => Hash::make('password123'),
+            'rol' => 'coordinador_infra',
+        ]);
+
+        User::create([
+            'name' => 'Profesor Test',
+            'email' => 'profesor@test.com',
+            'password' => Hash::make('password123'),
+            'rol' => 'profesor',
+        ]);
+
+        // Factory para 5 users genéricos con roles random
+        User::factory(5)->create();
+
+        // Seeders adicionales (si hay)
+        $this->call([
+            // Otros seeders, e.g., SalonSeeder::class
         ]);
     }
 }

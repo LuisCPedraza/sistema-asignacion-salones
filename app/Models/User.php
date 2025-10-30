@@ -21,7 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',  // Agrega esto para CRUD
+        'rol',  // Agrega esto para CRUD
     ];
 
     /**
@@ -44,7 +44,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'role' => 'string',  // Agrega esto aquí
+            'rol' => 'string',  // Agrega esto aquí
         ];
     }
 }

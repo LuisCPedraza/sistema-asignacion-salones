@@ -19,7 +19,14 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => Hash::make('password'), // password
             'remember_token' => Str::random(10),
-            'role' => fake()->randomElement(['admin', 'profesor', 'coordinador']), // Role random para tests
+            'rol' => fake()->randomElement([
+                'admin',
+                'superadmin',
+                'coordinador',
+                'profesor',
+                'secretaria',
+                'coordinador_infra'
+            ]), // Rol random para tests, ampliado a todos los roles
         ];
     }
 

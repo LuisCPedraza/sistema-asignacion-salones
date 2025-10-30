@@ -18,14 +18,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Grupo para admin (protegido por auth)
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('users', UserController::class);
-});
-
 // Rutas protegidas por rol (HU2) con full class path
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () { return view('admin.dashboard'); })->name('dashboard');
+    Route::resource('users', UserController::class);  // Movido aquí para CheckRole:admin (solo admin edita)
     Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class);  // CRUD salones
     Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);  // CRUD grupos
 });

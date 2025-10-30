@@ -14,9 +14,9 @@ class UserTest extends TestCase
     public function index_returns_view_with_users()
     {
         // Arrange: Crea user autenticado (admin) y 2 users de prueba
-        $this->actingAs(User::factory()->create(['role' => 'admin']));
-        User::factory()->create(['role' => 'profesor']);
-        User::factory()->create(['role' => 'admin']);
+        $this->actingAs(User::factory()->create(['rol' => 'admin']));
+        User::factory()->create(['rol' => 'profesor']);
+        User::factory()->create(['rol' => 'admin']);
 
         // Act: Simula request a index
         $response = $this->get('/admin/users');
@@ -33,7 +33,7 @@ class UserTest extends TestCase
     public function store_creates_user_with_role()
     {
         // Arrange: Crea user autenticado (admin)
-        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        $this->actingAs(User::factory()->create(['rol' => 'admin']));
 
         // Datos de user con rol 'coordinador'
         $userData = [
@@ -41,7 +41,7 @@ class UserTest extends TestCase
             'email' => 'test@test.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'role' => 'coordinador'
+            'rol' => 'coordinador'
         ];
 
         // Act: Simula POST a store
@@ -51,7 +51,33 @@ class UserTest extends TestCase
         $response->assertRedirect(route('admin.users.index'));
         $this->assertDatabaseHas('users', [
             'email' => 'test@test.com',
-            'role' => 'coordinador'
+            'rol' => 'coordinador'
+        ]);
+    }
+
+    #[Test]  // Nuevo test para rol ampliado 'superadmin'
+    public function store_creates_superadmin_user()
+    {
+        // Arrange: Crea user autenticado (admin)
+        $this->actingAs(User::factory()->create(['rol' => 'admin']));
+
+        // Datos de user con rol 'superadmin'
+        $userData = [
+            'name' => 'Super Admin Test',
+            'email' => 'super@test.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'rol' => 'superadmin'
+        ];
+
+        // Act: Simula POST a store
+        $response = $this->post('/admin/users', $userData);
+
+        // Assert: Redirige con success y user creado con rol
+        $response->assertRedirect(route('admin.users.index'));
+        $this->assertDatabaseHas('users', [
+            'email' => 'super@test.com',
+            'rol' => 'superadmin'
         ]);
     }
 }
