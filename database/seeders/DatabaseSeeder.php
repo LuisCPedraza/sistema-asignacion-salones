@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Grupo;  // Agregado para seed grupos
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -53,6 +54,9 @@ class DatabaseSeeder extends Seeder
 
         // Factory para 5 users genéricos con roles random
         User::factory(5)->create();
+
+        // Seed ejemplos para grupos (HU3/HU4)
+        Grupo::factory(2)->create();  // 2 grupos random con factory (nombre unique, nivel random, num >0, activo true)
 
         // Seeders adicionales (si hay)
         $this->call([
