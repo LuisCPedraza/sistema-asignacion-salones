@@ -22,8 +22,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () { return view('admin.dashboard'); })->name('dashboard');
     Route::resource('users', UserController::class);  // Movido aquí para CheckRole:admin (solo admin edita)
-    Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class);  // CRUD salones
-    Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);  // CRUD grupos
+    Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);  // CRUD grupos (Épica 2)
+    // Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class);  // Comentado hasta Épica 3
 });
 
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':profesor'])->prefix('profesor')->name('profesor.')->group(function () {

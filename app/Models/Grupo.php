@@ -12,6 +12,20 @@ class Grupo extends Model
     use HasFactory;
 
     /**
+     * The primary key for the model.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id';
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;  // Agregado: false para UUID string (no int auto-increment)
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
