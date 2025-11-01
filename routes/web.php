@@ -24,6 +24,7 @@ Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin'])->p
     Route::resource('users', UserController::class);  // Movido aquí para CheckRole:admin (solo admin edita)
     Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);  // CRUD grupos (Épica 2)
     Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class)->parameters(['salones' => 'salon']);  // CRUD salones (Épica 3, parámetro {salon})
+    Route::resource('profesores', \App\Http\Controllers\Admin\ProfesorController::class)->parameters(['profesores' => 'profesor']);  # CRUD profesores (Épica 4, parámetro {profesor})
 });
 
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':profesor'])->prefix('profesor')->name('profesor.')->group(function () {
