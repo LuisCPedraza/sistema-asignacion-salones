@@ -13,7 +13,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');  // Cambiado de 'profile.title' a 'profile.edit'
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');  // Fix: name 'profile.edit' for navigation.blade.php
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
@@ -21,9 +21,9 @@ Route::middleware('auth')->group(function () {
 // Grupo para admin (protegido por auth)
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () { return view('admin.dashboard'); })->name('dashboard');
-    Route::resource('users', UserController::class);
-    Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);  # CRUD grupos (Épica 2)
-    Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class)->parameters(['salones' => 'salon']);  # CRUD salones (Épica 3, parámetro {salon})
+    Route::resource('users', UserController::class);  // Movido aquí para CheckRole:admin (solo admin edita)
+    Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);  // CRUD grupos (Épica 2)
+    Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class)->parameters(['salones' => 'salon']);  // CRUD salones (Épica 3, parámetro {salon})
 });
 
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':profesor'])->prefix('profesor')->name('profesor.')->group(function () {
