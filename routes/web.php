@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\AsignacionController;
+use App\Http\Controllers\Admin\AsignacionController;  // Añadido: for resource asignaciones
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,7 +20,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Grupo para admin (protegido por auth)
-Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin,coordinador'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () { return view('admin.dashboard'); })->name('dashboard');
     Route::resource('users', UserController::class);  // Movido aquí para CheckRole:admin (solo admin edita)
     Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);  // CRUD grupos (Épica 2)
