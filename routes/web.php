@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AsignacionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,6 +27,7 @@ Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin'])->p
     Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class)->parameters(['salones' => 'salon']);  // CRUD salones (Épica 3, parámetro {salon})
     Route::resource('profesores', \App\Http\Controllers\Admin\ProfesorController::class)->parameters(['profesores' => 'profesor']);  // CRUD profesores (Épica 4, parámetro {profesor})
     Route::resource('configuraciones', \App\Http\Controllers\Admin\ConfiguracionController::class)->parameters(['configuraciones' => 'configuracion']);  // CRUD configuraciones (Épica 10, parámetro {configuracion})
+    Route::resource('asignaciones', \App\Http\Controllers\Admin\AsignacionController::class)->parameters(['asignaciones' => 'asignacion']);  // CRUD asignaciones (Épica 6, parámetro {asignacion})
 });
 
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':profesor'])->prefix('profesor')->name('profesor.')->group(function () {
