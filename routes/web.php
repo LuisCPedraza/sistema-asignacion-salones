@@ -19,16 +19,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Grupo para admin (protegido por auth)
-Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin,coordinador'])->prefix('admin')->name('admin.')->group(function () {
+// Grupo for admin (protegido por auth)
+Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () { return view('admin.dashboard'); })->name('dashboard');
-    Route::resource('users', UserController::class);  // Movido aquí para CheckRole:admin (solo admin edita)
+    Route::resource('users', UserController::class);  // Movido aquí for CheckRole:admin (solo admin edita)
     Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);  // CRUD grupos (Épica 2)
     Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class)->parameters(['salones' => 'salon']);  // CRUD salones (Épica 3, parámetro {salon})
     Route::resource('profesores', \App\Http\Controllers\Admin\ProfesorController::class)->parameters(['profesores' => 'profesor']);  // CRUD profesores (Épica 4, parámetro {profesor})
     Route::resource('configuraciones', \App\Http\Controllers\Admin\ConfiguracionController::class)->parameters(['configuraciones' => 'configuracion']);  // CRUD configuraciones (Épica 10, parámetro {configuracion})
     Route::resource('asignaciones', \App\Http\Controllers\Admin\AsignacionController::class)->parameters(['asignaciones' => 'asignacion']);  // CRUD asignaciones (Épica 6, parámetro {asignacion})
-    Route::resource('propuestas_asignacion', \App\Http\Controllers\Admin\PropuestaAsignacionController::class)->parameters(['propuestas_asignacion' => 'propuestaAsignacion']);  // CRUD propuestas de asignación (Épica 11, parámetro {propuestaAsignacion})
+    Route::resource('propuestas_asignacion', \App\Http\Controllers\Admin\PropuestaAsignacionController::class)->parameters(['propuestas_asignacion' => 'propuestaAsignacion']);  // CRUD propuestas de asignación (Épica 5, parámetro {propuestaAsignacion})
 });
 
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':profesor'])->prefix('profesor')->name('profesor.')->group(function () {
