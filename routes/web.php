@@ -28,6 +28,7 @@ Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin,coord
     Route::resource('profesores', \App\Http\Controllers\Admin\ProfesorController::class)->parameters(['profesores' => 'profesor']);  // CRUD profesores (Épica 4, parámetro {profesor})
     Route::resource('configuraciones', \App\Http\Controllers\Admin\ConfiguracionController::class)->parameters(['configuraciones' => 'configuracion']);  // CRUD configuraciones (Épica 10, parámetro {configuracion})
     Route::resource('asignaciones', \App\Http\Controllers\Admin\AsignacionController::class)->parameters(['asignaciones' => 'asignacion']);  // CRUD asignaciones (Épica 6, parámetro {asignacion})
+    Route::resource('propuestas_asignacion', \App\Http\Controllers\Admin\PropuestaAsignacionController::class)->parameters(['propuestas_asignacion' => 'propuestaAsignacion']);  // CRUD propuestas de asignación (Épica 11, parámetro {propuestaAsignacion})
 });
 
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':profesor'])->prefix('profesor')->name('profesor.')->group(function () {
