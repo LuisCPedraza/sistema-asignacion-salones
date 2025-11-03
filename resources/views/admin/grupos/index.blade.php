@@ -8,6 +8,7 @@
     @endif
     <div class="mb-4">
         <a href="{{ route('admin.grupos.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Crear Grupo</a>
+        <a href="{{ route('admin.dashboard') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 ml-2">Regresar al Dashboard</a>
     </div>
     <table class="min-w-full bg-white border border-gray-300">
         <thead class="bg-gray-50">
