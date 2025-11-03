@@ -11,6 +11,7 @@
         <li><a href="{{ route('admin.profesores.index') }}" class="text-blue-500 hover:underline">Gestión de Profesores</a></li>
         <li><a href="{{ route('admin.configuraciones.index') }}" class="text-blue-500 hover:underline">Gestión de Configuraciones</a></li>
         <li><a href="{{ route('admin.asignaciones.index') }}" class="text-blue-500 hover:underline">Gestión de Asignaciones</a></li>
+        <li><a href="{{ route('admin.propuestas_asignacion.index') }}" class="text-blue-500 hover:underline">Gestión de Propuestas de Asignación</a></li>
     </ul>
 </div>
 @endsection
