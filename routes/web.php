@@ -42,4 +42,3 @@ Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':coordinador
 });
 
 require __DIR__.'/auth.php';
-
