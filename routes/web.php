@@ -29,6 +29,9 @@ Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin,coord
     Route::resource('configuraciones', \App\Http\Controllers\Admin\ConfiguracionController::class)->parameters(['configuraciones' => 'configuracion']);  // CRUD configuraciones (Épica 10, parámetro {configuracion})
     Route::resource('asignaciones', \App\Http\Controllers\Admin\AsignacionController::class)->parameters(['asignaciones' => 'asignacion']);  // CRUD asignaciones (Épica 6, parámetro {asignacion})
     Route::resource('propuestas_asignacion', \App\Http\Controllers\Admin\PropuestaAsignacionController::class)->parameters(['propuestas_asignacion' => 'propuestaAsignacion']);  // CRUD propuestas de asignación (Épica 11, parámetro {propuestaAsignacion})
+    Route::resource('logs_visualizacion', \App\Http\Controllers\Admin\LogVisualizacionController::class)->parameters(['logs_visualizacion' => 'logVisualizacion']);  // CRUD logs de visualización (Épica 12, parámetro {logVisualizacion})
+    Route::resource('restricciones_asignacion', \App\Http\Controllers\Admin\RestriccionAsignacionController::class)->parameters(['restricciones_asignacion' => 'restriccionAsignacion']);  // CRUD restricciones de asignación (Épica 13, parámetro {restriccionAsignacion})
+    Route::resource('historial_asignacion', \App\Http\Controllers\Admin\HistorialAsignacionController::class)->parameters(['historial_asignacion' => 'historialAsignacion']);  // CRUD historial de asignación (Épica 14, parámetro {historialAsignacion})
 });
 
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':profesor'])->prefix('profesor')->name('profesor.')->group(function () {
