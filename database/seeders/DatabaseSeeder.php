@@ -2,28 +2,31 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Grupo;  // Agregado para seed grupos
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Grupo;
+use App\Models\Salon;
+use App\Models\Profesor;
+use App\Models\Asignacion;
+use App\Models\Configuracion;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // Seed admin con password 'password123' (para login en browser)
+        /**
+         * ================================================================
+         * USUARIOS MANUALES PRINCIPALES
+         * ================================================================
+         */
         User::create([
             'name' => 'Admin Test',
             'email' => 'admin@test.com',
-            'password' => Hash::make('password123'),  // Hash para 'password123' (CRUD)
+            'password' => Hash::make('password123'),
             'rol' => 'admin',
         ]);
 
-        // Seed ejemplos para roles ampliados (para tests y CRUD)
         User::create([
             'name' => 'Super Admin Test',
             'email' => 'superadmin@test.com',
@@ -39,7 +42,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Coordinador Infra Test',
+            'name' => 'Coordinador Infraestructura',
             'email' => 'coord_infra@test.com',
             'password' => Hash::make('password123'),
             'rol' => 'coordinador_infra',
@@ -52,15 +55,75 @@ class DatabaseSeeder extends Seeder
             'rol' => 'profesor',
         ]);
 
-        // Factory para 5 users genéricos con roles random
+        // 5 usuarios aleatorios
         User::factory(5)->create();
 
-        // Seed ejemplos para grupos (HU3/HU4)
-        Grupo::factory(2)->create();  // 2 grupos random con factory (nombre unique, nivel random, num >0, activo true)
 
-        // Seeders adicionales (si hay)
-        $this->call([
-            // Otros seeders, e.g., SalonSeeder::class
+        /**
+         * ================================================================
+         * DATOS MASIVOS DE PRUEBA
+         * ================================================================
+         */
+        $grupos = Grupo::factory(10)->create();
+        $salones = Salon::factory(10)->create();
+        $profesores = Profesor::factory(10)->create();
+
+
+        /**
+         * ================================================================
+         * CONFIGURACIONES DEL SISTEMA (corrigidas para usar key / value JSON)
+         * ================================================================
+         */
+        Configuracion::create([
+            'key' => 'horario_inicio',
+            'value' => ['hora' => '07:00'],
+            'activo' => true,
         ]);
+
+        Configuracion::create([
+            'key' => 'horario_fin',
+            'value' => ['hora' => '18:00'],
+            'activo' => true,
+        ]);
+
+        Configuracion::create([
+            'key' => 'duracion_bloque',
+            'value' => ['minutos' => 60],
+            'activo' => true,
+        ]);
+
+        Configuracion::create([
+            'key' => 'dias_laborales',
+            'value' => [
+                'dias' => ['lunes', 'martes', 'miercoles', 'jueves', 'viernes']
+            ],
+            'activo' => true,
+        ]);
+
+        Configuracion::create([
+            'key' => 'periodo_actual',
+            'value' => ['semestre' => '2025-2'],
+            'activo' => true,
+        ]);
+
+
+        /**
+         * ================================================================
+         * ASIGNACIONES DE PRUEBA (20)
+         * ================================================================
+         */
+        foreach (range(1, 20) as $i) {
+            Asignacion::create([
+                'grupo_id'     => $grupos->random()->id,
+                'salon_id'     => $salones->random()->id,
+                'profesor_id'  => $profesores->random()->id,
+                'dia_semana'   => collect(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'])->random(),
+                'hora_inicio'  => sprintf('%02d:00:00', rand(7, 15)),
+                'hora_fin'     => sprintf('%02d:00:00', rand(8, 18)),
+                'estado'       => 'confirmada',
+                'activo'       => 1,
+            ]);
+        }
     }
 }
+

@@ -16,8 +16,9 @@ return new class extends Migration
             $table->char('grupo_id', 36);  // FK to grupos.id (UUID)
             $table->char('salon_id', 36);  // FK to salones.id (UUID)
             $table->char('profesor_id', 36);  // FK to profesores.id (UUID)
-            $table->date('fecha');  // Fecha
-            $table->time('hora');  // Hora
+            $table->enum('dia_semana', ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado']);
+            $table->time('hora_inicio');
+            $table->time('hora_fin');
             $table->enum('estado', ['propuesta', 'confirmada', 'cancelada'])->default('propuesta');  // Estado
             $table->decimal('score', 5, 2)->nullable();  // Score (null si no calculado)
             $table->json('conflictos')->nullable();  // Conflictos JSON
