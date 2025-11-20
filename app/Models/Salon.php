@@ -16,7 +16,7 @@ class Salon extends Model
      *
      * @var string
      */
-    protected $table = 'salones';  // Agregado: Tabla 'salones' (español, alinea con migración)
+    protected $table = 'salones';  // Tabla 'salones' (español, alinea con migración)
 
     /**
      * The primary key for the model.
@@ -41,6 +41,7 @@ class Salon extends Model
         'codigo',
         'capacidad',
         'ubicacion',
+        'recursos',  // JSON for horarios and other resources
         'activo',
     ];
 
@@ -50,6 +51,7 @@ class Salon extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'recursos' => 'array',  // JSON to array for horarios/resources
         'activo' => 'boolean',
     ];
 
@@ -73,6 +75,28 @@ class Salon extends Model
     public function asignaciones(): HasMany
     {
         return $this->hasMany(Asignacion::class);
+    }
+
+    /**
+     * Get horarios from recursos JSON.
+     *
+     * @return array
+     */
+    public function getHorariosAttribute()
+    {
+        return $this->recursos['horarios'] ?? [];
+    }
+
+    /**
+     * Set horarios in recursos JSON.
+     *
+     * @param array $horarios
+     */
+    public function setHorariosAttribute($horarios)
+    {
+        $recursos = $this->recursos ?? [];  // Get current recursos or empty
+        $recursos['horarios'] = $horarios;  // Set horarios
+        $this->attributes['recursos'] = json_encode($recursos);  // Set as JSON attribute
     }
 
     /**

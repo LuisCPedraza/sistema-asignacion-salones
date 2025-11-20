@@ -2,109 +2,63 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;  // Para UUID
+use Illuminate\Support\Str;
 
 class Asignacion extends Model
 {
-    use HasFactory;
+    protected $table = 'asignaciones';
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'asignaciones';  // Fix: Tabla 'asignaciones' (español, alinea con migración)
+    public $incrementing = false;        // UUID no es autoincremental
+    protected $keyType = 'string';       // PK es string (UUID)
 
-    /**
-     * The primary key for the model.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
+    protected static function boot()
+    {
+        parent::boot();
 
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;  // False para UUID string (no int auto-increment)
+        // Generar UUID automáticamente
+        static::creating(function ($model) {
+            if (!$model->id) {
+                $model->id = Str::uuid()->toString();
+            }
+        });
+    }
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'grupo_id',
         'salon_id',
         'profesor_id',
         'fecha',
         'hora',
+        'hora_fin',
         'estado',
         'score',
         'conflictos',
         'activo',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'fecha' => 'date',
-        'hora' => 'datetime:H:i',  // Cambiado: 'datetime:H:i' for time string (e.g., "08:00")
-        'score' => 'decimal:2',
-        'conflictos' => 'array',  // JSON to array
-        'activo' => 'boolean',
+        'fecha'      => 'date',
+        'hora'       => 'string',
+        'hora_fin'   => 'string',
+        'conflictos' => 'array',
+        'activo'     => 'boolean',
+        'score'      => 'decimal:2',
     ];
 
-    /**
-     * Boot method for UUID generation.
-     */
-    protected static function boot()
+    public function grupo()
     {
-        parent::boot();
-
-        static::creating(function ($model) {
-            if (empty($model->id)) {
-                $model->id = Str::uuid()->toString();  // Genera UUID para id
-            }
-        });
+        return $this->belongsTo(Grupo::class);
     }
 
-    /**
-     * Relación con grupo (many to one).
-     */
-    public function grupo(): BelongsTo
+    public function salon()
     {
-        return $this->belongsTo(Grupo::class, 'grupo_id', 'id');
+        return $this->belongsTo(Salon::class);
     }
 
-    /**
-     * Relación con salón (many to one).
-     */
-    public function salon(): BelongsTo
+    public function profesor()
     {
-        return $this->belongsTo(Salon::class, 'salon_id', 'id');
-    }
-
-    /**
-     * Relación con profesor (many to one).
-     */
-    public function profesor(): BelongsTo
-    {
-        return $this->belongsTo(Profesor::class, 'profesor_id', 'id');
-    }
-
-    /**
-     * Scope para asignaciones activas.
-     */
-    public function scopeActivo($query)
-    {
-        return $query->where('activo', true);
+        return $this->belongsTo(Profesor::class);
     }
 }
+

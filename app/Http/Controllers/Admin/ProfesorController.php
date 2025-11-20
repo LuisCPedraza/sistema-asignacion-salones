@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Profesor;
-use App\Models\User;  # Agregado: for $users in create/edit
+use App\Models\User;  // Agregado: for $users in create/edit
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -20,7 +20,7 @@ class ProfesorController extends Controller
      */
     public function index()
     {
-        $profesores = Profesor::paginate(10);  # Paginación simple
+        $profesores = Profesor::paginate(10);  // Paginación simple
         return view('admin.profesores.index', compact('profesores'));
     }
 
@@ -29,7 +29,7 @@ class ProfesorController extends Controller
      */
     public function create()
     {
-        $users = User::whereIn('rol', ['profesor', 'superadmin'])->get();  # Usuarios for select (rol profesor/superadmin)
+        $users = User::whereIn('rol', ['profesor', 'superadmin'])->get();  // Usuarios for select (rol profesor/superadmin)
         return view('admin.profesores.create', compact('users'));
     }
 
@@ -44,7 +44,10 @@ class ProfesorController extends Controller
             'activo' => ['boolean'],
         ]);
 
-        Profesor::create($validated);
+        // Handle horarios from checkboxes (maps to JSON in 'recursos')
+        $validated['horarios'] = $request->horarios ?? [];
+
+        Profesor::create($validated);  // Uses mutator to save horarios in 'recursos' JSON
 
         return redirect()->route('admin.profesores.index')->with('success', 'Profesor creado exitosamente.');
     }
@@ -62,7 +65,7 @@ class ProfesorController extends Controller
      */
     public function edit(Profesor $profesor)
     {
-        $users = User::whereIn('rol', ['profesor', 'superadmin'])->get();  # Usuarios for select (rol profesor/superadmin)
+        $users = User::whereIn('rol', ['profesor', 'superadmin'])->get();  // Usuarios for select (rol profesor/superadmin)
         return view('admin.profesores.edit', compact('profesor', 'users'));
     }
 
@@ -76,7 +79,10 @@ class ProfesorController extends Controller
             'activo' => ['boolean'],
         ]);
 
-        $profesor->update($validated);
+        // Handle horarios from checkboxes (maps to JSON in 'recursos')
+        $profesor->horarios = $request->horarios ?? [];  // Uses mutator to update 'recursos' JSON
+
+        $profesor->update($validated);  // Updates other fields
 
         return redirect()->route('admin.profesores.index')->with('success', 'Profesor actualizado exitosamente.');
     }

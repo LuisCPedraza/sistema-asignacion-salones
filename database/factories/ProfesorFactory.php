@@ -13,9 +13,16 @@ class ProfesorFactory extends Factory
     public function definition(): array
     {
         return [
-            'usuario_id' => User::factory(),  # Usuario random (FK 1:1)
-            'especialidades' => fake()->randomElements(['Matemáticas', 'Física', 'Biología', 'Historia'], 2)->implode(', '),  # Especialidades random 2
-            'activo' => fake()->boolean(90),  # 90% activo
+            'usuario_id' => User::factory(),  // Crea automáticamente un usuario relacionado
+
+            // randomElements() devuelve un ARRAY → usamos implode() de PHP
+            'especialidades' => implode(', ', fake()->randomElements(
+                ['Matemáticas', 'Física', 'Biología', 'Historia'],
+                2
+            )),
+
+            'activo' => fake()->boolean(90), // 90% activo
         ];
     }
 }
+
