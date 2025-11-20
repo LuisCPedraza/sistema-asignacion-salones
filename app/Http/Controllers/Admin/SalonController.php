@@ -40,13 +40,16 @@ class SalonController extends Controller
             'codigo' => ['required', 'string', 'max:60', 'unique:salones,codigo'],
             'capacidad' => ['required', 'integer', 'min:1'],
             'ubicacion' => ['required', 'string', 'max:160'],
-            'activo' => 'nullable|boolean',  # Cambiado: nullable|boolean for unchecked checkbox ('' → null → false)
+            'activo' => 'nullable|boolean',  // Cambiado: nullable|boolean for unchecked checkbox ('' → null → false)
         ]);
 
         // Set default activo true if not set
         $validated['activo'] = $validated['activo'] ?? true;
 
-        Salon::create($validated);
+        // Handle horarios from checkboxes (maps to JSON in 'recursos')
+        $validated['horarios'] = $request->horarios ?? [];
+
+        $salon = Salon::create($validated);  // Uses mutator to save horarios in 'recursos' JSON
 
         return redirect()->route('admin.salones.index')->with('success', 'Salón creado exitosamente.');
     }
@@ -76,13 +79,16 @@ class SalonController extends Controller
             'codigo' => ['required', 'string', 'max:60', Rule::unique('salones', 'codigo')->ignore($salon->id)],
             'capacidad' => ['required', 'integer', 'min:1'],
             'ubicacion' => ['required', 'string', 'max:160'],
-            'activo' => ['nullable', 'boolean'],  # Cambiado: nullable|boolean for unchecked checkbox
+            'activo' => ['nullable', 'boolean'],  // Cambiado: nullable|boolean for unchecked checkbox
         ]);
 
         // Preserve current activo if not sent (unchecked checkbox)
         $validated['activo'] = $validated['activo'] ?? $salon->activo;
 
-        $salon->update($validated);
+        // Handle horarios from checkboxes (maps to JSON in 'recursos')
+        $salon->horarios = $request->horarios ?? [];  // Uses mutator to update 'recursos' JSON
+
+        $salon->update($validated);  // Updates other fields
 
         return redirect()->route('admin.salones.index')->with('success', 'Salón actualizado exitosamente.');
     }

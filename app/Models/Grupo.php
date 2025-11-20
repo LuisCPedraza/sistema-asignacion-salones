@@ -75,4 +75,12 @@ class Grupo extends Model
     {
         return $query->where('activo', true);
     }
+
+    /**
+     * Relación con profesor (muchos a uno).
+     */
+    public function profesor()
+    {
+        return $this->belongsTo(Profesor::class);
+    }
 }

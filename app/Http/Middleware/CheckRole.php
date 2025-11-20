@@ -9,12 +9,22 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!Auth::check() || Auth::user()->rol !== $role) {
-            abort(403, 'Acceso denegado. Requiere rol: ' . $role);
+        if (!Auth::check()) {
+            \Log::info('CheckRole: No autenticado - Redirigiendo a /login');
+            return redirect('/login');
         }
 
+        $userRole = Auth::user()->rol;
+        \Log::info('CheckRole: Rol del usuario: ' . $userRole);
+
+        if (!in_array($userRole, $roles)) {
+            \Log::info('CheckRole: Rol rechazado. Requiere: ' . implode(', ', $roles));
+            return response('Acceso denegado. Requiere rol: ' . implode(', ', $roles), 403);
+        }
+
+        \Log::info('CheckRole: Rol aceptado - Procediendo');
         return $next($request);
     }
 }

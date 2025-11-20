@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;  # Para UUID
+use Illuminate\Support\Str;  // Para UUID
 
 class Profesor extends Model
 {
@@ -16,7 +16,7 @@ class Profesor extends Model
      *
      * @var string
      */
-    protected $table = 'profesores';  # Fix: Tabla 'profesores' (Spanish plural, alinea con migración)
+    protected $table = 'profesores';  // Tabla 'profesores' (español, alinea con migración)
 
     /**
      * The primary key for the model.
@@ -30,7 +30,7 @@ class Profesor extends Model
      *
      * @var bool
      */
-    public $incrementing = false;  # False para UUID string (no int auto-increment)
+    public $incrementing = false;  // False para UUID string (no int auto-increment)
 
     /**
      * The attributes that are mass assignable.
@@ -40,6 +40,7 @@ class Profesor extends Model
     protected $fillable = [
         'usuario_id',
         'especialidades',
+        'recursos',  // Agregado: JSON for horarios and other resources
         'activo',
     ];
 
@@ -49,6 +50,7 @@ class Profesor extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'recursos' => 'array',  // Agregado: JSON to array for horarios/resources
         'activo' => 'boolean',
     ];
 
@@ -61,7 +63,7 @@ class Profesor extends Model
 
         static::creating(function ($model) {
             if (empty($model->id)) {
-                $model->id = Str::uuid()->toString();  # Genera UUID para id
+                $model->id = Str::uuid()->toString();  // Genera UUID para id
             }
         });
     }
@@ -72,6 +74,28 @@ class Profesor extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id', 'id');
+    }
+
+    /**
+     * Get horarios from recursos JSON.
+     *
+     * @return array
+     */
+    public function getHorariosAttribute()
+    {
+        return $this->recursos['horarios'] ?? [];
+    }
+
+    /**
+     * Set horarios in recursos JSON.
+     *
+     * @param array $horarios
+     */
+    public function setHorariosAttribute($horarios)
+    {
+        $recursos = $this->recursos ?? [];  // Get current recursos or empty
+        $recursos['horarios'] = $horarios;  // Set horarios
+        $this->attributes['recursos'] = json_encode($recursos);  // Set as JSON attribute
     }
 
     /**
