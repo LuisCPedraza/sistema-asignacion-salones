@@ -17,11 +17,10 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
     
-    // Dashboards por rol
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    // Módulo de Administración
+    require app_path('Modules/Admin/Routes/web.php');
     
+    // Otras rutas de módulos (se agregarán después)
     Route::get('/coordinador/dashboard', function () {
         return view('coordinador.dashboard');
     })->name('coordinador.dashboard');
