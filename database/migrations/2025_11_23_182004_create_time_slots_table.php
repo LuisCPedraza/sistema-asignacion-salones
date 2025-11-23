@@ -17,6 +17,10 @@ return new class extends Migration
             $table->enum('shift', ['morning', 'afternoon', 'night']);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            
+            // Índices para optimizar consultas
+            $table->index(['day', 'shift']);
+            $table->index(['start_time', 'end_time']);
         });
     }
 

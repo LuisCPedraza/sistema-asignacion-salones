@@ -5,40 +5,80 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\User;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    protected $model = User::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    public function definition()
     {
+        // Obtener un rol existente o crear uno por defecto
+        $role = \App\Modules\Auth\Models\Role::inRandomOrder()->first();
+        
+        if (!$role) {
+            $role = \App\Modules\Auth\Models\Role::factory()->create([
+                'name' => 'Profesor',
+                'slug' => 'profesor',
+                'description' => 'Rol por defecto para testing'
+            ]);
+        }
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => Hash::make('password'),
+            'role_id' => $role->id,
+            'is_active' => true,
             'remember_token' => Str::random(10),
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public function unverified()
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'email_verified_at' => null,
+            ];
+        });
+    }
+
+    public function inactive()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_active' => false,
+            ];
+        });
+    }
+
+    public function temporary()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'temporary_access_expires_at' => now()->addDays(30),
+            ];
+        });
+    }
+
+    public function withRole($roleSlug)
+    {
+        return $this->state(function (array $attributes) use ($roleSlug) {
+            $role = \App\Modules\Auth\Models\Role::where('slug', $roleSlug)->first();
+            
+            if (!$role) {
+                // Si el rol no existe, crear uno con el slug solicitado
+                $role = \App\Modules\Auth\Models\Role::create([
+                    'name' => ucfirst($roleSlug),
+                    'slug' => $roleSlug,
+                    'description' => 'Rol creado para testing'
+                ]);
+            }
+            
+            return [
+                'role_id' => $role->id,
+            ];
+        });
     }
 }
