@@ -12,7 +12,19 @@ class UserTest extends TestCase
 
     public function test_user_can_check_role()
     {
-        $user = User::factory()->withRole('administrador')->create();
+        // Crear un rol específico primero
+        $role = \App\Modules\Auth\Models\Role::factory()->create([
+            'slug' => 'administrador',
+            'name' => 'Administrador'
+        ]);
+
+        $user = User::factory()->create([
+            'role_id' => $role->id,
+            'is_active' => true,
+        ]);
+
+        // Debug: ver qué hay en el usuario y su rol
+       //dd($user->toArray(), $user->role ? $user->role->toArray() : 'No role');    
 
         $this->assertTrue($user->hasRole('administrador'));
         $this->assertFalse($user->hasRole('profesor'));
@@ -20,7 +32,11 @@ class UserTest extends TestCase
 
     public function test_user_can_access_system_when_active()
     {
-        $user = User::factory()->withRole('profesor')->create([
+        // Crear un rol primero
+        $role = \App\Modules\Auth\Models\Role::factory()->create(['slug' => 'profesor']);
+        
+        $user = User::factory()->create([
+            'role_id' => $role->id,
             'is_active' => true,
         ]);
 

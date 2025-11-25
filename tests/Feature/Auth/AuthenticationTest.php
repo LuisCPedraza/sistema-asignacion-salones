@@ -51,9 +51,16 @@ class AuthenticationTest extends TestCase
 
     public function test_temporary_users_cannot_login_after_expiration()
     {
-        $user = User::factory()->withRole('profesor_invitado')->create([
-            'temporary_access_expires_at' => now()->subDays(1), // Expired yesterday
+        // Crear un usuario con acceso temporal expirado
+        $user = User::factory()->create([
+            'temporary_access' => true,
+            'temporary_access_expires_at' => now()->subDays(1), // Fecha en el pasado
+            'password' => bcrypt('password'),
+            'is_active' => true,
         ]);
+
+        // Debug: verificar los valores del usuario
+        //dd($user->temporary_access, $user->temporary_access_expires_at, $user->isTemporaryAccessExpired());
 
         $response = $this->post('/login', [
             'email' => $user->email,

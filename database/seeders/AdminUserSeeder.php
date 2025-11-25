@@ -6,38 +6,58 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Modules\Auth\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
     public function run()
     {
-        // Verificar si ya existe el rol de administrador
-        $adminRole = Role::where('slug', 'administrador')->first();
-        
-        if (!$adminRole) {
-            $adminRole = Role::create([
-                'name' => 'Administrador',
-                'slug' => 'administrador',
-                'description' => 'Acceso completo al sistema'
-            ]);
+        // Crear usuario administrador
+        $adminRole = Role::where('slug', Role::ADMINISTRADOR)->first();
+        if ($adminRole) {
+            User::firstOrCreate(
+                ['email' => 'admin@universidad.edu'],
+                [
+                    'name' => 'Administrador Principal',
+                    'password' => Hash::make('password123'),
+                    'role_id' => $adminRole->id,
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                ]
+            );
+            $this->command->info('✅ Usuario administrador creado: admin@universidad.edu / password123');
         }
 
-        // Verificar si ya existe el usuario admin
-        $adminUser = User::where('email', 'admin@universidad.edu')->first();
-        
-        if (!$adminUser) {
-            User::create([
-                'name' => 'Administrador Principal',
-                'email' => 'admin@universidad.edu',
-                'password' => bcrypt('password123'),
-                'role_id' => $adminRole->id,
-                'is_active' => true,
-                'email_verified_at' => now(),
-            ]);
-            
-            $this->command->info('Usuario administrador creado: admin@universidad.edu / password123');
-        } else {
-            $this->command->info('Usuario administrador ya existe');
+        // Crear usuario coordinador
+        $coordinatorRole = Role::where('slug', Role::COORDINADOR)->first();
+        if ($coordinatorRole) {
+            User::firstOrCreate(
+                ['email' => 'coordinador@universidad.edu'],
+                [
+                    'name' => 'Coordinador Académico',
+                    'password' => Hash::make('password123'),
+                    'role_id' => $coordinatorRole->id,
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                ]
+            );
+            $this->command->info('✅ Usuario coordinador creado: coordinador@universidad.edu / password123');
+        }
+
+        // Crear usuario profesor de prueba
+        $professorRole = Role::where('slug', Role::PROFESOR)->first();
+        if ($professorRole) {
+            User::firstOrCreate(
+                ['email' => 'profesor@universidad.edu'],
+                [
+                    'name' => 'Profesor Ejemplo',
+                    'password' => Hash::make('password123'),
+                    'role_id' => $professorRole->id,
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                ]
+            );
+            $this->command->info('✅ Usuario profesor creado: profesor@universidad.edu / password123');
         }
     }
 }

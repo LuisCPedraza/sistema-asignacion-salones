@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Administración - Sistema de Asignación</title>
+    <title>Dashboard Coordinación - Sistema de Asignación</title>
     <style>
+        /* Reutilizar estilos del dashboard de admin con ajustes de colores */
         * {
             margin: 0;
             padding: 0;
@@ -16,7 +17,7 @@
             color: #334155;
         }
         .header {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             color: white;
             padding: 1rem 2rem;
             display: flex;
@@ -74,13 +75,13 @@
         }
         .sidebar-nav a:hover {
             background: #f1f5f9;
-            color: #3b82f6;
-            border-left-color: #3b82f6;
+            color: #48bb78;
+            border-left-color: #48bb78;
         }
         .sidebar-nav a.active {
-            background: #3b82f6;
+            background: #48bb78;
             color: white;
-            border-left-color: #1d4ed8;
+            border-left-color: #38a169;
         }
         .main-content {
             flex: 1;
@@ -93,7 +94,7 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
-            border-left: 4px solid #3b82f6;
+            border-left: 4px solid #48bb78;
         }
         .welcome-section h1 {
             color: #1e293b;
@@ -132,7 +133,7 @@
             line-height: 1.5;
         }
         .btn-module {
-            background: #3b82f6;
+            background: #48bb78;
             color: white;
             padding: 0.75rem 1.5rem;
             text-decoration: none;
@@ -144,7 +145,7 @@
             display: inline-block;
         }
         .btn-module:hover {
-            background: #1d4ed8;
+            background: #38a169;
             color: white;
         }
         .stats-grid {
@@ -163,7 +164,7 @@
         .stat-number {
             font-size: 2rem;
             font-weight: bold;
-            color: #3b82f6;
+            color: #48bb78;
             margin-bottom: 0.5rem;
         }
         .stat-label {
@@ -191,62 +192,63 @@
     <div class="container">
         <nav class="sidebar">
             <ul class="sidebar-nav">
-                <li><a href="{{ route('admin.dashboard') }}" class="active">📊 Dashboard</a></li>
-                <li><a href="#" class="coming-soon">👥 Gestión de Usuarios (Próximamente)</a></li>
+                <li><a href="{{ route('academic.dashboard') }}" class="active">📊 Dashboard</a></li>
+                <li><a href="#" class="coming-soon">🎓 Grupos de Estudiantes (Próximamente)</a></li>
+                <li><a href="#" class="coming-soon">👨‍🏫 Gestión de Profesores (Próximamente)</a></li>
+                <li><a href="#" class="coming-soon">📅 Asignación de Salones (Próximamente)</a></li>
                 <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">📋 Auditoría (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">⚙️ Configuración (Próximamente)</a></li>
             </ul>
         </nav>
 
         <main class="main-content">
             <div class="welcome-section">
-                <h1>Bienvenido al Panel de Administración</h1>
-                <p>Gestiona todos los aspectos del sistema desde este panel centralizado.</p>
+                <h1>Bienvenido al Panel de Coordinación Académica</h1>
+                <p>Gestiona grupos de estudiantes, profesores y disponibilidades desde este panel centralizado.</p>
             </div>
 
+            <!-- Estadísticas simplificadas -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">{{ \App\Models\User::count() }}</div>
-                    <div class="stat-label">Usuarios Registrados</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">{{ \App\Modules\Auth\Models\Role::count() }}</div>
-                    <div class="stat-label">Roles del Sistema</div>
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Grupos de Estudiantes</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">0</div>
-                    <div class="stat-label">Salones Disponibles</div>
+                    <div class="stat-label">Profesores Registrados</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">0</div>
-                    <div class="stat-label">Asignaciones Activas</div>
+                    <div class="stat-label">Grupos Activos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Profesores Activos</div>
                 </div>
             </div>
 
             <div class="modules-grid">
                 <div class="module-card coming-soon">
-                    <h3>👥 Gestión de Usuarios</h3>
-                    <p>Administra usuarios, roles y permisos del sistema.</p>
-                    <a href="#" class="btn-module">Gestionar Usuarios (Próximamente)</a>
+                    <h3>🎓 Gestión de Grupos</h3>
+                    <p>Administra grupos de estudiantes, niveles, características especiales y periodos académicos.</p>
+                    <a href="#" class="btn-module">Gestionar Grupos (Próximamente)</a>
                 </div>
                 
                 <div class="module-card coming-soon">
-                    <h3>📈 Reportes del Sistema</h3>
-                    <p>Genera reportes de uso, auditoría y estadísticas.</p>
+                    <h3>👨‍🏫 Gestión de Profesores</h3>
+                    <p>Gestiona información de profesores, especialidades, hojas de vida y disponibilidades.</p>
+                    <a href="#" class="btn-module">Gestionar Profesores (Próximamente)</a>
+                </div>
+                
+                <div class="module-card coming-soon">
+                    <h3>📅 Disponibilidades</h3>
+                    <p>Configura y gestiona las disponibilidades horarias de los profesores para asignaciones.</p>
+                    <a href="#" class="btn-module">Ver Disponibilidades (Próximamente)</a>
+                </div>
+                
+                <div class="module-card coming-soon">
+                    <h3>📊 Reportes Académicos</h3>
+                    <p>Genera reportes de grupos, profesores y estadísticas del departamento académico.</p>
                     <a href="#" class="btn-module">Ver Reportes (Próximamente)</a>
-                </div>
-                
-                <div class="module-card coming-soon">
-                    <h3>📋 Auditoría</h3>
-                    <p>Revisa logs y actividades del sistema.</p>
-                    <a href="#" class="btn-module">Ver Auditoría (Próximamente)</a>
-                </div>
-                
-                <div class="module-card coming-soon">
-                    <h3>⚙️ Configuración</h3>
-                    <p>Configura parámetros y ajustes del sistema.</p>
-                    <a href="#" class="btn-module">Configurar (Próximamente)</a>
                 </div>
             </div>
         </main>

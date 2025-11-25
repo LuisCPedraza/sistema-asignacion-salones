@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Administración - Sistema de Asignación</title>
+    <title>Dashboard Administrador - Sistema de Asignación</title>
     <style>
         * {
             margin: 0;
@@ -16,7 +16,7 @@
             color: #334155;
         }
         .header {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 1rem 2rem;
             display: flex;
@@ -74,13 +74,13 @@
         }
         .sidebar-nav a:hover {
             background: #f1f5f9;
-            color: #3b82f6;
-            border-left-color: #3b82f6;
+            color: #667eea;
+            border-left-color: #667eea;
         }
         .sidebar-nav a.active {
-            background: #3b82f6;
+            background: #667eea;
             color: white;
-            border-left-color: #1d4ed8;
+            border-left-color: #5a6fd8;
         }
         .main-content {
             flex: 1;
@@ -93,7 +93,7 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
-            border-left: 4px solid #3b82f6;
+            border-left: 4px solid #667eea;
         }
         .welcome-section h1 {
             color: #1e293b;
@@ -132,7 +132,7 @@
             line-height: 1.5;
         }
         .btn-module {
-            background: #3b82f6;
+            background: #667eea;
             color: white;
             padding: 0.75rem 1.5rem;
             text-decoration: none;
@@ -144,7 +144,7 @@
             display: inline-block;
         }
         .btn-module:hover {
-            background: #1d4ed8;
+            background: #5a6fd8;
             color: white;
         }
         .stats-grid {
@@ -163,16 +163,12 @@
         .stat-number {
             font-size: 2rem;
             font-weight: bold;
-            color: #3b82f6;
+            color: #667eea;
             margin-bottom: 0.5rem;
         }
         .stat-label {
             color: #64748b;
             font-size: 0.9rem;
-        }
-        .coming-soon {
-            opacity: 0.7;
-            pointer-events: none;
         }
     </style>
 </head>
@@ -180,7 +176,7 @@
     <div class="header">
         <div class="logo">🏫 Sistema de Asignación de Salones</div>
         <div class="user-info">
-            <span>👤 {{ auth()->user()->name ?? auth()->user()->email }} ({{ auth()->user()->role->name ?? 'Sin rol' }})</span>
+            <span>👤 {{ auth()->user()->name }} ({{ auth()->user()->role->name }})</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="btn-logout">🚪 Cerrar Sesión</button>
@@ -192,10 +188,10 @@
         <nav class="sidebar">
             <ul class="sidebar-nav">
                 <li><a href="{{ route('admin.dashboard') }}" class="active">📊 Dashboard</a></li>
-                <li><a href="#" class="coming-soon">👥 Gestión de Usuarios (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">📋 Auditoría (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">⚙️ Configuración (Próximamente)</a></li>
+                <li><a href="{{ route('admin.users.index') }}">👥 Gestión de Usuarios</a></li>
+                <li><a href="{{ route('admin.reports.index') }}">📈 Reportes</a></li>
+                <li><a href="{{ route('admin.audit.index') }}">📋 Auditoría</a></li>
+                <li><a href="{{ route('admin.config.index') }}">⚙️ Configuración</a></li>
             </ul>
         </nav>
 
@@ -208,45 +204,45 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number">{{ \App\Models\User::count() }}</div>
-                    <div class="stat-label">Usuarios Registrados</div>
+                    <div class="stat-label">Usuarios Totales</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">{{ \App\Modules\Auth\Models\Role::count() }}</div>
                     <div class="stat-label">Roles del Sistema</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
-                    <div class="stat-label">Salones Disponibles</div>
+                    <div class="stat-number">{{ \App\Models\User::active()->count() }}</div>
+                    <div class="stat-label">Usuarios Activos</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
-                    <div class="stat-label">Asignaciones Activas</div>
+                    <div class="stat-number">{{ \App\Models\TimeSlot::count() }}</div>
+                    <div class="stat-label">Horarios Configurados</div>
                 </div>
             </div>
 
             <div class="modules-grid">
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>👥 Gestión de Usuarios</h3>
-                    <p>Administra usuarios, roles y permisos del sistema.</p>
-                    <a href="#" class="btn-module">Gestionar Usuarios (Próximamente)</a>
+                    <p>Administra cuentas de usuarios, roles y permisos del sistema. Crea, edita y desactiva usuarios.</p>
+                    <a href="{{ route('admin.users.index') }}" class="btn-module">Acceder al Módulo</a>
                 </div>
                 
-                <div class="module-card coming-soon">
-                    <h3>📈 Reportes del Sistema</h3>
-                    <p>Genera reportes de uso, auditoría y estadísticas.</p>
-                    <a href="#" class="btn-module">Ver Reportes (Próximamente)</a>
+                <div class="module-card">
+                    <h3>📊 Reportes y Estadísticas</h3>
+                    <p>Genera reportes de utilización de recursos, estadísticas de asignación y métricas del sistema.</p>
+                    <a href="{{ route('admin.reports.index') }}" class="btn-module">Ver Reportes</a>
                 </div>
                 
-                <div class="module-card coming-soon">
-                    <h3>📋 Auditoría</h3>
-                    <p>Revisa logs y actividades del sistema.</p>
-                    <a href="#" class="btn-module">Ver Auditoría (Próximamente)</a>
+                <div class="module-card">
+                    <h3>📋 Historial y Auditoría</h3>
+                    <p>Consulta el historial completo de cambios, actividades del sistema y seguimiento de usuarios.</p>
+                    <a href="{{ route('admin.audit.index') }}" class="btn-module">Ver Auditoría</a>
                 </div>
                 
-                <div class="module-card coming-soon">
-                    <h3>⚙️ Configuración</h3>
-                    <p>Configura parámetros y ajustes del sistema.</p>
-                    <a href="#" class="btn-module">Configurar (Próximamente)</a>
+                <div class="module-card">
+                    <h3>⚙️ Configuración del Sistema</h3>
+                    <p>Configura parámetros generales, períodos académicos, horarios laborables y tipos de recursos.</p>
+                    <a href="{{ route('admin.config.index') }}" class="btn-module">Configurar</a>
                 </div>
             </div>
         </main>

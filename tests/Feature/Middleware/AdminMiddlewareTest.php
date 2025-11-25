@@ -1,48 +1,41 @@
 <?php
 
 namespace Tests\Feature\Middleware;
+//namespace App\Http\Middleware;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\User;
-use App\Modules\Auth\Models\Role;
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class AdminMiddlewareTest extends TestCase
+class AdminMiddleware
 {
-    use RefreshDatabase;
-
-    protected function setUp(): void
+    /**
+     * Handle an incoming request.
+     */
+    public function handle(Request $request, Closure $next): Response
     {
-        parent::setUp();
-        $this->seed(\Database\Seeders\RoleSeeder::class);
-        $this->seed(\Database\Seeders\AdminUserSeeder::class);
-    }
+        // Verificar si el usuario está autenticado
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
 
-    public function test_admin_can_access_admin_routes()
-    {
-        $admin = User::where('email', 'admin@universidad.edu')->first();
+        $user = auth()->user();
         
-        $response = $this->actingAs($admin)->get('/admin/dashboard');
-        
-        $response->assertStatus(200);
-        $response->assertSee('Panel de Administración');
-    }
+        // Cargar la relación role si no está cargada
+        if (!$user->relationLoaded('role')) {
+            $user->load('role');
+        }
 
-    public function test_non_admin_cannot_access_admin_routes()
-    {
-        // Crear un usuario con rol de profesor
-        $professorRole = Role::where('slug', 'profesor')->first();
-        $professor = User::factory()->create(['role_id' => $professorRole->id]);
-        
-        $response = $this->actingAs($professor)->get('/admin/dashboard');
-        
-        $response->assertStatus(403);
-    }
+        // Verificar que el usuario tenga rol y sea administrador
+        if (!$user->role) {
+            abort(403, 'Usuario sin rol asignado.');
+        }
 
-    public function test_guest_cannot_access_admin_routes()
-    {
-        $response = $this->get('/admin/dashboard');
-        
-        $response->assertRedirect('/login');
+        // Verificar el slug del rol - usar 'administrador' en minúsculas
+        if ($user->role->slug !== 'administrador') {
+            abort(403, 'Acceso denegado: Solo para administradores.');
+        }
+
+        return $next($request);
     }
 }

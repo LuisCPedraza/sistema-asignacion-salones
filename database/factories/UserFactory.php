@@ -4,8 +4,9 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Str; // ← AGREGAR ESTA LÍNEA
 use App\Models\User;
+use App\Modules\Auth\Models\Role;
 
 class UserFactory extends Factory
 {
@@ -13,25 +14,17 @@ class UserFactory extends Factory
 
     public function definition()
     {
-        // Obtener un rol existente o crear uno por defecto
-        $role = \App\Modules\Auth\Models\Role::inRandomOrder()->first();
-        
-        if (!$role) {
-            $role = \App\Modules\Auth\Models\Role::factory()->create([
-                'name' => 'Profesor',
-                'slug' => 'profesor',
-                'description' => 'Rol por defecto para testing'
-            ]);
-        }
-
         return [
-            'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'role_id' => $role->id,
+            'password' => bcrypt('password'),
+            'role_id' => Role::factory(),
             'is_active' => true,
-            'remember_token' => Str::random(10),
+            'temporary_access' => false,
+            'access_expires_at' => null,
+            'temporary_access_expires_at' => null,
+            'remember_token' => Str::random(10), // ← Ahora Str está disponible
         ];
     }
 
@@ -44,6 +37,7 @@ class UserFactory extends Factory
         });
     }
 
+    // ← AGREGAR ESTE MÉTODO FALTANTE
     public function inactive()
     {
         return $this->state(function (array $attributes) {
@@ -53,31 +47,36 @@ class UserFactory extends Factory
         });
     }
 
-    public function temporary()
+    // Estado para usuarios pendientes de aprobación
+    public function pending()
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'temporary_access_expires_at' => now()->addDays(30),
-            ];
-        });
+        return $this->state([
+            'role_id' => null,
+            'is_active' => false,
+            'temporary_access' => false,
+            'access_expires_at' => null,
+        ]);
     }
 
+    // Estado para usuarios activos con rol
+// Estado para usuarios activos con rol
     public function withRole($roleSlug)
     {
         return $this->state(function (array $attributes) use ($roleSlug) {
-            $role = \App\Modules\Auth\Models\Role::where('slug', $roleSlug)->first();
+            // Buscar el rol o crear uno si no existe
+            $role = Role::where('slug', $roleSlug)->first();
             
             if (!$role) {
-                // Si el rol no existe, crear uno con el slug solicitado
-                $role = \App\Modules\Auth\Models\Role::create([
-                    'name' => ucfirst($roleSlug),
+                // Crear el rol si no existe
+                $role = Role::factory()->create([
                     'slug' => $roleSlug,
-                    'description' => 'Rol creado para testing'
+                    'name' => ucfirst($roleSlug),
                 ]);
             }
             
             return [
                 'role_id' => $role->id,
+                'is_active' => true,
             ];
         });
     }

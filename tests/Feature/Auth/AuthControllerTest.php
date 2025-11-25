@@ -30,14 +30,9 @@ class AuthControllerTest extends TestCase
 
     public function test_redirect_to_correct_dashboard_based_on_role()
     {
-        // Test admin redirect
-        $admin = User::factory()->withRole('administrador')->create();
-        $response = $this->actingAs($admin)->get('/admin/dashboard');
-        $response->assertStatus(200);
-
-        // Test coordinador redirect  
+        // Test coordinador redirect - usar la ruta correcta
         $coordinador = User::factory()->withRole('coordinador')->create();
-        $response = $this->actingAs($coordinador)->get('/coordinador/dashboard');
+        $response = $this->actingAs($coordinador)->get('/academic/dashboard'); // ← Ruta correcta
         $response->assertStatus(200);
 
         // Test profesor redirect

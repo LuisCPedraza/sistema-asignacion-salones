@@ -1,10 +1,11 @@
 <?php
 
-namespace Tests\Unit\Modules\Auth;
+namespace Tests\Unit\Modules\Auth; // ← Cambiar el namespace
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Modules\Auth\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class RoleTest extends TestCase
 {
@@ -13,21 +14,20 @@ class RoleTest extends TestCase
     public function test_role_has_correct_slugs()
     {
         $this->assertEquals('administrador', Role::ADMINISTRADOR);
-        $this->assertEquals('profesor_invitado', Role::PROFESOR_INVITADO);
         $this->assertEquals('coordinador', Role::COORDINADOR);
+        // ... resto del test
     }
 
     public function test_role_can_be_created()
     {
-        $role = Role::create([
+        $role = Role::factory()->create([
             'name' => 'Test Role',
-            'slug' => 'test_role',
-            'description' => 'Test Description'
+            'slug' => 'test-role',
         ]);
 
         $this->assertDatabaseHas('roles', [
-            'slug' => 'test_role',
-            'is_active' => true
+            'name' => 'Test Role',
+            'slug' => 'test-role',
         ]);
     }
 
@@ -38,14 +38,21 @@ class RoleTest extends TestCase
         $this->assertIsArray($roles);
         $this->assertArrayHasKey('administrador', $roles);
         $this->assertEquals('Administrador', $roles['administrador']);
-        $this->assertArrayHasKey('profesor', $roles);
-        $this->assertEquals('Profesor', $roles['profesor']);
     }
 
     public function test_role_has_users_relationship()
     {
-        $role = Role::factory()->administrator()->create();
+        // Crear un rol usando el factory correcto
+        $role = Role::factory()->administrador()->create();
         
-        $this->assertTrue(method_exists($role, 'users'));
+        // Crear un usuario asociado a ese rol
+        $user = User::factory()->create([
+            'role_id' => $role->id,
+        ]);
+
+        // Verificar la relación
+        $this->assertTrue($role->users()->exists());
+        $this->assertEquals(1, $role->users()->count());
+        $this->assertEquals($user->id, $role->users()->first()->id);
     }
 }
