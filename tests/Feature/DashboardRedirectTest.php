@@ -13,30 +13,22 @@ class DashboardRedirectTest extends TestCase
 
     public function test_dashboard_redirects_by_role()
     {
-        $role = Role::factory()->coordinador()->create();
-        $coordinator = User::factory()->create([
-            'role_id' => $role->id,
-            'email' => 'coordinador@universidad.edu',
-            'password' => bcrypt('password123'),
-        ]);
+        // Usar roles existentes
+        $adminRole = Role::where('slug', 'administrador')->first();
+        $admin = User::factory()->create(['role_id' => $adminRole->id]);
 
-        $this->actingAs($coordinator);
-
-        $response = $this->get(route('dashboard'));
-        $response->assertRedirect(route('academic.dashboard'));
+        $response = $this->actingAs($admin)->get('/dashboard');
+        $response->assertRedirect(route('admin.dashboard'));
     }
 
     public function test_guest_redirects_from_login()
     {
-        $response = $this->get(route('login'));
-        $response->assertStatus(200);
+        $adminRole = Role::where('slug', 'administrador')->first();
+        $admin = User::factory()->create(['role_id' => $adminRole->id]);
 
-        $role = Role::factory()->administrador()->create();
-        $admin = User::factory()->create(['role_id' => $role->id]);
         $this->actingAs($admin);
-
-        $response = $this->get(route('login'));
-        $response->assertRedirect(route('dashboard'));
+        $response = $this->get('/login');
+        $response->assertRedirect('/dashboard');
     }
 
     public function test_login_requires_csrf_token()

@@ -193,7 +193,7 @@
         <nav class="sidebar">
             <ul class="sidebar-nav">
                 <li><a href="{{ route('academic.dashboard') }}" class="active">📊 Dashboard</a></li>
-                <li><a href="#" class="coming-soon">🎓 Grupos de Estudiantes (Próximamente)</a></li>
+                <li><a href="{{ route('gestion-academica.student-groups.index') }}">🎓 Grupos de Estudiantes</a></li>
                 <li><a href="#" class="coming-soon">👨‍🏫 Gestión de Profesores (Próximamente)</a></li>
                 <li><a href="#" class="coming-soon">📅 Asignación de Salones (Próximamente)</a></li>
                 <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
@@ -206,10 +206,10 @@
                 <p>Gestiona grupos de estudiantes, profesores y disponibilidades desde este panel centralizado.</p>
             </div>
 
-            <!-- Estadísticas simplificadas -->
+            <!-- Estadísticas actualizadas -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ \App\Modules\GestionAcademica\Models\StudentGroup::count() }}</div>
                     <div class="stat-label">Grupos de Estudiantes</div>
                 </div>
                 <div class="stat-card">
@@ -217,7 +217,7 @@
                     <div class="stat-label">Profesores Registrados</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ \App\Modules\GestionAcademica\Models\StudentGroup::active()->count() }}</div>
                     <div class="stat-label">Grupos Activos</div>
                 </div>
                 <div class="stat-card">
@@ -227,10 +227,10 @@
             </div>
 
             <div class="modules-grid">
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>🎓 Gestión de Grupos</h3>
                     <p>Administra grupos de estudiantes, niveles, características especiales y periodos académicos.</p>
-                    <a href="#" class="btn-module">Gestionar Grupos (Próximamente)</a>
+                    <a href="{{ route('gestion-academica.student-groups.index') }}" class="btn-module">Gestionar Grupos</a>
                 </div>
                 
                 <div class="module-card coming-soon">

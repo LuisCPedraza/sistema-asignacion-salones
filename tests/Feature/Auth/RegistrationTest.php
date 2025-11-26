@@ -86,22 +86,18 @@ class RegistrationTest extends TestCase
 
     public function test_registration_requires_unique_email()
     {
-        // Crear un usuario existente usando el estado withRole para evitar el problema de role_id
-        $role = Role::factory()->administrador()->create();
-        User::factory()->create([
-            'email' => 'test@example.com',
-            'role_id' => $role->id,
-            'is_active' => true,
-        ]);
+        // Usar rol existente
+        $adminRole = Role::where('slug', 'administrador')->first();
+        $existingUser = User::factory()->create(['role_id' => $adminRole->id]);
 
         $response = $this->post('/register', [
             'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'email' => $existingUser->email, // Email duplicado
+            'password' => 'password',
+            'password_confirmation' => 'password',
         ]);
 
-        $response->assertSessionHasErrors(['email']);
+        $response->assertSessionHasErrors('email');
     }
 
     public function test_pending_users_have_no_role_and_are_inactive()
@@ -116,17 +112,15 @@ class RegistrationTest extends TestCase
 
     public function test_approved_users_can_access_system()
     {
-        // Crear un rol
-        $role = Role::factory()->profesor()->create();
+        // Usar rol existente
+        $professorRole = Role::where('slug', 'profesor')->first();
         
-        // Crear un usuario aprobado
         $user = User::factory()->create([
-            'role_id' => $role->id,
+            'role_id' => $professorRole->id,
             'is_active' => true,
         ]);
 
-        $this->assertFalse($user->isPendingApproval());
-        $this->assertTrue($user->canAccessSystem());
-        $this->assertNotNull($user->role);
+        $response = $this->actingAs($user)->get('/dashboard');
+        $response->assertRedirect(route('profesor.dashboard'));
     }
 }

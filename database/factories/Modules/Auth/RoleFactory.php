@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories\Modules\Auth\Models;
+namespace Database\Factories\Modules\Auth;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Modules\Auth\Models\Role;
@@ -13,7 +13,7 @@ class RoleFactory extends Factory
     {
         return [
             'name' => $this->faker->word,
-            'slug' => $this->faker->slug,
+            'slug' => $this->faker->unique()->slug,
             'description' => $this->faker->sentence,
             'is_active' => true,
         ];

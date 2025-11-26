@@ -10,9 +10,14 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!auth()->check() || !auth()->user()->hasRole($role)) {
-            abort(403, 'Acceso denegado: Rol requerido no coincide.');
+        if (!auth()->check()) {
+            return redirect()->route('login');
         }
+
+        if (!auth()->user()->hasRole($role)) {
+            abort(403, 'Acceso denegado: Se requiere rol de ' . $role);
+        }
+
         return $next($request);
     }
 }

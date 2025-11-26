@@ -39,9 +39,6 @@ class Kernel extends HttpKernel
 
     /**
      * The application's middleware aliases.
-     *
-     * IMPORTANTE: En Laravel 10+, usar $middlewareAliases
-     * En versiones anteriores, usar $routeMiddleware
      */
     protected $middlewareAliases = [
         'auth' => \App\Http\Middleware\Authenticate::class,
@@ -55,28 +52,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         
-        // Middlewares personalizados
-        'admin' => \App\Http\Middleware\AdminMiddleware::class,
-        'coordinator' => \App\Http\Middleware\CoordinatorMiddleware::class,
-        'role' => \App\Http\Middleware\RoleMiddleware::class,
-    ];
-
-    /**
-     * Para compatibilidad con versiones anteriores, también registrar en $routeMiddleware
-     */
-    protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
-        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-        'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
-        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        
-        // Middlewares personalizados
+        // Middlewares personalizados - VERIFICAR QUE ESTÉN EXACTAMENTE ASÍ
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'coordinator' => \App\Http\Middleware\CoordinatorMiddleware::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,

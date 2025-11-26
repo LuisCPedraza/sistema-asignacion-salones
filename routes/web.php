@@ -62,5 +62,12 @@ Route::middleware('auth')->group(function () {
             Role::PROFESOR, Role::PROFESOR_INVITADO => redirect()->route('profesor.dashboard'),
             default => redirect('/')->with('error', 'Rol no reconocido: ' . $user->role->slug)
         };
-    })->name('dashboard');    
+    })->name('dashboard');
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Rutas del módulo Gestión Académica
+    |--------------------------------------------------------------------------
+    */
+    require app_path('Modules/GestionAcademica/Routes/web.php');    
 });

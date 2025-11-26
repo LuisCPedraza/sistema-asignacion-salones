@@ -2,10 +2,8 @@
 
 namespace App\Modules\Auth\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\User;    
-//use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
@@ -44,5 +42,11 @@ class Role extends Model
             self::PROFESOR => 'Profesor',
             self::PROFESOR_INVITADO => 'Profesor Invitado',
         ];
+    }
+
+    // Método para factory
+    protected static function newFactory()
+    {
+        return \Database\Factories\Modules\Auth\RoleFactory::new();
     }
 }
