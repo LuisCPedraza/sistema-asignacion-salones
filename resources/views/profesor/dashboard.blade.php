@@ -248,6 +248,12 @@
                     <p>Genera reportes de tus actividades y rendimiento.</p>
                     <a href="#" class="btn-module">Ver Reportes (Próximamente)</a>
                 </div>
+
+                <div class="module-card">
+                    <h3>📅 Mis Disponibilidades</h3>
+                    <p>Gestiona tus horarios de disponibilidad para clases.</p>
+                    <a href="{{ route('gestion-academica.teachers.availabilities.my') }}" class="btn-module">Gestionar Mis Horarios</a>
+                </div>                
             </div>
         </main>
     </div>

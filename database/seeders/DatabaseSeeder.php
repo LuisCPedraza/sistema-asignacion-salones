@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             AdminUserSeeder::class,
             TimeSlotSeeder::class,
+            TeacherSeeder::class,
+            StudentGroupSeeder::class,
         ]);
     }
 }

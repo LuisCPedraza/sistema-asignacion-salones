@@ -117,5 +117,10 @@ class User extends Authenticatable
         }
         
         return now()->greaterThan($this->temporary_access_expires_at);
-    }    
+    }  
+    
+    public function teacher()
+    {
+        return $this->hasOne(\App\Modules\GestionAcademica\Models\Teacher::class);
+    }
 }
