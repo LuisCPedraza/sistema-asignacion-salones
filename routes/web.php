@@ -69,5 +69,11 @@ Route::middleware('auth')->group(function () {
     | Rutas del módulo Gestión Académica
     |--------------------------------------------------------------------------
     */
-    require app_path('Modules/GestionAcademica/Routes/web.php');    
+    require app_path('Modules/GestionAcademica/Routes/web.php'); 
+    /*
+    |--------------------------------------------------------------------------
+    | Rutas del módulo Infraestructura
+    |--------------------------------------------------------------------------
+    */
+    require app_path('Modules/Infraestructura/Routes/web.php');   
 });

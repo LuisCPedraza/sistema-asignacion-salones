@@ -192,7 +192,7 @@
         <nav class="sidebar">
             <ul class="sidebar-nav">
                 <li><a href="{{ route('infraestructura.dashboard') }}" class="active">📊 Dashboard</a></li>
-                <li><a href="#" class="coming-soon">🏢 Gestión de Salones (Próximamente)</a></li>
+                <li><a href="{{ route('infraestructura.classrooms.index') }}">🏢 Gestión de Salones</a></li>
                 <li><a href="#" class="coming-soon">🔧 Mantenimiento (Próximamente)</a></li>
                 <li><a href="#" class="coming-soon">📅 Reservas (Próximamente)</a></li>
                 <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
@@ -225,10 +225,10 @@
             </div>
 
             <div class="modules-grid">
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>🏢 Gestión de Salones</h3>
                     <p>Administra la información de salones, capacidad y equipamiento.</p>
-                    <a href="#" class="btn-module">Gestionar Salones (Próximamente)</a>
+                    <a href="{{ route('infraestructura.classrooms.index') }}" class="btn-module">Gestionar Salones</a>
                 </div>
                 
                 <div class="module-card coming-soon">

@@ -59,5 +59,18 @@ class AdminUserSeeder extends Seeder
             );
             $this->command->info('✅ Usuario profesor creado: profesor@universidad.edu / password123');
         }
+
+        // Usuario coordinador de infraestructura
+        if (!User::where('email', 'infraestructura@universidad.edu')->exists()) {
+            $infraRole = Role::where('slug', 'coordinador_infraestructura')->first();
+            User::create([
+                'name' => 'Coordinador Infraestructura',
+                'email' => 'infraestructura@universidad.edu',
+                'password' => bcrypt('password123'),
+                'role_id' => $infraRole->id,
+                'is_active' => true,
+            ]);
+            $this->command->info('✅ Usuario coordinador de infraestructura creado: infraestructura@universidad.edu / password123');
+        }        
     }
 }
