@@ -192,10 +192,10 @@
         <nav class="sidebar">
             <ul class="sidebar-nav">
                 <li><a href="{{ route('admin.dashboard') }}" class="active">📊 Dashboard</a></li>
-                <li><a href="#" class="coming-soon">👥 Gestión de Usuarios (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">📋 Auditoría (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">⚙️ Configuración (Próximamente)</a></li>
+                <li><a href="{{ route('admin.users.index') }}">👥 Gestión de Usuarios</a></li>
+                <li><a href="{{ route('admin.reports.index') }}">📈 Reportes</a></li>
+                <li><a href="{{ route('admin.audit.index') }}">📋 Auditoría</a></li>
+                <li><a href="{{ route('admin.config.index') }}">⚙️ Configuración</a></li>
             </ul>
         </nav>
 
@@ -215,38 +215,38 @@
                     <div class="stat-label">Roles del Sistema</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ \App\Modules\Infraestructura\Models\Classroom::active()->count() }}</div>
                     <div class="stat-label">Salones Disponibles</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">0</div>
-                    <div class="stat-label">Asignaciones Activas</div>
+                    <div class="stat-label">Profesores Activos</div>
                 </div>
             </div>
 
             <div class="modules-grid">
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>👥 Gestión de Usuarios</h3>
                     <p>Administra usuarios, roles y permisos del sistema.</p>
-                    <a href="#" class="btn-module">Gestionar Usuarios (Próximamente)</a>
+                    <a href="{{ route('admin.users.index') }}" class="btn-module">Gestionar Usuarios</a>
                 </div>
                 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>📈 Reportes del Sistema</h3>
                     <p>Genera reportes de uso, auditoría y estadísticas.</p>
-                    <a href="#" class="btn-module">Ver Reportes (Próximamente)</a>
+                    <a href="{{ route('admin.reports.index') }}" class="btn-module">Ver Reportes</a>
                 </div>
                 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>📋 Auditoría</h3>
                     <p>Revisa logs y actividades del sistema.</p>
-                    <a href="#" class="btn-module">Ver Auditoría (Próximamente)</a>
+                    <a href="{{ route('admin.audit.index') }}" class="btn-module">Ver Auditoría</a>
                 </div>
                 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>⚙️ Configuración</h3>
                     <p>Configura parámetros y ajustes del sistema.</p>
-                    <a href="#" class="btn-module">Configurar (Próximamente)</a>
+                    <a href="{{ route('admin.config.index') }}" class="btn-module">Configurar</a>
                 </div>
             </div>
         </main>

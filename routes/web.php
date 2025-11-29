@@ -75,5 +75,11 @@ Route::middleware('auth')->group(function () {
     | Rutas del módulo Infraestructura
     |--------------------------------------------------------------------------
     */
-    require app_path('Modules/Infraestructura/Routes/web.php');   
+    require app_path('Modules/Infraestructura/Routes/web.php');  
+    /*
+    |--------------------------------------------------------------------------
+    | Rutas del módulo Administración
+    |--------------------------------------------------------------------------
+    */
+    require __DIR__.'/../app/Modules/Admin/Routes/web.php'; 
 });
