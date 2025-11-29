@@ -17,23 +17,37 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, sqlite3, tokenizer, json
         coverage: none
         
     - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      run: |
+        cp .env.example .env
+        echo "DB_CONNECTION=sqlite" >> .env
+        echo "DB_DATABASE=:memory:" >> .env
+        echo "APP_KEY=base64:2fl+K7kQA0e5CWP0NmfT0R5cUwNnUVkq9YH3XbRlP3M=" >> .env
       
     - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      
-    - name: Generate key
-      run: php artisan key:generate
-      
+      run: |
+        composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        composer dump-autoload
+        
     - name: Create SQLite Database
       run: |
         mkdir -p database
         touch database/database.sqlite
         
-    - name: Execute tests (Unit and Feature tests)
-      run: vendor/bin/phpunit
+    - name: Run Migrations
+      run: php artisan migrate --force
       
+    - name: Generate Application Key
+      run: php artisan key:generate
+      
+    - name: Clear Configuration
+      run: |
+        php artisan config:clear
+        php artisan cache:clear
+        php artisan route:clear
+        
+    - name: Execute tests
+      run: vendor/bin/phpunit --verbose
