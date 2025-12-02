@@ -6,6 +6,7 @@ use App\Modules\Admin\Controllers\ReportController;
 use App\Modules\Admin\Controllers\AuditController;
 use App\Modules\Admin\Controllers\SystemConfigController;
 
+// Temporal: 'auth' solo
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard principal
     Route::get('/dashboard', function () {

@@ -4,6 +4,7 @@ namespace App\Modules\GestionAcademica\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class TeacherAvailability extends Model
 {
@@ -11,7 +12,7 @@ class TeacherAvailability extends Model
 
     protected $fillable = [
         'teacher_id',
-        'day_of_week',
+        'day',
         'start_time', 
         'end_time',
         'is_available',
@@ -19,21 +20,21 @@ class TeacherAvailability extends Model
     ];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
+        'start_time' => 'datetime:H:i:s',
+        'end_time' => 'datetime:H:i:s',
         'is_available' => 'boolean'
     ];
 
     // Método accessor para formatear start_time
     public function getStartTimeAttribute($value)
     {
-        return \Carbon\Carbon::parse($value)->format('H:i');
+        return Carbon::parse($value)->format('H:i:s');
     }
 
     // Método accessor para formatear end_time  
     public function getEndTimeAttribute($value)
     {
-        return \Carbon\Carbon::parse($value)->format('H:i');
+        return Carbon::parse($value)->format('H:i:s');
     }
 
     // Relación con profesor
@@ -60,12 +61,12 @@ class TeacherAvailability extends Model
             'saturday' => 'Sábado'
         ];
         
-        return $days[$this->day_of_week] ?? $this->day_of_week;
+        return $days[$this->day] ?? $this->day;
     }
 
     // Método para formatear horario
     public function getTimeRangeAttribute()
     {
-        return $this->start_time->format('H:i') . ' - ' . $this->end_time->format('H:i');
+        return $this->start_time . ' - ' . $this->end_time;
     }
 }

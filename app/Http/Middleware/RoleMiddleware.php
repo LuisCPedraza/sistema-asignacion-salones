@@ -8,14 +8,22 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, string $role): Response
+    /**
+     * Handle an incoming request.
+     *
+     * Ejemplo de uso:
+     * ->middleware('role:admin,coordinador,secretaria_coordinacion')
+     */
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!auth()->check()) {
             return redirect()->route('login');
         }
 
-        if (!auth()->user()->hasRole($role)) {
-            abort(403, 'Acceso denegado: Se requiere rol de ' . $role);
+        $userRoleSlug = auth()->user()->role?->slug;
+
+        if (!$userRoleSlug || !in_array($userRoleSlug, $roles)) {
+            abort(403, 'Acceso denegado. Tu rol no tiene permiso para esta sección.');
         }
 
         return $next($request);

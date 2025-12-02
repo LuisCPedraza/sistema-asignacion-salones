@@ -21,7 +21,7 @@ class ClassroomAvailabilityController extends Controller
 
     public function index(Classroom $classroom)
     {
-        $availabilities = $classroom->availabilities()->orderBy('day_of_week')->orderBy('start_time')->get();
+        $availabilities = $classroom->availabilities()->orderBy('day')->orderBy('start_time')->get();
         return view('infraestructura.availability.index', compact('classroom', 'availabilities'));
     }
 
@@ -33,35 +33,32 @@ class ClassroomAvailabilityController extends Controller
     public function store(Request $request, Classroom $classroom)
     {
         $validated = $request->validate([
-            'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
+            'day' => 'required|string|in:monday,tuesday,wednesday,thursday,friday,saturday',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'is_available' => 'boolean',
-            'availability_type' => 'required|in:regular,maintenance,reserved,special_event',
-            'notes' => 'nullable|string|max:255'
+            'is_available' => 'required|boolean',
+            'availability_type' => 'required|string|in:regular,maintenance,special',
+            'notes' => 'nullable|string|max:500',
         ]);
 
-        // Validar que no se solapen horarios
-        $overlapping = $classroom->availabilities()
-            ->where('day_of_week', $validated['day_of_week'])
-            ->where(function($query) use ($validated) {
-                $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
-                      ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
-                      ->orWhere(function($q) use ($validated) {
-                          $q->where('start_time', '<=', $validated['start_time'])
-                            ->where('end_time', '>=', $validated['end_time']);
-                      });
-            })
-            ->exists();
+        // Convertir formato de tiempo para consistencia
+        $validated['start_time'] = $validated['start_time'] . ':00';
+        $validated['end_time'] = $validated['end_time'] . ':00';
 
-        if ($overlapping) {
-            return back()->withErrors(['start_time' => 'El horario se solapa con una disponibilidad existente.']);
+        // Debug: verificar datos antes de crear
+        \Log::info('Creando classroom availability con datos:', $validated);
+
+        try {
+            $availability = $classroom->availabilities()->create($validated);
+            \Log::info('Classroom availability creada exitosamente:', $availability->toArray());
+        } catch (\Exception $e) {
+            \Log::error('Error creando classroom availability: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error creando la disponibilidad: ' . $e->getMessage());
         }
 
-        $classroom->availabilities()->create($validated);
-
-        return redirect()->route('infraestructura.classrooms.availabilities.index', $classroom)
-            ->with('success', 'Disponibilidad agregada exitosamente.');
+        return redirect()
+            ->route('infraestructura.classrooms.availabilities.index', $classroom)
+            ->with('success', 'Disponibilidad creada exitosamente.');
     }
 
     public function edit(Classroom $classroom, ClassroomAvailability $availability)
@@ -72,7 +69,7 @@ class ClassroomAvailabilityController extends Controller
     public function update(Request $request, Classroom $classroom, ClassroomAvailability $availability)
     {
         $validated = $request->validate([
-            'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
+            'day' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'is_available' => 'boolean',
@@ -83,7 +80,7 @@ class ClassroomAvailabilityController extends Controller
         // Validar solapamientos (excluyendo el registro actual)
         $overlapping = $classroom->availabilities()
             ->where('id', '!=', $availability->id)
-            ->where('day_of_week', $validated['day_of_week'])
+            ->where('day', $validated['day'])
             ->where(function($query) use ($validated) {
                 $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
                       ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])

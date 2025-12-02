@@ -6,14 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Modules\GestionAcademica\Models\Teacher;
 use App\Modules\GestionAcademica\Models\TeacherAvailability;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TeacherAvailabilityController extends Controller
 {
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            // Coordinadores pueden gestionar todas las disponibilidades
-            // Profesores solo pueden gestionar las suyas propias
             if (!auth()->check()) {
                 abort(403, 'Acceso denegado.');
             }
@@ -30,17 +29,34 @@ class TeacherAvailabilityController extends Controller
     // Mostrar disponibilidades de un profesor
     public function index(Teacher $teacher)
     {
-        // Verificar permisos: profesor solo puede ver sus propias disponibilidades
         if (auth()->user()->hasRole('profesor') && $teacher->user_id !== auth()->id()) {
             abort(403, 'Solo puedes ver tus propias disponibilidades.');
         }
 
-        $availabilities = $teacher->availabilities()->orderBy('day_of_week')->orderBy('start_time')->get();
+        $availabilities = $teacher->availabilities()->orderBy('day')->orderBy('start_time')->get();
         
         return view('gestion-academica.availability.index', compact('teacher', 'availabilities'));
     }
 
-    // Mostrar formulario para crear disponibilidad
+    // HU14: Mis disponibilidades (para profesores)
+    public function myAvailabilities()
+    {
+        $user = Auth::user();
+        $teacher = $user->teacher;
+
+        if (!$teacher) {
+            abort(404, 'No profesor asociado a tu usuario.');
+        }
+
+        $availabilities = TeacherAvailability::where('teacher_id', $teacher->id)
+            ->orderBy('day')
+            ->orderBy('start_time')
+            ->get();
+
+        return view('gestion-academica.availability.my-availabilities', compact('teacher', 'availabilities'));
+    }
+
+    // Create (existente)
     public function create(Teacher $teacher)
     {
         if (auth()->user()->hasRole('profesor') && $teacher->user_id !== auth()->id()) {
@@ -50,45 +66,36 @@ class TeacherAvailabilityController extends Controller
         return view('gestion-academica.availability.create', compact('teacher'));
     }
 
-    // Almacenar nueva disponibilidad
+    // Store (existente, fix: Usa 'day' en validated)
     public function store(Request $request, Teacher $teacher)
     {
-        if (auth()->user()->hasRole('profesor') && $teacher->user_id !== auth()->id()) {
-            abort(403, 'Solo puedes gestionar tus propias disponibilidades.');
-        }
-
         $validated = $request->validate([
-            'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
+            'day' => 'required|string|in:monday,tuesday,wednesday,thursday,friday,saturday', // Fix: 'day' no 'day_of_week'
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'is_available' => 'boolean',
-            'notes' => 'nullable|string|max:255'
+            'is_available' => 'required|boolean',
+            'notes' => 'nullable|string|max:500',
         ]);
 
-        // Validar que no se solapen horarios
-        $overlapping = $teacher->availabilities()
-            ->where('day_of_week', $validated['day_of_week'])
-            ->where(function($query) use ($validated) {
-                $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
-                      ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
-                      ->orWhere(function($q) use ($validated) {
-                          $q->where('start_time', '<=', $validated['start_time'])
-                            ->where('end_time', '>=', $validated['end_time']);
-                      });
-            })
-            ->exists();
+        $validated['start_time'] = $validated['start_time'] . ':00';
+        $validated['end_time'] = $validated['end_time'] . ':00';
 
-        if ($overlapping) {
-            return back()->withErrors(['start_time' => 'El horario se solapa con una disponibilidad existente.']);
+        \Log::info('Creando teacher availability con datos:', $validated);
+
+        try {
+            $availability = $teacher->availabilities()->create($validated);
+            \Log::info('Teacher availability creada exitosamente:', $availability->toArray());
+        } catch (\Exception $e) {
+            \Log::error('Error creando teacher availability: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error creando la disponibilidad: ' . $e->getMessage());
         }
 
-        $teacher->availabilities()->create($validated);
-
-        return redirect()->route('gestion-academica.teachers.availabilities.index', $teacher)
-            ->with('success', 'Disponibilidad agregada exitosamente.');
+        return redirect()
+            ->route('gestion-academica.teachers.availabilities.index', $teacher)
+            ->with('success', 'Disponibilidad creada exitosamente.');
     }
 
-    // Mostrar formulario de edición
+    // Edit (existente)
     public function edit(Teacher $teacher, TeacherAvailability $availability)
     {
         if (auth()->user()->hasRole('profesor') && $teacher->user_id !== auth()->id()) {
@@ -98,7 +105,7 @@ class TeacherAvailabilityController extends Controller
         return view('gestion-academica.availability.edit', compact('teacher', 'availability'));
     }
 
-    // Actualizar disponibilidad
+    // Update (existente)
     public function update(Request $request, Teacher $teacher, TeacherAvailability $availability)
     {
         if (auth()->user()->hasRole('profesor') && $teacher->user_id !== auth()->id()) {
@@ -106,17 +113,16 @@ class TeacherAvailabilityController extends Controller
         }
 
         $validated = $request->validate([
-            'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
+            'day' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday', // Fix: 'day'
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'is_available' => 'boolean',
             'notes' => 'nullable|string|max:255'
         ]);
 
-        // Validar solapamientos (excluyendo el registro actual)
         $overlapping = $teacher->availabilities()
             ->where('id', '!=', $availability->id)
-            ->where('day_of_week', $validated['day_of_week'])
+            ->where('day', $validated['day'])
             ->where(function($query) use ($validated) {
                 $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
                       ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
@@ -137,7 +143,7 @@ class TeacherAvailabilityController extends Controller
             ->with('success', 'Disponibilidad actualizada exitosamente.');
     }
 
-    // Eliminar disponibilidad
+    // Destroy (existente)
     public function destroy(Teacher $teacher, TeacherAvailability $availability)
     {
         if (auth()->user()->hasRole('profesor') && $teacher->user_id !== auth()->id()) {

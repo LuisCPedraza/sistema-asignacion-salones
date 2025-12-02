@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Infraestructura\Controllers\ClassroomController;
 use App\Modules\Infraestructura\Controllers\ClassroomAvailabilityController;
 
-// Grupo para Gestión de Infraestructura
+// Grupo para Gestión de Infraestructura (Temporal: 'auth' solo)
 Route::middleware(['auth'])->prefix('infraestructura')->name('infraestructura.')->group(function () {
     // CRUD de Salones
     Route::resource('classrooms', ClassroomController::class);

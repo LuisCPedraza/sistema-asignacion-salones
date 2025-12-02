@@ -174,6 +174,50 @@
             opacity: 0.7;
             pointer-events: none;
         }
+        
+        /* Nuevos estilos para el Módulo 6 */
+        .visualization-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .visualization-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .visualization-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .visualization-btn-orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .btn-icon {
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .coming-soon {
+            opacity: 0.7;
+        }
+        .coming-soon .btn-module {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .coming-soon .btn-module:hover {
+            background: #9ca3af;
+        }
     </style>
 </head>
 <body>
@@ -192,7 +236,7 @@
         <nav class="sidebar">
             <ul class="sidebar-nav">
                 <li><a href="{{ route('profesor.dashboard') }}" class="active">📊 Dashboard</a></li>
-                <li><a href="#" class="coming-soon">📅 Mis Horarios (Próximamente)</a></li>
+                <li><a href="{{ route('visualizacion.horario.personal') }}">📅 Mi Horario Personal</a></li>
                 <li><a href="#" class="coming-soon">📚 Mis Cursos (Próximamente)</a></li>
                 <li><a href="#" class="coming-soon">📋 Asistencias (Próximamente)</a></li>
                 <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
@@ -207,15 +251,25 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ \App\Models\Assignment::whereHas('teacher', function ($q) { $q->where('user_id', auth()->id()); })->count() }}</div>
                     <div class="stat-label">Cursos Asignados</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">
+                        {{-- Calcula horas totales: count * 2 (asumiendo 2 horas por clase) --}}
+                        {{ \App\Models\Assignment::whereHas('teacher', function ($q) { $q->where('user_id', auth()->id()); })->count() * 2 }}
+                    </div>
                     <div class="stat-label">Horas Semanales</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">
+                        {{-- Usa student_count en lugar de number_of_students --}}
+                        {{ \App\Models\Assignment::whereHas('teacher', function ($q) { 
+                            $q->where('user_id', auth()->id()); 
+                        })->with('studentGroup')->get()->sum(function($assignment) {
+                            return $assignment->studentGroup ? $assignment->studentGroup->student_count : 0;
+                        }) }}
+                    </div>
                     <div class="stat-label">Estudiantes</div>
                 </div>
                 <div class="stat-card">
@@ -225,10 +279,10 @@
             </div>
 
             <div class="modules-grid">
-                <div class="module-card coming-soon">
-                    <h3>📅 Mis Horarios</h3>
+                <div class="module-card">
+                    <h3>📅 Mi Horario Personal</h3>
                     <p>Consulta y gestiona tus horarios de clases y disponibilidad.</p>
-                    <a href="#" class="btn-module">Ver Horarios (Próximamente)</a>
+                    <a href="{{ route('visualizacion.horario.personal') }}" class="btn-module">Ver Mi Horario</a>
                 </div>
                 
                 <div class="module-card coming-soon">

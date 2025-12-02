@@ -27,16 +27,16 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Día de la Semana:</label>
-                            <select name="day_of_week" class="form-select @error('day_of_week') is-invalid @enderror" required>
+                            <select name="day" class="form-select @error('day') is-invalid @enderror" required> {{-- Fix: name="day" --}}
                                 <option value="">Seleccionar día</option>
-                                <option value="monday" {{ old('day_of_week') == 'monday' ? 'selected' : '' }}>Lunes</option>
-                                <option value="tuesday" {{ old('day_of_week') == 'tuesday' ? 'selected' : '' }}>Martes</option>
-                                <option value="wednesday" {{ old('day_of_week') == 'wednesday' ? 'selected' : '' }}>Miércoles</option>
-                                <option value="thursday" {{ old('day_of_week') == 'thursday' ? 'selected' : '' }}>Jueves</option>
-                                <option value="friday" {{ old('day_of_week') == 'friday' ? 'selected' : '' }}>Viernes</option>
-                                <option value="saturday" {{ old('day_of_week') == 'saturday' ? 'selected' : '' }}>Sábado</option>
+                                <option value="monday" {{ old('day') ?: 'selected' }}>Lunes</option> {{-- Default --}}
+                                <option value="tuesday" {{ old('day') == 'tuesday' ? 'selected' : '' }}>Martes</option>
+                                <option value="wednesday" {{ old('day') == 'wednesday' ? 'selected' : '' }}>Miércoles</option>
+                                <option value="thursday" {{ old('day') == 'thursday' ? 'selected' : '' }}>Jueves</option>
+                                <option value="friday" {{ old('day') == 'friday' ? 'selected' : '' }}>Viernes</option>
+                                <option value="saturday" {{ old('day') == 'saturday' ? 'selected' : '' }}>Sábado</option>
                             </select>
-                            @error('day_of_week') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @error('day') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                     </div>
                     
@@ -123,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const startTime = document.querySelector('input[name="start_time"]');
     const endTime = document.querySelector('input[name="end_time"]');
     
-    // Actualizar min/max de end_time cuando cambia start_time
     startTime.addEventListener('change', function() {
         endTime.min = this.value;
         if (endTime.value && endTime.value < this.value) {

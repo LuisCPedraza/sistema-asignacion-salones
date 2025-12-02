@@ -12,16 +12,32 @@ class StudentGroup extends Model
 
     protected $fillable = [
         'name',
-        'level',
+        'level', 
         'student_count',
         'special_features',
+        'number_of_students',
+        'special_requirements',
         'is_active',
         'academic_period_id'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'student_count' => 'integer',
+        'number_of_students' => 'integer',
     ];
+    
+    public function requirements()
+    {
+        // Esta es una relación virtual para compatibilidad con el algoritmo
+        return $this;
+    }
+
+    // AGREGAR ESTA RELACIÓN:
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(\App\Models\Assignment::class, 'student_group_id');
+    }
 
     // Scope para HU4: Visualizar activos (auditoría soft-delete)
     public function scopeActive(Builder $query): Builder

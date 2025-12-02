@@ -20,7 +20,6 @@
         Los coordinadores utilizarán esta información para las asignaciones.
     </div>
 
-    <!-- Resto del código igual a la vista index de disponibilidades -->
     <div class="card">
         <div class="card-body">
             @if($availabilities->isEmpty())
@@ -70,7 +69,7 @@
         </div>
     </div>
 
-    <!-- Resumen semanal (igual que en la vista index) -->
+    <!-- Resumen semanal -->
     <div class="card mt-4">
         <div class="card-header">
             <h5 class="mb-0">📊 Mi Resumen Semanal de Disponibilidad</h5>
@@ -79,11 +78,11 @@
             <div class="row">
                 @php
                     $days = ['monday' => 'Lunes', 'tuesday' => 'Martes', 'wednesday' => 'Miércoles', 
-                            'thursday' => 'Jueves', 'friday' => 'Viernes', 'saturday' => 'Sábado'];
+                             'thursday' => 'Jueves', 'friday' => 'Viernes', 'saturday' => 'Sábado'];
                 @endphp
-                @foreach($days as $key => $day)
+                @forelse($days as $key => $day)
                     @php
-                        $dayAvailabilities = $availabilities->where('day_of_week', $key)->where('is_available', true);
+                        $dayAvailabilities = $availabilities->where('day', $key)->where('is_available', true); // Fix: 'day'
                     @endphp
                     <div class="col-md-4 mb-3">
                         <strong>{{ $day }}:</strong>
@@ -99,7 +98,9 @@
                             <span class="text-muted">No disponible</span>
                         @endif
                     </div>
-                @endforeach
+                @empty
+                    <div class="col-12"><p>No hay días disponibles.</p></div>
+                @endforelse
             </div>
         </div>
     </div>

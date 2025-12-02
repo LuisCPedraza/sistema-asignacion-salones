@@ -30,7 +30,7 @@ class TeacherAvailabilityFactory extends Factory
 
         return [
             'teacher_id' => Teacher::factory(),
-            'day_of_week' => $this->faker->randomElement($days),
+            'day' => $this->faker->randomElement($days),
             'start_time' => $startTime,
             'end_time' => $endTime,
             'is_available' => $this->faker->boolean(80),

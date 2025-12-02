@@ -14,72 +14,54 @@ Route::get('/', function () {
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('login', [AuthController::class, 'login']);
-    
-    // Rutas de registro
     Route::get('register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('register', [AuthController::class, 'register']);
 });
 
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-    
-    // Ruta temporal sin middleware admin
+
+    // Admin dashboard (temporal)
     Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('/dashboard', function () {
-            // Verificar manualmente si es admin
             if (!auth()->user()->hasRole('administrador')) {
                 abort(403, 'Acceso denegado');
             }
             return view('admin.dashboard', ['user' => auth()->user()]);
         })->name('admin.dashboard');
     });
-    
-    // Rutas básicas de dashboard (sin middleware de roles específicos por ahora)
-    Route::get('/academic/dashboard', function () {
-        return view('academic.dashboard', ['user' => auth()->user()]);
-    })->name('academic.dashboard');
-    
-    Route::get('/infraestructura/dashboard', function () {
-        return view('infraestructura.dashboard', ['user' => auth()->user()]);
-    })->name('infraestructura.dashboard');
-    
-    Route::get('/profesor/dashboard', function () {
-        return view('profesor.dashboard', ['user' => auth()->user()]);
-    })->name('profesor.dashboard');
 
-    // Fallback dashboard por rol
+    // Dashboards por rol
+    Route::get('/academic/dashboard', fn() => view('academic.dashboard', ['user' => auth()->user()]))->name('academic.dashboard');
+    Route::get('/infraestructura/dashboard', fn() => view('infraestructura.dashboard', ['user' => auth()->user()]))->name('infraestructura.dashboard');
+    Route::get('/profesor/dashboard', fn() => view('profesor.dashboard', ['user' => auth()->user()]))->name('profesor.dashboard');
+
+    // Fallback dashboard
     Route::get('/dashboard', function () {
         $user = auth()->user();
-        
-        if (!$user->role) {
-            return redirect('/')->with('error', 'Usuario sin rol asignado');
-        }
+        if (!$user->role) return redirect('/')->with('error', 'Usuario sin rol asignado');
 
         return match ($user->role->slug) {
-            Role::ADMINISTRADOR, Role::SECRETARIA_ADMINISTRATIVA => redirect()->route('admin.dashboard'),
-            Role::COORDINADOR, Role::SECRETARIA_COORDINACION => redirect()->route('academic.dashboard'),
-            Role::COORDINADOR_INFRAESTRUCTURA, Role::SECRETARIA_INFRAESTRUCTURA => redirect()->route('infraestructura.dashboard'),
-            Role::PROFESOR, Role::PROFESOR_INVITADO => redirect()->route('profesor.dashboard'),
-            default => redirect('/')->with('error', 'Rol no reconocido: ' . $user->role->slug)
+            'administrador', 'secretaria_administrativa' => redirect()->route('admin.dashboard'),
+            'coordinador', 'secretaria_coordinacion' => redirect()->route('academic.dashboard'),
+            'coordinador_infraestructura', 'secretaria_infraestructura' => redirect()->route('infraestructura.dashboard'),
+            'profesor', 'profesor_invitado' => redirect()->route('profesor.dashboard'),
+            default => redirect('/')->with('error', 'Rol no reconocido'),
         };
     })->name('dashboard');
-    
-    /*
-    |--------------------------------------------------------------------------
-    | Rutas del módulo Gestión Académica
-    |--------------------------------------------------------------------------
-    */
-    require app_path('Modules/GestionAcademica/Routes/web.php'); 
-    /*
-    |--------------------------------------------------------------------------
-    | Rutas del módulo Infraestructura
-    |--------------------------------------------------------------------------
-    */
-    require app_path('Modules/Infraestructura/Routes/web.php');  
-    /*
-    |--------------------------------------------------------------------------
-    | Rutas del módulo Administración
-    |--------------------------------------------------------------------------
-    */
-    require __DIR__.'/../app/Modules/Admin/Routes/web.php'; 
+
+    // Módulos protegidos
+    require app_path('Modules/GestionAcademica/Routes/web.php');
+    require app_path('Modules/Infraestructura/Routes/web.php');
+    require __DIR__.'/../app/Modules/Admin/Routes/web.php';
+
+    // Módulo Asignación (con prefix y name correctos)
+    Route::prefix('asignacion')->name('asignacion.')->group(function () {
+        require __DIR__.'/../app/Modules/Asignacion/Routes/web.php';
+    });
+
+    // Módulo Visualización
+    Route::prefix('visualizacion')->name('visualizacion.')->group(function () {
+        require __DIR__.'/../app/Modules/Visualization/Routes/web.php';
+    });
 });

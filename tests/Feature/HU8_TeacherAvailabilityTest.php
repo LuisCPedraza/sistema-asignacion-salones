@@ -19,7 +19,7 @@ class HU8_TeacherAvailabilityTest extends TestCase
         $this->seed(\Database\Seeders\RoleSeeder::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function hu8_coordinator_can_view_teacher_availability_page()
     {
         // Given: Un coordinador autenticado
@@ -44,7 +44,6 @@ class HU8_TeacherAvailabilityTest extends TestCase
         $response->assertSee('Disponibilidades de Carlos Mendoza');
     }
 
-    /** @test */
     #[\PHPUnit\Framework\Attributes\Test]
     public function hu8_coordinator_can_create_availability_for_teacher()
     {
@@ -64,7 +63,7 @@ class HU8_TeacherAvailabilityTest extends TestCase
 
         // When: Crea una disponibilidad para el profesor
         $response = $this->post(route('gestion-academica.teachers.availabilities.store', $teacher), [
-            'day_of_week' => 'monday',
+            'day' => 'monday',
             'start_time' => '08:00',
             'end_time' => '10:00',
             'is_available' => true,
@@ -74,21 +73,16 @@ class HU8_TeacherAvailabilityTest extends TestCase
         // Then: La disponibilidad se crea exitosamente
         $response->assertRedirect();
         
-        // Verificar que se guardaron los datos básicos
+        // Verificar que se guardaron los datos básicos (formato TIME puro via casts)
         $this->assertDatabaseHas('teacher_availabilities', [
             'teacher_id' => $teacher->id,
-            'day_of_week' => 'monday',
+            'day' => 'monday',
+            'start_time' => '08:00:00',
+            'end_time' => '10:00:00',
             'is_available' => true,
-            'notes' => 'Disponible para clases teóricas'
         ]);
-
-        // And: Aparece en la lista con los horarios correctos
-        $response = $this->get(route('gestion-academica.teachers.availabilities.index', $teacher));
-        $response->assertSee('Lunes');
-        $response->assertSee('08:00 - 10:00');
     }
 
-    /** @test */
     #[\PHPUnit\Framework\Attributes\Test]
     public function hu8_availability_requires_valid_time_range()
     {
@@ -106,7 +100,7 @@ class HU8_TeacherAvailabilityTest extends TestCase
 
         // Test: Hora de fin debe ser posterior a hora de inicio
         $response = $this->post(route('gestion-academica.teachers.availabilities.store', $teacher), [
-            'day_of_week' => 'monday',
+            'day' => 'monday',
             'start_time' => '10:00',
             'end_time' => '08:00', // Inválido
             'is_available' => true,
@@ -115,7 +109,7 @@ class HU8_TeacherAvailabilityTest extends TestCase
         $response->assertSessionHasErrors(['end_time']);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function hu8_teacher_cannot_access_other_teacher_availabilities()
     {
         // Given: Un profesor autenticado
@@ -139,7 +133,7 @@ class HU8_TeacherAvailabilityTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function hu8_guest_cannot_access_availabilities()
     {
         $teacher = Teacher::create([

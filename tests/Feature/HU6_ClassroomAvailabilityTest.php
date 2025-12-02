@@ -20,7 +20,7 @@ class HU6_ClassroomAvailabilityTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    public function infrastructure_coordinator_can_view_classroom_availabilities()
+    public function test_infrastructure_coordinator_can_view_classroom_availabilities()
     {
         $infraRole = Role::where('slug', 'coordinador_infraestructura')->first();
         $user = User::factory()->create(['role_id' => $infraRole->id]);
@@ -35,11 +35,12 @@ class HU6_ClassroomAvailabilityTest extends TestCase
             'is_active' => true,
         ]);
 
+        // Crear disponibilidad directamente sin factory
         $availability = ClassroomAvailability::create([
             'classroom_id' => $classroom->id,
-            'day_of_week' => 'monday',
-            'start_time' => '08:00',
-            'end_time' => '10:00',
+            'day' => 'monday',
+            'start_time' => '08:00:00',
+            'end_time' => '10:00:00',
             'is_available' => true,
             'availability_type' => 'regular',
         ]);
@@ -51,7 +52,7 @@ class HU6_ClassroomAvailabilityTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    public function infrastructure_coordinator_can_create_classroom_availability()
+    public function test_infrastructure_coordinator_can_create_classroom_availability()
     {
         $infraRole = Role::where('slug', 'coordinador_infraestructura')->first();
         $user = User::factory()->create(['role_id' => $infraRole->id]);
@@ -67,7 +68,7 @@ class HU6_ClassroomAvailabilityTest extends TestCase
         ]);
 
         $response = $this->post(route('infraestructura.classrooms.availabilities.store', $classroom), [
-            'day_of_week' => 'monday',
+            'day' => 'monday',
             'start_time' => '08:00',
             'end_time' => '10:00',
             'is_available' => true,
@@ -76,9 +77,13 @@ class HU6_ClassroomAvailabilityTest extends TestCase
         ]);
 
         $response->assertRedirect();
+        
+        // Verificar en la base de datos (formato TIME puro via casts)
         $this->assertDatabaseHas('classroom_availabilities', [
             'classroom_id' => $classroom->id,
-            'day_of_week' => 'monday',
+            'day' => 'monday',
+            'start_time' => '08:00:00',
+            'end_time' => '10:00:00',
         ]);
     }
 
@@ -99,7 +104,7 @@ class HU6_ClassroomAvailabilityTest extends TestCase
         ]);
 
         $response = $this->post(route('infraestructura.classrooms.availabilities.store', $classroom), [
-            'day_of_week' => 'monday',
+            'day' => 'monday',
             'start_time' => '10:00',
             'end_time' => '08:00', // Hora de fin anterior a inicio
             'is_available' => true,

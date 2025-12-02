@@ -11,7 +11,7 @@ class ClassroomAvailability extends Model
 
     protected $fillable = [
         'classroom_id',
-        'day_of_week',
+        'day',
         'start_time',
         'end_time',
         'is_available',
@@ -20,8 +20,8 @@ class ClassroomAvailability extends Model
     ];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
+        'start_time' => 'datetime:H:i:s',
+        'end_time' => 'datetime:H:i:s',
         'is_available' => 'boolean'
     ];
 
@@ -48,13 +48,13 @@ class ClassroomAvailability extends Model
             'saturday' => 'Sábado'
         ];
         
-        return $days[$this->day_of_week] ?? $this->day_of_week;
+        return $days[$this->day] ?? $this->day;
     }
 
     // Método para formatear horario
     public function getTimeRangeAttribute()
     {
-        return $this->start_time->format('H:i') . ' - ' . $this->end_time->format('H:i');
+        return $this->start_time->format('H:i:s') . ' - ' . $this->end_time->format('H:i:s');
     }
 
     // Método para formatear tipo de disponibilidad
