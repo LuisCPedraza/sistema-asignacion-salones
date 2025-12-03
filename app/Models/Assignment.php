@@ -18,7 +18,8 @@ class Assignment extends Model
         'end_time',
         'score',
         'notes',
-        'is_confirmed'
+        'is_confirmed',
+        'duration',
     ];
 
     protected $casts = [

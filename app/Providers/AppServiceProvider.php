@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;           // ← AÑADIR ESTO
 use Database\Factories\RoleFactory;
 use App\Modules\Auth\Models\Role;
 
@@ -18,6 +19,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        //
+        // REGISTRO OBLIGATORIO DE ALIAS DE MIDDLEWARE EN LARAVEL 12
+        Route::aliasMiddleware('role', \App\Http\Middleware\RoleMiddleware::class);
+        Route::aliasMiddleware('admin', \App\Http\Middleware\AdminMiddleware::class);
+        Route::aliasMiddleware('coordinator', \App\Http\Middleware\CoordinatorMiddleware::class);
+        
+        // Si en el futuro creas más middleware con alias (ej. 'infrastructure'), los añades aquí también
     }
 }

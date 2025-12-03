@@ -13,7 +13,7 @@
     <div class="card">
         <div class="card-body">
             <p>Grupos disponibles: {{ $groups->count() }} | Salones: {{ $classrooms->count() }}</p>
-            <form method="POST" action="{{ route('asignacion.ejecutar-automatica') }}">
+            <form method="POST" action="{{ route('asignacion.asignacion.ejecutar-automatica') }}">
                 @csrf
                 <button type="submit" class="btn btn-primary">Ejecutar Algoritmo</button>
             </form>

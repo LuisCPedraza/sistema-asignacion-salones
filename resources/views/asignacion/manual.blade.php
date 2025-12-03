@@ -12,7 +12,7 @@
             <div id="calendar" style="height: 400px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 0.375rem; margin: 1rem 0;">
                 <p class="p-4 text-center text-muted">Calendario interactivo (Drag & Drop) en desarrollo</p>
             </div>
-            <a href="{{ route('asignacion.assignments.create') }}" class="btn btn-success">➕ Nueva Asignación</a>
+            <a href="{{ route('asignacion.asignacion.assignments.create') }}" class="btn btn-success">➕ Nueva Asignación</a>
         </div>
     </div>
 </div>

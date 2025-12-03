@@ -238,7 +238,7 @@
                 <li><a href="{{ route('academic.dashboard') }}" class="active">📊 Dashboard</a></li>
                 <li><a href="{{ route('gestion-academica.student-groups.index') }}">🎓 Grupos de Estudiantes</a></li>
                 <li><a href="{{ route('gestion-academica.teachers.index') }}">👨‍🏫 Gestión de Profesores</a></li>
-                <li><a href="{{ route('asignacion.automatica') }}">🤖 Asignación Inteligente</a></li>
+                <li><a href="{{ route('asignacion.asignacion.automatica') }}">🤖 Asignación Inteligente</a></li>
                 <li><a href="{{ route('visualizacion.horario.semestral') }}">📊 Visualización Horarios</a></li>
                 <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
             </ul>
@@ -294,7 +294,7 @@
                     <p>Asignaciones automáticas y manuales de salones, configuración de reglas y detección de conflictos.</p>
                     
                     <div class="assignment-grid">
-                        <a href="{{ route('asignacion.automatica') }}" class="assignment-btn assignment-btn-blue">
+                        <a href="{{ route('asignacion.asignacion.automatica') }}" class="assignment-btn assignment-btn-blue">
                             <div>
                                 <div class="font-semibold">🔄 Automática</div>
                                 <div class="text-blue-100 text-xs mt-1">Algoritmo inteligente</div>
@@ -306,7 +306,7 @@
                             </div>
                         </a>
 
-                        <a href="{{ route('asignacion.manual') }}" class="assignment-btn assignment-btn-green">
+                        <a href="{{ route('asignacion.asignacion.manual') }}" class="assignment-btn assignment-btn-green">
                             <div>
                                 <div class="font-semibold">👆 Manual</div>
                                 <div class="text-green-100 text-xs mt-1">Arrastrar y soltar</div>
@@ -318,7 +318,7 @@
                             </div>
                         </a>
 
-                        <a href="{{ route('asignacion.reglas') }}" class="assignment-btn assignment-btn-purple">
+                        <a href="{{ route('asignacion.asignacion.reglas') }}" class="assignment-btn assignment-btn-purple">
                             <div>
                                 <div class="font-semibold">⚙️ Reglas</div>
                                 <div class="text-purple-100 text-xs mt-1">Configurar prioridades</div>
@@ -331,7 +331,7 @@
                             </div>
                         </a>
 
-                        <a href="{{ route('asignacion.conflictos') }}" class="assignment-btn assignment-btn-red">
+                        <a href="{{ route('asignacion.asignacion.conflictos') }}" class="assignment-btn assignment-btn-red">
                             <div>
                                 <div class="font-semibold">⚠️ Conflictos</div>
                                 <div class="text-red-100 text-xs mt-1">Detección en tiempo real</div>
