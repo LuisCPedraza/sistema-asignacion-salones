@@ -4,8 +4,8 @@ namespace App\Modules\Visualization\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Assignment;
-use App\Modules\GestionAcademica\Models\Teacher;
+use App\Modules\Asignacion\Models\Assignment;
+use App\Models\Teacher; // Este sí está en app/Models
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Modules\Visualization\Exports\HorarioExport;
@@ -17,7 +17,7 @@ class HorarioController extends Controller
      */
     public function semestral(Request $request)
     {
-        $assignments = Assignment::with(['group', 'teacher', 'classroom'])
+        $assignments = Assignment::with(['group', 'teacher', 'classroom', 'timeSlot'])
             ->when($request->day, function ($query) use ($request) {
                 $query->where('day', $request->day);
             })
@@ -49,7 +49,7 @@ class HorarioController extends Controller
         }
 
         $assignments = Assignment::where('teacher_id', $teacher->id)
-            ->with(['group', 'classroom'])
+            ->with(['group', 'classroom', 'timeSlot'])
             ->orderBy('day')
             ->orderBy('start_time')
             ->get();

@@ -5,31 +5,39 @@ namespace App\Modules\Asignacion\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Modules\GestionAcademica\Models\StudentGroup;
-use App\Modules\GestionAcademica\Models\Teacher;
+use App\Models\Teacher;
 use App\Modules\Infraestructura\Models\Classroom;
+use App\Models\TimeSlot;
 
 class Assignment extends Model
 {
     use HasFactory;
 
+    protected $table = 'assignments';
+
     protected $fillable = [
         'student_group_id',
-        'teacher_id', 
+        'teacher_id',
         'classroom_id',
+        'time_slot_id',
         'day',
         'start_time',
         'end_time',
+        'score',
+        'assigned_by_algorithm',
         'is_confirmed',
         'notes'
     ];
 
     protected $casts = [
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
-        'is_confirmed' => 'boolean'
+        'start_time' => 'datetime:H:i:s',
+        'end_time'   => 'datetime:H:i:s',
+        'score'      => 'decimal:2',
+        'assigned_by_algorithm' => 'boolean',
+        'is_confirmed' => 'boolean',
     ];
 
-    // Relaciones
+    // RELACIONES ESTÁNDAR Y CLARAS (Laravel las ama así)
     public function group()
     {
         return $this->belongsTo(StudentGroup::class, 'student_group_id');
@@ -45,7 +53,12 @@ class Assignment extends Model
         return $this->belongsTo(Classroom::class);
     }
 
-    // Scopes
+    public function timeSlot()
+    {
+        return $this->belongsTo(TimeSlot::class, 'time_slot_id');
+    }
+
+    // Scopes útiles
     public function scopeConfirmed($query)
     {
         return $query->where('is_confirmed', true);
@@ -59,17 +72,5 @@ class Assignment extends Model
     public function scopeForDay($query, $day)
     {
         return $query->where('day', $day);
-    }
-
-    public function scopeForTimeRange($query, $startTime, $endTime)
-    {
-        return $query->where(function($q) use ($startTime, $endTime) {
-            $q->whereBetween('start_time', [$startTime, $endTime])
-              ->orWhereBetween('end_time', [$startTime, $endTime])
-              ->orWhere(function($q2) use ($startTime, $endTime) {
-                  $q2->where('start_time', '<=', $startTime)
-                     ->where('end_time', '>=', $endTime);
-              });
-        });
     }
 }
