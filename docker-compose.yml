@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    container_name: sas-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    networks:
+      - sas-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: sas-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - sas-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: sas-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sas
+      POSTGRES_USER: sail
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - sas-network
+
+networks:
+  sas-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
