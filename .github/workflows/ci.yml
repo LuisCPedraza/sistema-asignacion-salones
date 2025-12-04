@@ -1,77 +1,72 @@
-name: Laravel CI               # Nombre del workflow que aparecerá en GitHub Actions
+name: Laravel CI
 
-on:                            # Eventos que activan este workflow
-  push:                        # Cuando hay un push...
-    branches: [ "release/2.0.0" ]   # ...pero solo si es a la rama release/2.0.0
-  pull_request:                # También se ejecuta cuando se hace un Pull Request...
-    branches: [ "release/2.0.0" ]   # ...hacia la misma rama release/2.0.0
+on:
+  push:
+    branches: [ "release/2.0.0" ]
+  pull_request:
+    branches: [ "release/2.0.0" ]
 
-jobs:                          # Definición de los trabajos del workflow
-  laravel-tests:               # Nombre del job que ejecutará las pruebas
-    runs-on: ubuntu-latest     # El job corre en la última versión estable de Ubuntu
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
 
-    services:                  # Servicios auxiliares que requiere el job
-      sqlite:                  # Definición del servicio SQLite
-        image: sqlite:3        # Imagen Docker con SQLite versión 3
-        options: >-            # Configuración adicional para el contenedor SQLite
-          --health-cmd="sqlite3 --version"   # Comando de healthcheck
-          --health-interval=10s              # Ejecutar el healthcheck cada 10s
-          --health-timeout=5s                # Timeout de 5 segundos
-          --health-retries=3                 # Reintentos antes de marcar fallo
+    services:
+      sqlite:
+        image: sqlite:3
+        options: >-
+          --health-cmd="sqlite3 --version"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
-    steps:                     # Pasos del job
-    - uses: actions/checkout@v4   # Clona el repositorio en la máquina de GitHub Actions
+    steps:
+    - uses: actions/checkout@v4
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@v2   # Acción que instala PHP en el runner
+      uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'              # Versión de PHP requerida por el proyecto
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, sqlite3, tokenizer, json  
-                                        # Extensiones necesarias para Laravel y PHPUnit
-        coverage: none                  # Desactiva cobertura para ahorrar tiempo
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, sqlite3
+        coverage: none
 
     - name: Copy .env
-      run: |                            # Crea un archivo .env para las pruebas
-        cp .env.example .env            # Copia base desde .env.example
-        echo "DB_CONNECTION=sqlite" >> .env     # Forzar uso de base SQLite
-        echo "DB_DATABASE=:memory:" >> .env     # Base SQLite en memoria
-        echo "APP_KEY=base64:2fl+K7kQA0e5CWP0NmfT0R5cUwNnUVkq9YH3XbRlP3M=" >> .env  
-                                            # Llave APP_KEY requerida para Laravel
+      run: |
+        cp .env.example .env
+        echo "DB_CONNECTION=sqlite" >> .env
+        echo "DB_DATABASE=:memory:" >> .env
+        echo "APP_KEY=base64:2fl+K7kQA0e5CWP0NmfT0R5cUwNnUVkq9YH3XbRlP3M=" >> .env
 
     - name: Install Dependencies
-      run: |                            # Instala dependencias PHP del proyecto
-        composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist  
-                                        # Instala paquetes con optimizaciones
-        composer dump-autoload          # Regenera el autoload de Composer
+      run: |
+        composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+        composer dump-autoload
 
     - name: Create SQLite Database
-      run: |                            # Crear archivo SQLite si es necesario
-        mkdir -p database               # Asegura que exista el directorio database/
-        touch database/database.sqlite  # Crea una base vacía SQLite local
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
 
-    - name: Run Migrations
-      run: php artisan migrate --force  # Ejecuta las migraciones en modo forzado (sin interacción)
+    - name: Run Migrations & Seeders
+      run: |
+        php artisan migrate --force
+        php artisan db:seed --force
 
-    - name: Run Seeders
-      run: php artisan db:seed --force  # Corre los seeders obligatoriamente
-
-    - name: Generate Application Key
-      run: php artisan key:generate     # Genera una llave de aplicación si no existe
-
-    - name: Clear Configuration
-      run: |                            # Limpia cachés de Laravel
+    - name: Clear Config & Cache
+      run: |
         php artisan config:clear
         php artisan cache:clear
         php artisan route:clear
+        php artisan view:clear
 
-    - name: Execute tests
-      run: vendor/bin/phpunit --verbose # Ejecuta las pruebas unitarias con detalles
+    - name: Execute Tests with Pest
+      run: ./vendor/bin/pest --ci
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v3  # Sube artefactos si ocurrió un fallo
-      if: failure()                     # Solo si las pruebas fallan
+    # ARTEFACTO MODERNO (v4)
+    - name: Upload Test Results (if failed)
+      if: failure()
+      uses: actions/upload-artifact@v4
       with:
-        name: test-results              # Nombre del artefacto
-        path: storage/logs/             # Carpeta que se subirá (logs con errores)
-
-
+        name: pest-results
+        path: |
+          tests/
+          storage/logs/
