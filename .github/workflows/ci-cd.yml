@@ -17,7 +17,9 @@ jobs:
           extensions: mbstring, pdo_pgsql, bcmath, gd
 
       - name: Install Dependencies
-        run: composer install --optimize-autoloader --no-dev --no-progress
+        run: |
+          composer install --optimize-autoloader --no-dev --no-progress
+          composer dump-autoload
 
       - name: Run Tests
         run: ./vendor/bin/pest --ci
