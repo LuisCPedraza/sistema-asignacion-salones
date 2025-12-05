@@ -64,8 +64,4 @@ Route::middleware('auth')->group(function () {
     Route::prefix('visualizacion')->name('visualizacion.')->group(function () {
         require __DIR__.'/../app/Modules/Visualization/Routes/web.php';
     });
-
-    Route::get('/health', function () {
-        return response()->json(['status' => 'ok', 'db' => DB::connection()->getPdo() ? 'connected' : 'error']);
-    });
 });
