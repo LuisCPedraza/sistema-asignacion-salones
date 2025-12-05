@@ -20,7 +20,6 @@ jobs:
       - name: Install Dependencies
         run: |
           composer install --optimize-autoloader --no-progress --prefer-dist
-          # ← PEST SE INSTALA PORQUE NO USAMOS --no-dev
           composer dump-autoload
 
       - name: Prepare .env
@@ -31,6 +30,8 @@ jobs:
           echo "APP_ENV=production" >> .env
           echo "APP_DEBUG=false" >> .env
           echo "SESSION_SECURE_COOKIE=true" >> .env
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=:memory:" >> .env
 
       - name: Run Tests
         run: ./vendor/bin/pest --ci
