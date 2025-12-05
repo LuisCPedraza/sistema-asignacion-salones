@@ -1,3 +1,4 @@
+# .github/workflows/ci.yml
 name: Laravel CI + Deploy to Render
 
 on:
@@ -18,7 +19,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          composer install --optimize-autoloader --no-dev --no-progress --prefer-dist
+          composer install --optimize-autoloader --no-progress --prefer-dist
+          # ← PEST SE INSTALA PORQUE NO USAMOS --no-dev
           composer dump-autoload
 
       - name: Prepare .env
