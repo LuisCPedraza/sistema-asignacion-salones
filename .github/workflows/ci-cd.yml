@@ -21,6 +21,14 @@ jobs:
           composer install --optimize-autoloader --no-dev --no-progress
           composer dump-autoload
 
+      - name: Prepare .env for testing
+        run: |
+          cp .env.example .env
+          sed -i 's|APP_URL=.*|APP_URL=https://sas-zarzal.onrender.com|' .env
+          sed -i 's|ASSET_URL=.*|ASSET_URL=https://sas-zarzal.onrender.com|' .env
+          sed -i 's|APP_DEBUG=true|APP_DEBUG=false|' .env
+          sed -i 's|APP_ENV=local|APP_ENV=production|' .env
+
       - name: Run Tests
         run: ./vendor/bin/pest --ci
 
