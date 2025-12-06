@@ -175,3 +175,38 @@ Aquí se detalla la estructura de las tareas y subtareas que gestionaremos en Gi
 - `TASK-DEVOPS-02`: Despliegue Continuo (CD) con Render
 - `TASK-DEVOPS-03`: Implementar Pruebas Unitarias
 - `TASK-DEVOPS-04`: Integrar el Tablero Kanban
+
+---
+
+## 📦 Release 2.0.0 - Pull Requests
+
+### Integración de Cambios a Producción
+
+Para la publicación de la versión 2.0.0, hemos preparado documentación completa para los Pull Requests necesarios:
+
+1. **PR: release/2.0.0 → develop** - [Ver Descripción Completa](./documentation/PR_Release_2.0.0_to_Develop.md)
+   - Integración de mejoras de infraestructura y CI/CD
+   - Configuración de Dockerfile multi-servicio
+   - GitHub Actions optimizado
+   - Configuración para Render y Supabase
+
+2. **PR: develop → main** - [Ver Descripción Completa](./documentation/PR_Develop_to_Main.md)
+   - Publicación completa del sistema (Épicas 1-10)
+   - Todas las funcionalidades implementadas
+   - Sistema listo para producción
+
+### Guías de Integración
+
+- 📖 [Resumen Ejecutivo de PRs](./documentation/RESUMEN_EJECUTIVO_PRS.md)
+- 📝 [Guía para Crear los PRs](./documentation/GUIA_CREACION_PRS.md)
+
+### Arquitectura Modular y Progresión por Rol
+
+La versión 2.0.0 implementa una arquitectura modular completa con progresión de funcionalidades por rol:
+
+- ✅ **Rol Profesor**: Funcionalidades base de consulta (HU14)
+- ✅ **Rol Coordinador**: Gestión completa de recursos y asignaciones (HU3-HU19)
+- ✅ **Roles Especializados**: Coordinador Académico, de Infraestructura, Secretarias
+- ✅ **Administrador**: Control total del sistema
+
+Para más detalles, consulta la [Estrategia de Branching](./documentation/EstrategiaDeBranching.md) y el [Análisis de Requerimientos](./documentation/Analisis%20Levantamiento%20de%20Requerimientos.md).
