@@ -3,115 +3,86 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+use App\Models\User;
+use App\Modules\Auth\Models\Role;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-        // Auth aplicado en routes/web.php
-        // Middleware 'role:admin' se aplicará en HU2
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $users = User::paginate(10);
+        $users = User::with('role')->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('admin.users.create');
+        $roles = Role::where('is_active', true)->get();
+        return view('admin.users.create', compact('roles'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'rol' => ['required', Rule::in([
-                'admin',
-                'superadmin',
-                'coordinador',
-                'profesor',
-                'secretaria',
-                'coordinador_infra'
-            ])],
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8|confirmed',
+            'role_id' => 'required|exists:roles,id',
+            'is_active' => 'boolean',
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
-
+        $validated['password'] = bcrypt($validated['password']);
+        
         User::create($validated);
 
-        return redirect()->route('admin.users.index')->with('success', 'Usuario creado exitosamente.');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Usuario creado exitosamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(User $user)
     {
         return view('admin.users.show', compact('user'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(User $user)
     {
-        return view('admin.users.edit', compact('user'));
+        $roles = Role::where('is_active', true)->get();
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'rol' => ['required', Rule::in([
-                'admin',
-                'superadmin',
-                'coordinador',
-                'profesor',
-                'secretaria',
-                'coordinador_infra'
-            ])],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:8|confirmed',
+            'role_id' => 'required|exists:roles,id',
+            'is_active' => 'boolean',
         ]);
 
         if ($request->filled('password')) {
-            $validated['password'] = Hash::make($validated['password']);
+            $validated['password'] = bcrypt($validated['password']);
         } else {
             unset($validated['password']);
         }
 
         $user->update($validated);
 
-        return redirect()->route('admin.users.index')->with('success', 'Usuario actualizado exitosamente.');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Usuario actualizado exitosamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user)
     {
+        // No permitir eliminar el propio usuario
+        if ($user->id === auth()->id()) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'No puedes eliminar tu propio usuario.');
+        }
+
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'Usuario eliminado exitosamente.');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Usuario eliminado exitosamente.');
     }
 }

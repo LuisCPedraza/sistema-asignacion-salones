@@ -1,3 +1,4 @@
+
 # Sistema de Asignación de Salones para Centro Educativo 🏫
 
 ¡Hola! Bienvenidos a nuestro sistema web para simplificar la vida en las escuelas. Imagina coordinar grupos, salones y profesores sin el caos de las agendas manuales: eso es lo que hemos construido aquí, una herramienta que automatiza la programación semestral, ya sea de forma automática o manual, para que los equipos educativos se enfoquen en lo que realmente importa.
