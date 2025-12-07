@@ -191,16 +191,13 @@
         <div class="logo">
             🏫 Sistema de Asignación de Salones
         </div>
-        
         <h1 class="register-title">Solicitar Acceso</h1>
         <p class="register-subtitle">Regístrate para solicitar acceso al sistema</p>
-
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
         @endif
-
         @if($errors->any())
             <div class="errors">
                 <ul>
@@ -210,45 +207,47 @@
                 </ul>
             </div>
         @endif
-
         <div class="approval-notice">
             <h3>📋 Proceso de Aprobación</h3>
             <p>• Tu cuenta requerirá aprobación de un administrador</p>
             <p>• Se te asignará un rol apropiado según tu perfil</p>
             <p>• Recibirás una notificación cuando tu cuenta esté activa</p>
         </div>
-
         <form method="POST" action="{{ route('register') }}">
             @csrf
-            
             <div class="form-group">
                 <label for="name" class="form-label">Nombre Completo</label>
                 <input type="text" id="name" name="name" class="form-input" value="{{ old('name') }}" required autofocus>
             </div>
-
             <div class="form-group">
                 <label for="email" class="form-label">Correo Electrónico</label>
                 <input type="email" id="email" name="email" class="form-input" value="{{ old('email') }}" required>
             </div>
-
             <div class="form-group">
                 <label for="password" class="form-label">Contraseña</label>
                 <input type="password" id="password" name="password" class="form-input" required>
             </div>
-
             <div class="form-group">
                 <label for="password_confirmation" class="form-label">Confirmar Contraseña</label>
                 <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" required>
             </div>
-
             <button type="submit" class="btn-register">
                 📝 Solicitar Acceso
             </button>
         </form>
-
         <a href="{{ route('login') }}" class="btn-login">
             🔑 ¿Ya tienes cuenta? Inicia Sesión
         </a>
     </div>
+@if(session('success'))
+<script>
+    setTimeout(function() {
+        const alertSuccess = document.querySelector('.alert-success');
+        if (alertSuccess) {
+            alertSuccess.style.display = 'none';
+        }
+    }, 6000);
+</script>
+@endif
 </body>
 </html>
