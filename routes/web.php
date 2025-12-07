@@ -1,90 +1,67 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\AsignacionController;
-use App\Http\Controllers\Admin\AsignacionVisualizacionController;  // Añadido: para la visualización
+use App\Http\Controllers\Auth\AuthController;
+use App\Modules\Auth\Models\Role;
+use App\Http\Middleware\AdminMiddleware;
 
+// Rutas públicas
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Autenticación
+Route::middleware('guest')->group(function () {
+    Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('login', [AuthController::class, 'login']);
+    Route::get('register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('register', [AuthController::class, 'register']);
+});
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-// Grupo para admin (protegido por auth)
-Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':admin,coordinador'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-
+    // Admin dashboard (temporal)
+    Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+            if (!auth()->user()->hasRole('administrador')) {
+                abort(403, 'Acceso denegado');
+            }
+            return view('admin.dashboard', ['user' => auth()->user()]);
+        })->name('admin.dashboard');
+    });
 
-        // 👉 Ruta para visualización usando el controlador específico
-        Route::get('/asignaciones/visualizacion', 
-            [AsignacionVisualizacionController::class, 'index']
-        )->name('asignaciones.visualizacion');
+    // Dashboards por rol
+    Route::get('/academic/dashboard', fn() => view('academic.dashboard', ['user' => auth()->user()]))->name('academic.dashboard');
+    Route::get('/infraestructura/dashboard', fn() => view('infraestructura.dashboard', ['user' => auth()->user()]))->name('infraestructura.dashboard');
+    Route::get('/profesor/dashboard', fn() => view('profesor.dashboard', ['user' => auth()->user()]))->name('profesor.dashboard');
 
-        // 👉 La visualización existente (mantener por compatibilidad)
-        Route::get('/asignaciones/visualizacion-original', 
-            [AsignacionController::class, 'visualizacion']
-        )->name('asignaciones.visualizacion.original');
+    // Fallback dashboard
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+        if (!$user->role) return redirect('/')->with('error', 'Usuario sin rol asignado');
 
-        // Rutas CRUD
-        Route::resource('users', UserController::class);
-        Route::resource('grupos', \App\Http\Controllers\Admin\GrupoController::class);
-        Route::resource('salones', \App\Http\Controllers\Admin\SalonController::class)
-            ->parameters(['salones' => 'salon']);
-        Route::resource('profesores', \App\Http\Controllers\Admin\ProfesorController::class)
-            ->parameters(['profesores' => 'profesor']);
-        Route::resource('configuraciones', \App\Http\Controllers\Admin\ConfiguracionController::class)
-            ->parameters(['configuraciones' => 'configuracion']);
+        return match ($user->role->slug) {
+            'administrador', 'secretaria_administrativa' => redirect()->route('admin.dashboard'),
+            'coordinador', 'secretaria_coordinacion' => redirect()->route('academic.dashboard'),
+            'coordinador_infraestructura', 'secretaria_infraestructura' => redirect()->route('infraestructura.dashboard'),
+            'profesor', 'profesor_invitado' => redirect()->route('profesor.dashboard'),
+            default => redirect('/')->with('error', 'Rol no reconocido'),
+        };
+    })->name('dashboard');
 
-        // 👉 Resource de asignaciones
-        Route::resource('asignaciones', \App\Http\Controllers\Admin\AsignacionController::class)
-            ->parameters(['asignaciones' => 'asignacion']);
+    // Módulos protegidos
+    require app_path('Modules/GestionAcademica/Routes/web.php');
+    require app_path('Modules/Infraestructura/Routes/web.php');
+    require __DIR__.'/../app/Modules/Admin/Routes/web.php';
 
-        Route::resource('propuestas_asignacion', \App\Http\Controllers\Admin\PropuestaAsignacionController::class)
-            ->parameters(['propuestas_asignacion' => 'propuestaAsignacion']);
+    // Módulo Asignación (con prefix y name correctos)
+    Route::prefix('asignacion')->name('asignacion.')->group(function () {
+        require __DIR__.'/../app/Modules/Asignacion/Routes/web.php';
+    });
 
-        Route::resource('logs_visualizacion', \App\Http\Controllers\Admin\LogVisualizacionController::class)
-            ->parameters(['logs_visualizacion' => 'logVisualizacion']);
-
-        Route::resource('restricciones_asignacion', \App\Http\Controllers\Admin\RestriccionAsignacionController::class)
-            ->parameters(['restricciones_asignacion' => 'restriccionAsignacion']);
-
-        Route::resource('historial_asignacion', \App\Http\Controllers\Admin\HistorialAsignacionController::class)
-            ->parameters(['historial_asignacion' => 'historialAsignacion']);
-
-        //Route::post('/admin/asignaciones', [AsignacionController::class, 'store'])
-        //    ->name('admin.asignaciones.store');
+    // Módulo Visualización
+    Route::prefix('visualizacion')->name('visualizacion.')->group(function () {
+        require __DIR__.'/../app/Modules/Visualization/Routes/web.php';
+    });
 });
-
-Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':profesor'])->prefix('profesor')->name('profesor.')->group(function () {
-    Route::get('/perfil', function () { return view('profesor.perfil'); })->name('perfil');
-});
-
-Route::middleware(['auth', \App\Http\Middleware\CheckRole::class . ':coordinador'])->prefix('coordinador')->name('coordinador.')->group(function () {
-    Route::get('/asignaciones', function () { return view('coordinador.asignaciones'); })->name('asignaciones');
-});
-
-Route::get('/debug-ruta', function () {
-    return 'Ruta /admin/asignaciones/visualizacion está activa';
-});
-
-// Ruta de test para aislar el problema
-Route::get('/test-visualizacion', function () {
-    return 'Test OK - Si ves esto, la ruta funciona';
-})->middleware('auth');
-
-require __DIR__.'/auth.php';

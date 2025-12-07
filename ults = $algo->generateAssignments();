@@ -1,0 +1,264 @@
+[90m= [39m[34;4mApp\Modules\Asignacion\Services\AssignmentAlgorithm[39;24m {#6091
+    -[31mrules[39m: [34;4mIlluminate\Database\Eloquent\Collection[39;24m {#2074
+      [34mall[39m: [
+        [34;4mApp\Modules\Asignacion\Models\AssignmentRule[39;24m {#6505
+          [34mid[39m: [35m1[39m,
+          [34mname[39m: "[32mCapacidad del Salón[39m",
+          [34mparameter[39m: "[32mcapacity[39m",
+          [34mweight[39m: [33m0.3[39m,
+          [34mis_active[39m: [35m1[39m,
+          [34mcreated_at[39m: [36mnull[39m,
+          [34mupdated_at[39m: [36mnull[39m,
+        },
+        [34;4mApp\Modules\Asignacion\Models\AssignmentRule[39;24m {#6504
+          [34mid[39m: [35m2[39m,
+          [34mname[39m: "[32mDisponibilidad del Profesor[39m",
+          [34mparameter[39m: "[32mteacher_availability[39m",
+          [34mweight[39m: [33m0.25[39m,
+          [34mis_active[39m: [35m1[39m,
+          [34mcreated_at[39m: [36mnull[39m,
+          [34mupdated_at[39m: [36mnull[39m,
+        },
+        [34;4mApp\Modules\Asignacion\Models\AssignmentRule[39;24m {#6503
+          [34mid[39m: [35m3[39m,
+          [34mname[39m: "[32mDisponibilidad del Salón[39m",
+          [34mparameter[39m: "[32mclassroom_availability[39m",
+          [34mweight[39m: [33m0.2[39m,
+          [34mis_active[39m: [35m1[39m,
+          [34mcreated_at[39m: [36mnull[39m,
+          [34mupdated_at[39m: [36mnull[39m,
+        },
+        [34;4mApp\Modules\Asignacion\Models\AssignmentRule[39;24m {#6502
+          [34mid[39m: [35m4[39m,
+          [34mname[39m: "[32mProximidad entre Clases[39m",
+          [34mparameter[39m: "[32mproximity[39m",
+          [34mweight[39m: [33m0.15[39m,
+          [34mis_active[39m: [35m1[39m,
+          [34mcreated_at[39m: [36mnull[39m,
+          [34mupdated_at[39m: [36mnull[39m,
+        },
+        [34;4mApp\Modules\Asignacion\Models\AssignmentRule[39;24m {#6501
+          [34mid[39m: [35m5[39m,
+          [34mname[39m: "[32mPreferencia de Recursos[39m",
+          [34mparameter[39m: "[32mresources[39m",
+          [34mweight[39m: [33m0.1[39m,
+          [34mis_active[39m: [35m1[39m,
+          [34mcreated_at[39m: [36mnull[39m,
+          [34mupdated_at[39m: [36mnull[39m,
+        },
+      ],
+    },
+    -[31mtimeSlots[39m: [
+      [
+        "[34mday[39m" => "[32mmonday[39m",
+        "[34mstart[39m" => "[32m08:00:00[39m",
+        "[34mend[39m" => "[32m10:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mmonday[39m",
+        "[34mstart[39m" => "[32m10:00:00[39m",
+        "[34mend[39m" => "[32m12:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mmonday[39m",
+        "[34mstart[39m" => "[32m12:00:00[39m",
+        "[34mend[39m" => "[32m14:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mmonday[39m",
+        "[34mstart[39m" => "[32m14:00:00[39m",
+        "[34mend[39m" => "[32m16:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mmonday[39m",
+        "[34mstart[39m" => "[32m16:00:00[39m",
+        "[34mend[39m" => "[32m18:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mmonday[39m",
+        "[34mstart[39m" => "[32m17:00:00[39m",
+        "[34mend[39m" => "[32m19:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mmonday[39m",
+        "[34mstart[39m" => "[32m19:00:00[39m",
+        "[34mend[39m" => "[32m21:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mtuesday[39m",
+        "[34mstart[39m" => "[32m08:00:00[39m",
+        "[34mend[39m" => "[32m10:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mtuesday[39m",
+        "[34mstart[39m" => "[32m10:00:00[39m",
+        "[34mend[39m" => "[32m12:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mtuesday[39m",
+        "[34mstart[39m" => "[32m12:00:00[39m",
+        "[34mend[39m" => "[32m14:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mtuesday[39m",
+        "[34mstart[39m" => "[32m14:00:00[39m",
+        "[34mend[39m" => "[32m16:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mtuesday[39m",
+        "[34mstart[39m" => "[32m16:00:00[39m",
+        "[34mend[39m" => "[32m18:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mtuesday[39m",
+        "[34mstart[39m" => "[32m17:00:00[39m",
+        "[34mend[39m" => "[32m19:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mtuesday[39m",
+        "[34mstart[39m" => "[32m19:00:00[39m",
+        "[34mend[39m" => "[32m21:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mwednesday[39m",
+        "[34mstart[39m" => "[32m08:00:00[39m",
+        "[34mend[39m" => "[32m10:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mwednesday[39m",
+        "[34mstart[39m" => "[32m10:00:00[39m",
+        "[34mend[39m" => "[32m12:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mwednesday[39m",
+        "[34mstart[39m" => "[32m12:00:00[39m",
+        "[34mend[39m" => "[32m14:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mwednesday[39m",
+        "[34mstart[39m" => "[32m14:00:00[39m",
+        "[34mend[39m" => "[32m16:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mwednesday[39m",
+        "[34mstart[39m" => "[32m16:00:00[39m",
+        "[34mend[39m" => "[32m18:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mwednesday[39m",
+        "[34mstart[39m" => "[32m17:00:00[39m",
+        "[34mend[39m" => "[32m19:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mwednesday[39m",
+        "[34mstart[39m" => "[32m19:00:00[39m",
+        "[34mend[39m" => "[32m21:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mthursday[39m",
+        "[34mstart[39m" => "[32m08:00:00[39m",
+        "[34mend[39m" => "[32m10:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mthursday[39m",
+        "[34mstart[39m" => "[32m10:00:00[39m",
+        "[34mend[39m" => "[32m12:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mthursday[39m",
+        "[34mstart[39m" => "[32m12:00:00[39m",
+        "[34mend[39m" => "[32m14:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mthursday[39m",
+        "[34mstart[39m" => "[32m14:00:00[39m",
+        "[34mend[39m" => "[32m16:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mthursday[39m",
+        "[34mstart[39m" => "[32m16:00:00[39m",
+        "[34mend[39m" => "[32m18:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mthursday[39m",
+        "[34mstart[39m" => "[32m17:00:00[39m",
+        "[34mend[39m" => "[32m19:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mthursday[39m",
+        "[34mstart[39m" => "[32m19:00:00[39m",
+        "[34mend[39m" => "[32m21:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mfriday[39m",
+        "[34mstart[39m" => "[32m08:00:00[39m",
+        "[34mend[39m" => "[32m10:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mfriday[39m",
+        "[34mstart[39m" => "[32m10:00:00[39m",
+        "[34mend[39m" => "[32m12:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mfriday[39m",
+        "[34mstart[39m" => "[32m12:00:00[39m",
+        "[34mend[39m" => "[32m14:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mfriday[39m",
+        "[34mstart[39m" => "[32m14:00:00[39m",
+        "[34mend[39m" => "[32m16:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mfriday[39m",
+        "[34mstart[39m" => "[32m16:00:00[39m",
+        "[34mend[39m" => "[32m18:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mfriday[39m",
+        "[34mstart[39m" => "[32m17:00:00[39m",
+        "[34mend[39m" => "[32m19:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32mfriday[39m",
+        "[34mstart[39m" => "[32m19:00:00[39m",
+        "[34mend[39m" => "[32m21:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32msaturday[39m",
+        "[34mstart[39m" => "[32m08:00:00[39m",
+        "[34mend[39m" => "[32m10:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32msaturday[39m",
+        "[34mstart[39m" => "[32m10:00:00[39m",
+        "[34mend[39m" => "[32m12:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32msaturday[39m",
+        "[34mstart[39m" => "[32m12:00:00[39m",
+        "[34mend[39m" => "[32m14:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32msaturday[39m",
+        "[34mstart[39m" => "[32m14:00:00[39m",
+        "[34mend[39m" => "[32m16:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32msaturday[39m",
+        "[34mstart[39m" => "[32m16:00:00[39m",
+        "[34mend[39m" => "[32m18:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32msaturday[39m",
+        "[34mstart[39m" => "[32m17:00:00[39m",
+        "[34mend[39m" => "[32m19:00:00[39m",
+      ],
+      [
+        "[34mday[39m" => "[32msaturday[39m",
+        "[34mstart[39m" => "[32m19:00:00[39m",
+        "[34mend[39m" => "[32m21:00:00[39m",
+      ],
+    ],
+  }
+

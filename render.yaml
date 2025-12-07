@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: sistema-asignacion-salones
+    env: docker
+    region: oregon
+    plan: free
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile

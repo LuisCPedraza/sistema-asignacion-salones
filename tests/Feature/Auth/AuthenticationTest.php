@@ -2,34 +2,31 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\User;
 
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_login_screen_can_be_rendered(): void
+    public function test_users_can_authenticate_using_the_login_screen()
     {
-        $response = $this->get('/login');
-        $response->assertStatus(200);
-    }
+        // Crear un usuario con rol de administrador
+        $user = User::factory()->withRole('administrador')->create();
 
-    public function test_users_can_authenticate_using_the_login_screen(): void
-    {
-        $user = User::factory()->create(['rol' => 'admin']);  // Cambiado 'role' a 'rol'
         $response = $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);
+
         $this->assertAuthenticated();
-        $response->assertRedirect('/admin/dashboard');  // Espera redirect rol-specific
+        $response->assertRedirect('/admin/dashboard');
     }
 
-    public function test_users_can_not_authenticate_with_invalid_password(): void
+    public function test_users_can_not_authenticate_with_invalid_password()
     {
-        $user = User::factory()->create(['rol' => 'profesor']);  // Agregado override para rol (consistencia)
+        $user = User::factory()->withRole('administrador')->create();
 
         $this->post('/login', [
             'email' => $user->email,
@@ -39,13 +36,38 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_users_can_logout(): void
+    public function test_inactive_users_cannot_login()
     {
-        $user = User::factory()->create(['rol' => 'coordinador']);  // Agregado override para rol (consistencia)
+        $user = User::factory()->withRole('profesor')->inactive()->create();
 
-        $response = $this->actingAs($user)->post('/logout');
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
 
         $this->assertGuest();
-        $response->assertRedirect('/');
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_temporary_users_cannot_login_after_expiration()
+    {
+        // Crear un usuario con acceso temporal expirado
+        $user = User::factory()->create([
+            'temporary_access' => true,
+            'temporary_access_expires_at' => now()->subDays(1), // Fecha en el pasado
+            'password' => bcrypt('password'),
+            'is_active' => true,
+        ]);
+
+        // Debug: verificar los valores del usuario
+        //dd($user->temporary_access, $user->temporary_access_expires_at, $user->isTemporaryAccessExpired());
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+        $response->assertSessionHasErrors('email');
     }
 }

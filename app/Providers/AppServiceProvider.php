@@ -3,26 +3,31 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;           // ← NUEVO
+use Database\Factories\RoleFactory;
+use App\Modules\Auth\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
+    public function register()
     {
-        //
+        // Registrar manualmente la factory para Role si es necesario
+        $this->app->bind(RoleFactory::class, function () {
+            return new RoleFactory();
+        });
     }
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
+    public function boot()
     {
-        Relation::enforceMorphMap([
-            'salon' => 'App\Models\Salon',
-            'profesor' => 'App\Models\Profesor',
-        ]);
+        // REGISTRO OBLIGATORIO DE ALIAS DE MIDDLEWARE EN LARAVEL 12
+        Route::aliasMiddleware('role', \App\Http\Middleware\RoleMiddleware::class);
+        Route::aliasMiddleware('admin', \App\Http\Middleware\AdminMiddleware::class);
+        Route::aliasMiddleware('coordinator', \App\Http\Middleware\CoordinatorMiddleware::class);
+
+        // FORZAR HTTPS EN PRODUCCIÓN (Render, Supabase, etc.)
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }

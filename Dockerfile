@@ -1,41 +1,28 @@
-FROM php:8.3-fpm
+FROM php:8.3-fpm-alpine
 
-# Instalar dependencias del sistema y Nginx
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    nginx
+# Instala dependencias de sistema, PHP y Nginx
+RUN apk add --no-cache nginx git curl libpng-dev libjpeg-turbo-dev zip unzip postgresql-dev oniguruma-dev autoconf g++ make
 
-# Instalar extensiones de PHP
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# Instala extensiones PHP requeridas
+RUN docker-php-ext-configure gd --with-jpeg \
+    && docker-php-ext-install pdo pdo_pgsql pgsql gd mbstring exif
 
-# Copiar composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Instala Composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
-# Configurar Nginx
-COPY nginx.conf /etc/nginx/sites-available/default
-RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
-
-# Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar la aplicación
 COPY . .
 
-# Configurar permisos
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
+RUN composer install --optimize-autoloader --no-dev
 
-# Script de inicio que ejecuta Nginx y PHP-FPM
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Exponer puerto
+# Copia configuración de Nginx personalizada
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expón el puerto 80 para Nginx
 EXPOSE 80
 
-CMD ["/start.sh"]
+# Inicia Nginx y PHP-FPM juntos en el contenedor
+CMD ["/bin/sh", "-c", "php-fpm & nginx -g 'daemon off;'"]

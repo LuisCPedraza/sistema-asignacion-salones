@@ -1,45 +1,85 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">Crear Usuario</h1>
+<div class="container mt-4">
+    <h1>👥 Crear Usuario (HU1)</h1>
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('admin.users.store') }}">
         @csrf
-        <div class="mb-4">
-            <label for="name" class="block font-medium">Nombre</label>
-            <input type="text" name="name" id="name" value="{{ old('name') }}" class="border rounded px-2 py-1 w-full @error('name') border-red-500 @enderror" required>
-            @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Nombre:</label>
+                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
+                           value="{{ old('name') }}" required>
+                    @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Email:</label>
+                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
+                           value="{{ old('email') }}" required>
+                    @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            </div>
         </div>
-        <div class="mb-4">
-            <label for="email" class="block font-medium">Email</label>
-            <input type="email" name="email" id="email" value="{{ old('email') }}" class="border rounded px-2 py-1 w-full @error('email') border-red-500 @enderror" required>
-            @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Contraseña:</label>
+                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" 
+                           required>
+                    @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Confirmar Contraseña:</label>
+                    <input type="password" name="password_confirmation" class="form-control" required>
+                </div>
+            </div>
         </div>
-        <div class="mb-4">
-            <label for="password" class="block font-medium">Password</label>
-            <input type="password" name="password" id="password" class="border rounded px-2 py-1 w-full @error('password') border-red-500 @enderror" required>
-            @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Rol:</label>
+                    <select name="role_id" class="form-select @error('role_id') is-invalid @enderror" required>
+                        <option value="">Seleccionar rol</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                                {{ $role->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('role_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3 form-check">
+                    <input type="hidden" name="is_active" value="0">
+                    <input type="checkbox" name="is_active" class="form-check-input" value="1" 
+                           {{ old('is_active', true) ? 'checked' : '' }}>
+                    <label class="form-check-label">Usuario Activo</label>
+                </div>
+            </div>
         </div>
-        <div class="mb-4">
-            <label for="password_confirmation" class="block font-medium">Confirmar Password</label>
-            <input type="password" name="password_confirmation" id="password_confirmation" class="border rounded px-2 py-1 w-full" required>
-        </div>
-        <div class="mb-4">
-            <label for="rol" class="block font-medium">Rol</label>
-            <select name="rol" id="rol" class="border rounded px-2 py-1 w-full @error('rol') border-red-500 @enderror" required>
-                <option value="" disabled {{ old('rol') ? '' : 'selected' }}>Selecciona un rol</option>
-                <option value="admin" {{ old('rol') == 'admin' ? 'selected' : '' }}>Admin</option>
-                <option value="superadmin" {{ old('rol') == 'superadmin' ? 'selected' : '' }}>Superadmin</option>
-                <option value="coordinador" {{ old('rol') == 'coordinador' ? 'selected' : '' }}>Coordinador</option>
-                <option value="profesor" {{ old('rol') == 'profesor' ? 'selected' : '' }}>Profesor</option>
-                <option value="secretaria" {{ old('rol') == 'secretaria' ? 'selected' : '' }}>Secretaria</option>
-                <option value="coordinador_infra" {{ old('rol') == 'coordinador_infra' ? 'selected' : '' }}>Coord. Infra</option>
-            </select>
-            @error('rol') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-        </div>
-        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Crear Usuario</button>
-        <a href="{{ route('admin.users.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 ml-2">Cancelar</a>
+
+        <button type="submit" class="btn btn-success">Crear Usuario</button>
+        <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 @endsection
-
