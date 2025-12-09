@@ -65,7 +65,7 @@ class ReportServiceTest extends TestCase
         $teacher = Teacher::factory()->create();
 
         Assignment::factory(3)->create([
-            'group_id' => $group->id,
+            'student_group_id' => $group->id,
             'classroom_id' => $classroom->id,
             'teacher_id' => $teacher->id,
             'score' => 0.9
@@ -99,7 +99,6 @@ class ReportServiceTest extends TestCase
         $semester = Semester::factory()->create(['career_id' => $career->id]);
 
         $group = StudentGroup::factory()->create([
-            'career_id' => $career->id,
             'semester_id' => $semester->id,
             'student_count' => 25
         ]);
@@ -110,14 +109,14 @@ class ReportServiceTest extends TestCase
 
         // Create assignments
         Assignment::factory(2)->create([
-            'group_id' => $group->id,
+            'student_group_id' => $group->id,
             'classroom_id' => $classroom1->id,
             'teacher_id' => $teacher->id,
             'score' => 0.95
         ]);
 
         Assignment::factory(1)->create([
-            'group_id' => $group->id,
+            'student_group_id' => $group->id,
             'classroom_id' => $classroom2->id,
             'teacher_id' => $teacher->id,
             'score' => 0.80
@@ -125,7 +124,7 @@ class ReportServiceTest extends TestCase
 
         $utilization = $this->reportService->getClassroomUtilization($career->id, $semester->id);
 
-        $this->assertIsArray($utilization) || $this->assertIsObject($utilization);
+        $this->assertTrue(is_array($utilization) || is_object($utilization));
     }
 
     /**
@@ -147,25 +146,24 @@ class ReportServiceTest extends TestCase
         $semester = Semester::factory()->create(['career_id' => $career->id]);
 
         $group = StudentGroup::factory()->create([
-            'career_id' => $career->id,
             'semester_id' => $semester->id,
             'student_count' => 30
         ]);
 
-        $teacher1 = Teacher::factory()->create(['name' => 'Prof. Juan']);
-        $teacher2 = Teacher::factory()->create(['name' => 'Prof. María']);
+        $teacher1 = Teacher::factory()->create();
+        $teacher2 = Teacher::factory()->create();
         $classroom = Classroom::factory()->create();
 
         // Create assignments for teachers
         Assignment::factory(3)->create([
-            'group_id' => $group->id,
+            'student_group_id' => $group->id,
             'teacher_id' => $teacher1->id,
             'classroom_id' => $classroom->id,
             'score' => 0.90
         ]);
 
         Assignment::factory(2)->create([
-            'group_id' => $group->id,
+            'student_group_id' => $group->id,
             'teacher_id' => $teacher2->id,
             'classroom_id' => $classroom->id,
             'score' => 0.85
@@ -217,7 +215,6 @@ class ReportServiceTest extends TestCase
         $semester = Semester::factory()->create(['career_id' => $career->id]);
 
         $group = StudentGroup::factory()->create([
-            'career_id' => $career->id,
             'semester_id' => $semester->id,
             'student_count' => 30
         ]);
@@ -227,14 +224,14 @@ class ReportServiceTest extends TestCase
 
         // Create assignments with different quality scores
         Assignment::factory(2)->create([
-            'group_id' => $group->id,
+            'student_group_id' => $group->id,
             'classroom_id' => $classroom->id,
             'teacher_id' => $teacher->id,
             'score' => 0.95 // Excellent
         ]);
 
         Assignment::factory(2)->create([
-            'group_id' => $group->id,
+            'student_group_id' => $group->id,
             'classroom_id' => $classroom->id,
             'teacher_id' => $teacher->id,
             'score' => 0.85 // Good

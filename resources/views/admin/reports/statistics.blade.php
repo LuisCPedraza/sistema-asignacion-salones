@@ -5,14 +5,22 @@
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="bg-gradient-primary text-white rounded p-4 shadow d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="mb-1"><i class="fas fa-chart-pie"></i> Estadísticas Detalladas</h1>
-                    <p class="mb-0 opacity-75">Análisis de calidad, tendencias y métricas del sistema</p>
+            <div class="bg-gradient-primary text-white rounded p-4 shadow">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="mb-1"><i class="fas fa-chart-pie"></i> Estadísticas Detalladas</h1>
+                        <p class="mb-0 opacity-75">Análisis de calidad, tendencias y métricas del sistema</p>
+                    </div>
+                    <div>
+                        <a href="{{ route('admin.reports.export.statistics.pdf', ['career_id' => $careerId, 'semester_id' => $semesterId]) }}" 
+                           class="btn btn-light btn-sm me-2" title="Exportar a PDF">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </a>
+                        <a href="{{ route('admin.reports.index') }}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                    </div>
                 </div>
-                <a href="{{ route('admin.reports.index') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-arrow-left"></i> Volver
-                </a>
             </div>
         </div>
     </div>

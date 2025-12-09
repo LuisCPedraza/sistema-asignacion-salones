@@ -33,10 +33,12 @@ class ReportService
         $query = Assignment::with('classroom', 'group')
             ->selectRaw('classroom_id, COUNT(*) as assignment_count, AVG(score) as avg_score');
 
-        if ($careerId) {
-            $query->whereHas('group', function ($q) use ($careerId) {
-                $q->where('career_id', $careerId);
-            });
+            if ($careerId) {
+                $query->whereHas('group', function ($q) use ($careerId) {
+                    $q->whereHas('semester', function ($sq) use ($careerId) {
+                        $sq->where('career_id', $careerId);
+                    });
+                });
         }
 
         if ($semesterId) {
@@ -69,10 +71,12 @@ class ReportService
         $query = Assignment::with('teacher', 'group')
             ->selectRaw('teacher_id, COUNT(*) as assignment_count, AVG(score) as avg_score');
 
-        if ($careerId) {
-            $query->whereHas('group', function ($q) use ($careerId) {
-                $q->where('career_id', $careerId);
-            });
+            if ($careerId) {
+                $query->whereHas('group', function ($q) use ($careerId) {
+                    $q->whereHas('semester', function ($sq) use ($careerId) {
+                        $sq->where('career_id', $careerId);
+                    });
+                });
         }
 
         if ($semesterId) {
@@ -100,9 +104,11 @@ class ReportService
     {
         $query = StudentGroup::where('is_active', true);
 
-        if ($careerId) {
-            $query->where('career_id', $careerId);
-        }
+            if ($careerId) {
+                $query->whereHas('semester', function ($sq) use ($careerId) {
+                    $sq->where('career_id', $careerId);
+                });
+            }
 
         if ($semesterId) {
             $query->where('semester_id', $semesterId);
@@ -126,10 +132,12 @@ class ReportService
     {
         $query = Assignment::with('group');
 
-        if ($careerId) {
-            $query->whereHas('group', function ($q) use ($careerId) {
-                $q->where('career_id', $careerId);
-            });
+            if ($careerId) {
+                $query->whereHas('group', function ($q) use ($careerId) {
+                    $q->whereHas('semester', function ($sq) use ($careerId) {
+                        $sq->where('career_id', $careerId);
+                    });
+                });
         }
 
         if ($semesterId) {
@@ -189,10 +197,12 @@ class ReportService
             ->whereNotNull('notes')
             ->where('notes', 'like', '%conflicto%');
 
-        if ($careerId) {
-            $query->whereHas('group', function ($q) use ($careerId) {
-                $q->where('career_id', $careerId);
-            });
+            if ($careerId) {
+                $query->whereHas('group', function ($q) use ($careerId) {
+                    $q->whereHas('semester', function ($sq) use ($careerId) {
+                        $sq->where('career_id', $careerId);
+                    });
+                });
         }
 
         if ($semesterId) {

@@ -6,8 +6,17 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="bg-gradient-primary text-white rounded p-4 shadow">
-                <h1 class="mb-1"><i class="fas fa-chart-bar"></i> Centro de Reportes</h1>
-                <p class="mb-0 opacity-75">Análisis y estadísticas del sistema de asignación</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="mb-1"><i class="fas fa-chart-bar"></i> Centro de Reportes</h1>
+                        <p class="mb-0 opacity-75">Análisis y estadísticas del sistema de asignación</p>
+                    </div>
+                    <div>
+                        <a href="{{ route('admin.reports.export.general.pdf') }}" class="btn btn-light btn-sm" title="Exportar reporte general a PDF">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

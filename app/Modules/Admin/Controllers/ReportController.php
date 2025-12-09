@@ -4,6 +4,7 @@ namespace App\Modules\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Admin\Services\ReportService;
+use App\Modules\Admin\Services\PdfExportService;
 use App\Models\Career;
 use App\Models\Semester;
 use Illuminate\Http\Request;
@@ -11,8 +12,9 @@ use Illuminate\Http\Request;
 class ReportController extends Controller
 {
     protected $reportService;
+    protected $pdfExportService;
 
-    public function __construct(ReportService $reportService)
+    public function __construct(ReportService $reportService, PdfExportService $pdfExportService)
     {
         $this->middleware(function ($request, $next) {
             if (!auth()->check() || !auth()->user()->hasRole('administrador')) {
@@ -22,6 +24,7 @@ class ReportController extends Controller
         });
 
         $this->reportService = $reportService;
+        $this->pdfExportService = $pdfExportService;
     }
 
     public function index()
@@ -76,5 +79,58 @@ class ReportController extends Controller
             'careerId',
             'semesterId'
         ));
+    }
+
+    /**
+     * Exportar reporte general a PDF
+     */
+    public function exportGeneralPdf()
+    {
+        $data = $this->reportService->getGeneralStatistics();
+        return $this->pdfExportService->exportGeneralReport(['data' => $data]);
+    }
+
+    /**
+     * Exportar reporte de utilización a PDF
+     */
+    public function exportUtilizationPdf(Request $request)
+    {
+        $careerId = $request->get('career_id');
+        $semesterId = $request->get('semester_id');
+
+        $data = [
+            'classroomUtilization' => $this->reportService->getClassroomUtilization($careerId, $semesterId),
+            'teacherUtilization' => $this->reportService->getTeacherUtilization($careerId, $semesterId),
+            'groupStats' => $this->reportService->getGroupStatistics($careerId, $semesterId),
+        ];
+
+        // Agregar nombres de filtros para mostrar en el PDF
+        if ($careerId) {
+            $career = Career::find($careerId);
+            $data['filters']['career_name'] = $career ? $career->name : null;
+        }
+        if ($semesterId) {
+            $semester = Semester::find($semesterId);
+            $data['filters']['semester_number'] = $semester ? $semester->number : null;
+        }
+
+        return $this->pdfExportService->exportUtilizationReport($data);
+    }
+
+    /**
+     * Exportar reporte de estadísticas a PDF
+     */
+    public function exportStatisticsPdf(Request $request)
+    {
+        $careerId = $request->get('career_id');
+        $semesterId = $request->get('semester_id');
+
+        $data = [
+            'qualityDistribution' => $this->reportService->getQualityDistribution($careerId, $semesterId),
+            'monthlyTrends' => $this->reportService->getMonthlyTrends(6),
+            'conflictStats' => $this->reportService->getConflictStatistics($careerId, $semesterId),
+        ];
+
+        return $this->pdfExportService->exportStatisticsReport($data);
     }
 }

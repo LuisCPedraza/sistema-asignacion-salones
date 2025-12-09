@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories\Modules\Asignacion;
+namespace Database\Factories\Modules\Asignacion\Models;
 
 use App\Modules\Asignacion\Models\Assignment;
 use App\Modules\GestionAcademica\Models\StudentGroup;
@@ -15,15 +15,13 @@ class AssignmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'group_id' => StudentGroup::factory(),
+            'student_group_id' => StudentGroup::factory(),
             'classroom_id' => Classroom::factory(),
             'teacher_id' => Teacher::factory(),
-            'subject_id' => $this->faker->numberBetween(1, 20),
-            'day_of_week' => $this->faker->randomElement(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
-            'start_time' => $this->faker->time('H:i:s'),
-            'end_time' => $this->faker->time('H:i:s'),
-            'score' => $this->faker->randomFloat(2, 0.5, 1.0),
-            'conflicts_detected' => false,
+            'day' => $this->faker->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
+            'start_time' => $this->faker->time('H:i'),
+            'end_time' => $this->faker->time('H:i'),
+            'is_confirmed' => $this->faker->boolean(80),
             'notes' => $this->faker->sentence(),
         ];
     }

@@ -21,11 +21,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/utilization', [ReportController::class, 'utilization'])->name('utilization');
         Route::get('/statistics', [ReportController::class, 'statistics'])->name('statistics');
+        
+        // Exportación PDF (HU13)
+        Route::get('/export/general-pdf', [ReportController::class, 'exportGeneralPdf'])->name('export.general.pdf');
+        Route::get('/export/utilization-pdf', [ReportController::class, 'exportUtilizationPdf'])->name('export.utilization.pdf');
+        Route::get('/export/statistics-pdf', [ReportController::class, 'exportStatisticsPdf'])->name('export.statistics.pdf');
     });
     
     // Auditoría (HU18)
     Route::get('/audit', [AuditController::class, 'index'])->name('audit.index');
-    Route::get('/audit/{id}', [AuditController::class, 'show'])->name('audit.show');
+    Route::get('/audit/{auditLog}', [AuditController::class, 'show'])->name('audit.show');
     
     // Configuración del sistema (HU19)
     Route::get('/config', [SystemConfigController::class, 'index'])->name('config.index');

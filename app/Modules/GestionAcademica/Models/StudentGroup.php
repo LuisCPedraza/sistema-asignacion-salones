@@ -5,10 +5,11 @@ namespace App\Modules\GestionAcademica\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\AuditableModel;
 
 class StudentGroup extends Model
 {
-    use HasFactory;
+    use HasFactory, AuditableModel;
 
     protected $fillable = [
         'name',
