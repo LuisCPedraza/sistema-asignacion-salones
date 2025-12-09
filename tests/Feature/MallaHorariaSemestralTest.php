@@ -21,12 +21,11 @@ class MallaHorariaSemestralTest extends TestCase
     {
         parent::setUp();
         
-        // Crear rol coordinador
-        $role = Role::create([
-            'name' => 'coordinador',
-            'slug' => 'coordinador',
-            'is_active' => true,
-        ]);
+        // Usar el rol coordinador existente (se crea en la migración) o crearlo si falta
+        $role = Role::firstOrCreate(
+            ['slug' => 'coordinador'],
+            ['name' => 'Coordinador', 'is_active' => true]
+        );
 
         // Crear usuario coordinador
         $this->coordinador = User::factory()->create([

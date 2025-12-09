@@ -26,4 +26,5 @@ Route::prefix('horario')->name('horario.')->group(function () {
         Route::get('/malla-semestral', [HorarioController::class, 'mallaSemestral'])
             ->name('malla-semestral');
     });
+
 });

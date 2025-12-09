@@ -8,10 +8,13 @@ class TimeSlot extends Model
 {
     protected $fillable = [
         'name',
+        'day',
         'start_time',
         'end_time',
+        'shift',
         'schedule_type', // 'day' = Diurno, 'night' = Nocturno
         'duration_minutes',
+        'is_active',
     ];
 
     protected $casts = [

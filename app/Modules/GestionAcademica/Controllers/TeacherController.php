@@ -18,10 +18,55 @@ class TeacherController extends Controller
         });
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $teachers = Teacher::with('user')->latest()->paginate(10);
-        return view('gestion-academica.teachers.index', compact('teachers'));
+        $query = Teacher::query();
+
+        // Búsqueda por nombre, email o especialidad
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('specialty', 'like', "%{$search}%");
+            });
+        }
+
+        // Filtro de estado
+        if ($request->get('status') === 'active') {
+            $query->where('is_active', true);
+        } elseif ($request->get('status') === 'inactive') {
+            $query->where('is_active', false);
+        }
+
+        // Filtro por grado académico
+        if ($degree = $request->get('degree')) {
+            $query->where('academic_degree', $degree);
+        }
+
+        // Ordenamiento
+        switch ($request->get('sort')) {
+            case 'experience':
+                $query->orderByDesc('years_experience');
+                break;
+            case 'recent':
+                $query->latest();
+                break;
+            default:
+                $query->orderBy('first_name');
+        }
+
+        $teachers = $query->paginate(10)->appends($request->query());
+
+        // Estadísticas globales
+        $stats = [
+            'total' => Teacher::count(),
+            'active' => Teacher::where('is_active', true)->count(),
+            'avg_experience' => round(Teacher::avg('years_experience'), 1),
+            'doctorate' => Teacher::where('academic_degree', 'Doctorado')->count(),
+        ];
+
+        return view('gestion-academica.teachers.index', compact('teachers', 'stats'));
     }
 
     public function create()

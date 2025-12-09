@@ -34,17 +34,25 @@ class AssignmentAlgorithmTest extends TestCase
         
         // Crear franjas horarias
         TimeSlot::create([
+            'name' => 'Bloque Diurno',
+            'day' => 'monday',
             'start_time' => '08:00:00',
             'end_time' => '10:00:00',
+            'shift' => 'morning',
             'schedule_type' => 'day',
             'duration_minutes' => 120,
+            'is_active' => true,
         ]);
         
         TimeSlot::create([
+            'name' => 'Bloque Nocturno',
+            'day' => 'monday',
             'start_time' => '18:00:00',
             'end_time' => '20:00:00',
+            'shift' => 'night',
             'schedule_type' => 'night',
             'duration_minutes' => 120,
+            'is_active' => true,
         ]);
         
         // Crear grupos de estudiantes

@@ -23,7 +23,6 @@
             .main-content {
                 margin-left: 250px;
             }
-    @stack('styles')
         }
     </style>
 </head>
@@ -122,6 +121,11 @@
                                 <i class="fas fa-chalkboard-teacher me-2"></i>Mi Dashboard
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('asignacion.teacher.schedule') }}">
+                                <i class="fas fa-calendar-check me-2"></i>Mi Horario
+                            </a>
+                        </li>
                         @endif
                     </ul>
                 </div>
@@ -178,6 +182,5 @@
             }, 5000);
         });
     </script>
-    @stack('scripts')
 </body>
 </html>

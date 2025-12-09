@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Skip creation if the table already exists (earlier migration creates it)
+        if (Schema::hasTable('time_slots')) {
+            return;
+        }
+
         Schema::create('time_slots', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Ej: "Bloque 1", "Bloque 2"

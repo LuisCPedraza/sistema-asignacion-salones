@@ -53,7 +53,7 @@ class AssignmentRuleController extends Controller
                     ->update(['weight' => $weightDecimal]);
             }
 
-            return redirect()->route('asignacion.asignacion.reglas')
+            return redirect()->route('asignacion.reglas')
                 ->with('success', '✅ Pesos de las reglas actualizados exitosamente.');
 
         } catch (\Exception $e) {

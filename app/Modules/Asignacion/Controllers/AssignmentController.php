@@ -55,7 +55,7 @@ class AssignmentController extends Controller
             $duracion = round(microtime(true) - $inicio, 2);
 
             return redirect()
-                ->route('asignacion.asignacion.resultados')
+                ->route('asignacion.resultados')
                 ->with('success_message', "¡Asignación completada con éxito! Se asignaron " . count($asignaciones) . " grupos en {$duracion} segundos");
 
         } catch (\Exception $e) {
@@ -66,7 +66,7 @@ class AssignmentController extends Controller
             ]);
 
             return redirect()
-                ->route('asignacion.asignacion.automatica')
+                ->route('asignacion.automatica')
                 ->with('error_message', 'Ocurrió un error durante la asignación: ' . $e->getMessage());
         }
     }

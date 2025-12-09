@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Modules\Auth\Models\Role;
 use App\Http\Middleware\AdminMiddleware;
+use App\Modules\Visualization\Controllers\HorarioController;
 
 // Rutas públicas
 Route::get('/', function () {
@@ -65,3 +66,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('visualizacion')->name('visualizacion.')->group(function () {
     require __DIR__.'/../app/Modules/Visualization/Routes/web.php';
 });
+
+// Alias en inglés requerido por las pruebas
+Route::middleware(['auth', 'role:coordinador,secretaria_coordinacion'])->get('/visualization/malla-semestral', [HorarioController::class, 'mallaSemestral'])
+    ->name('visualization.horario.malla-semestral');

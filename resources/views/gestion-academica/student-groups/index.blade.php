@@ -1,44 +1,280 @@
 @extends('layouts.app')
+
 @section('content')
-<div class="container mt-4">
-    <h1>🎓 Grupos de Estudiantes (HU4)</h1>
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="bi bi-people-fill text-primary"></i> Grupos de Estudiantes</h2>
+            <p class="text-muted mb-0">Gestión completa de grupos académicos</p>
+        </div>
+        <a href="{{ route('gestion-academica.student-groups.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Crear Nuevo Grupo
+        </a>
+    </div>
+
+    <!-- Alerts -->
     @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     @endif
-    <a href="{{ route('gestion-academica.student-groups.create') }}" class="btn btn-primary mb-3">Crear Nuevo</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Nivel</th>
-                <th># Estudiantes</th>
-                <th>Características</th>
-                <th>Activo</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($groups as $group)
-                <tr>
-                    <td>{{ $group->name }}</td>
-                    <td>{{ $group->level }}</td>
-                    <td>{{ $group->student_count }}</td>
-                    <td>{{ Str::limit($group->special_features ?? '', 50) }}</td>
-                    <td><span class="badge {{ $group->is_active ? 'bg-success' : 'bg-secondary' }}">{{ $group->is_active ? 'Sí' : 'No' }}</span></td>
-                    <td>
-                        <a href="{{ route('gestion-academica.student-groups.show', $group) }}" class="btn btn-sm btn-info">Ver</a>
-                        <a href="{{ route('gestion-academica.student-groups.edit', $group) }}" class="btn btn-sm btn-warning">Editar</a>
-                        <form method="POST" action="{{ route('gestion-academica.student-groups.destroy', $group) }}" class="d-inline">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Desactivar?')">Desactivar</button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr><td colspan="6" class="text-center">No hay grupos.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-    {{ $groups->links() }}
+
+    <!-- Estadísticas Rápidas -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Total Grupos</p>
+                            <h3 class="mb-0">{{ $stats['total'] ?? 0 }}</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-people fs-4 text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Grupos Activos</p>
+                            <h3 class="mb-0 text-success">{{ $stats['active'] ?? 0 }}</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-check-circle fs-4 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Total Estudiantes</p>
+                            <h3 class="mb-0 text-info">{{ $stats['students'] ?? 0 }}</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-person-badge fs-4 text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Promedio x Grupo</p>
+                            <h3 class="mb-0 text-warning">{{ $stats['avg'] ?? 0 }}</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-calculator fs-4 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('gestion-academica.student-groups.index') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="search" class="form-control border-start-0" 
+                               placeholder="Nombre del grupo..." value="{{ request('search') }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Estado</label>
+                    <select name="status" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Activos</option>
+                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactivos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Nivel</label>
+                    <input type="number" name="level" class="form-control" 
+                           placeholder="Ej: 5" value="{{ request('level') }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Orden</label>
+                    <select name="sort" class="form-select">
+                        <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Nombre</option>
+                        <option value="level" {{ request('sort') == 'level' ? 'selected' : '' }}>Nivel</option>
+                        <option value="students" {{ request('sort') == 'students' ? 'selected' : '' }}>Estudiantes</option>
+                        <option value="recent" {{ request('sort') == 'recent' ? 'selected' : '' }}>Más recientes</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">&nbsp;</label>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-funnel"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Grupos -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="px-4 py-3 border-0">
+                                <i class="bi bi-hash text-muted"></i> Grupo
+                            </th>
+                            <th class="py-3 border-0">
+                                <i class="bi bi-bar-chart-steps text-muted"></i> Nivel
+                            </th>
+                            <th class="py-3 border-0">
+                                <i class="bi bi-people text-muted"></i> Estudiantes
+                            </th>
+                            <th class="py-3 border-0">
+                                <i class="bi bi-calendar-event text-muted"></i> Semestre
+                            </th>
+                            <th class="py-3 border-0">
+                                <i class="bi bi-star text-muted"></i> Características
+                            </th>
+                            <th class="py-3 border-0 text-center">
+                                <i class="bi bi-toggle-on text-muted"></i> Estado
+                            </th>
+                            <th class="py-3 border-0 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($groups as $group)
+                            <tr>
+                                <td class="px-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                            <i class="bi bi-mortarboard text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ $group->name }}</h6>
+                                            <small class="text-muted">ID: #{{ $group->id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">Nivel {{ $group->level }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-person-fill-check text-success me-2"></i>
+                                        <strong>{{ $group->student_count }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if($group->semester)
+                                        <span class="badge bg-secondary">
+                                            {{ $group->semester->name ?? 'N/A' }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted small">Sin semestre</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($group->special_features)
+                                        <span class="text-truncate d-inline-block" style="max-width: 200px;" 
+                                              data-bs-toggle="tooltip" title="{{ $group->special_features }}">
+                                            {{ Str::limit($group->special_features, 30) }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted small">Sin características</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if($group->is_active)
+                                        <span class="badge bg-success rounded-pill">
+                                            <i class="bi bi-check-circle"></i> Activo
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary rounded-pill">
+                                            <i class="bi bi-x-circle"></i> Inactivo
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ route('gestion-academica.student-groups.show', $group) }}" 
+                                           class="btn btn-sm btn-primary" 
+                                           data-bs-toggle="tooltip" title="Ver detalles">
+                                            Ver
+                                        </a>
+                                        <a href="{{ route('gestion-academica.student-groups.edit', $group) }}" 
+                                           class="btn btn-sm btn-warning text-dark"
+                                           data-bs-toggle="tooltip" title="Editar">
+                                            Editar
+                                        </a>
+                                        <form method="POST" 
+                                              action="{{ route('gestion-academica.student-groups.destroy', $group) }}" 
+                                              class="d-inline">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" 
+                                                    class="btn btn-sm btn-danger" 
+                                                    onclick="return confirm('¿Desactivar este grupo?')"
+                                                    data-bs-toggle="tooltip" title="Desactivar">
+                                                Desactivar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                        <h5>No hay grupos registrados</h5>
+                                        <p class="mb-0">Comienza creando tu primer grupo académico</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @if($groups->hasPages())
+            <div class="card-footer bg-white border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        Mostrando {{ $groups->firstItem() }} - {{ $groups->lastItem() }} de {{ $groups->total() }} grupos
+                    </small>
+                    {{ $groups->links() }}
+                </div>
+            </div>
+        @endif
+    </div>
 </div>
+
+@push('scripts')
+<script>
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+</script>
+@endpush
 @endsection
