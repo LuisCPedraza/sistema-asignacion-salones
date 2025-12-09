@@ -58,7 +58,7 @@
                         <div class="mb-3">
                             <label class="form-label">Hora de Inicio:</label>
                             <input type="time" name="start_time" class="form-control @error('start_time') is-invalid @enderror" 
-                                value="{{ old('start_time', $availability->start_time->format('H:i')) }}" min="08:00" max="21:00" required>
+                                value="{{ old('start_time', $availability->formatted_start_time) }}" min="08:00" max="21:00" required>
                             @error('start_time') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             <small class="form-text text-muted">Horario universitario: 8:00 AM - 9:00 PM</small>
                         </div>
@@ -68,7 +68,7 @@
                         <div class="mb-3">
                             <label class="form-label">Hora de Fin:</label>
                             <input type="time" name="end_time" class="form-control @error('end_time') is-invalid @enderror" 
-                                value="{{ old('end_time', $availability->end_time->format('H:i')) }}" min="08:00" max="21:00" required>
+                                value="{{ old('end_time', $availability->formatted_end_time) }}" min="08:00" max="21:00" required>
                             @error('end_time') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             <small class="form-text text-muted">Debe ser posterior a la hora de inicio</small>
                         </div>

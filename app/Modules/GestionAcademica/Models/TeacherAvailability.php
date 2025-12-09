@@ -20,21 +20,29 @@ class TeacherAvailability extends Model
     ];
 
     protected $casts = [
-        'start_time' => 'datetime:H:i:s',
-        'end_time' => 'datetime:H:i:s',
         'is_available' => 'boolean'
     ];
 
-    // Método accessor para formatear start_time
-    public function getStartTimeAttribute($value)
+    // Método para formatear start_time en la vista
+    public function getFormattedStartTimeAttribute()
     {
-        return Carbon::parse($value)->format('H:i:s');
+        if ($this->start_time) {
+            return is_string($this->start_time) 
+                ? substr($this->start_time, 0, 5)  // "HH:MM" de string "HH:MM:SS"
+                : Carbon::parse($this->start_time)->format('H:i');
+        }
+        return '-';
     }
 
-    // Método accessor para formatear end_time  
-    public function getEndTimeAttribute($value)
+    // Método para formatear end_time en la vista
+    public function getFormattedEndTimeAttribute()
     {
-        return Carbon::parse($value)->format('H:i:s');
+        if ($this->end_time) {
+            return is_string($this->end_time)
+                ? substr($this->end_time, 0, 5)  // "HH:MM" de string "HH:MM:SS"
+                : Carbon::parse($this->end_time)->format('H:i');
+        }
+        return '-';
     }
 
     // Relación con profesor

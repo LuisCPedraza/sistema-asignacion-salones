@@ -13,8 +13,14 @@ Route::middleware(['auth', 'role:coordinador,secretaria_coordinacion'])
 
         Route::resource('student-groups', StudentGroupController::class);
         Route::resource('teachers', TeacherController::class);
+    });
 
-        // Disponibilidades de profesores (CRUD por coordinador)
+// === DISPONIBILIDADES DE PROFESORES (Coordinadores + Profesores) ===
+Route::middleware(['auth', 'role:coordinador,secretaria_coordinacion,profesor,profesor_invitado'])
+    ->prefix('gestion-academica')
+    ->name('gestion-academica.')
+    ->group(function () {
+        // Disponibilidades de profesores (CRUD)
         Route::prefix('teachers/{teacher}')->group(function () {
             Route::get('/availabilities', [TeacherAvailabilityController::class, 'index'])
                 ->name('teachers.availabilities.index');
