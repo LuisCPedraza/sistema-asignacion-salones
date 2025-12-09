@@ -4,8 +4,8 @@ namespace App\Modules\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Admin\Services\ReportService;
-use App\Modules\GestionAcademica\Models\Career;
-use App\Modules\GestionAcademica\Models\Semester;
+use App\Models\Career;
+use App\Models\Semester;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -32,8 +32,8 @@ class ReportController extends Controller
 
     public function utilization(Request $request)
     {
-        $careers = Career::active()->get();
-        $semesters = Semester::active()->get();
+        $careers = Career::where('is_active', true)->get();
+        $semesters = Semester::where('is_active', true)->get();
 
         $careerId = $request->get('career_id');
         $semesterId = $request->get('semester_id');
@@ -55,8 +55,8 @@ class ReportController extends Controller
 
     public function statistics(Request $request)
     {
-        $careers = Career::active()->get();
-        $semesters = Semester::active()->get();
+        $careers = Career::where('is_active', true)->get();
+        $semesters = Semester::where('is_active', true)->get();
 
         $careerId = $request->get('career_id');
         $semesterId = $request->get('semester_id');
