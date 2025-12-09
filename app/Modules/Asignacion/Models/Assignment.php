@@ -19,6 +19,7 @@ class Assignment extends Model
         'student_group_id',
         'teacher_id',
         'classroom_id',
+        'subject_id',
         'time_slot_id',
         'day',
         'start_time',
@@ -51,6 +52,11 @@ class Assignment extends Model
     public function classroom()
     {
         return $this->belongsTo(Classroom::class);
+    }
+
+    public function subject()
+    {
+        return $this->belongsTo(\App\Models\Subject::class);
     }
 
     public function timeSlot()

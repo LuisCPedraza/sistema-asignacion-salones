@@ -50,18 +50,18 @@ Route::middleware('auth')->group(function () {
         };
     })->name('dashboard');
 
-    // Módulos protegidos
+// Módulos protegidos
     require app_path('Modules/GestionAcademica/Routes/web.php');
     require app_path('Modules/Infraestructura/Routes/web.php');
     require __DIR__.'/../app/Modules/Admin/Routes/web.php';
 
-    // Módulo Asignación (con prefix y name correctos)
+    // Módulo Asignación
     Route::prefix('asignacion')->name('asignacion.')->group(function () {
         require __DIR__.'/../app/Modules/Asignacion/Routes/web.php';
     });
+});
 
-    // Módulo Visualización
-    Route::prefix('visualizacion')->name('visualizacion.')->group(function () {
-        require __DIR__.'/../app/Modules/Visualization/Routes/web.php';
-    });
+// MÓDULO VISUALIZACIÓN: FUERA DEL middleware('auth'), pero dentro del prefix
+Route::prefix('visualizacion')->name('visualizacion.')->group(function () {
+    require __DIR__.'/../app/Modules/Visualization/Routes/web.php';
 });
