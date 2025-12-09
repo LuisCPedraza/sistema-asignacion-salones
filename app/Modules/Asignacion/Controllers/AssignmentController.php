@@ -254,6 +254,13 @@ class AssignmentController extends Controller
 
     public function conflictos()
     {
-        return view('asignacion.conflictos');
+        $detector = new \App\Modules\Asignacion\Services\ConflictDetector();
+        $conflictReport = $detector->getConflictReport();
+        $allConflicts = $detector->detectAllConflicts();
+
+        return view('asignacion.conflictos', [
+            'conflictReport' => $conflictReport,
+            'allConflicts' => $allConflicts,
+        ]);
     }
 }
