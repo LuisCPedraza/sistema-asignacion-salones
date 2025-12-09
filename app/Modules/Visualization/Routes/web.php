@@ -3,22 +3,28 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Visualization\Controllers\HorarioController;
 
-Route::middleware(['auth'])->group(function () {
-    // HU13: Horario semestral (solo coordinadores)
-    Route::get('/horario-semestral', [HorarioController::class, 'semestral'])
-        ->name('horario.semestral')
-        ->middleware('role:coordinador');
-    
-    Route::get('/horario-semestral/export', [HorarioController::class, 'exportSemestral'])
-        ->name('horario.semestral.export')
-        ->middleware('role:coordinador');
+// Agrupar las rutas de horario
+Route::prefix('horario')->name('horario.')->group(function () {
+    // HU14: Horario personal (Profesores)
+    Route::middleware(['auth', 'role:profesor,profesor_invitado'])->group(function () {
+        Route::get('/personal', [HorarioController::class, 'personal'])
+            ->name('personal');
 
-    // HU14: Horario personal (profesores e invitados)
-    Route::get('/horario-personal', [HorarioController::class, 'personal'])
-        ->name('horario.personal')
-        ->middleware('role:profesor,profesor_invitado');
-    
-    Route::get('/horario-personal/export', [HorarioController::class, 'exportPersonal'])
-        ->name('horario.personal.export')
-        ->middleware('role:profesor,profesor_invitado');
+        Route::get('/personal/export', [HorarioController::class, 'exportPersonal'])
+            ->name('personal.export');
+    });
+
+    // HU13: Horario semestral (Coordinadores)
+    Route::middleware(['auth', 'role:coordinador,secretaria_coordinacion'])->group(function () {
+        Route::get('/semestral', [HorarioController::class, 'semestral'])
+            ->name('semestral');
+
+        Route::get('/semestral/export', [HorarioController::class, 'exportSemestral'])
+            ->name('semestral.export');
+
+        // Nueva vista: Malla horaria tipo cuadrícula
+        Route::get('/malla-semestral', [HorarioController::class, 'mallaSemestral'])
+            ->name('malla-semestral');
+    });
+
 });

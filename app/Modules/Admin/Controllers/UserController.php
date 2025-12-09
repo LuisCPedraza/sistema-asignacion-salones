@@ -21,10 +21,33 @@ class UserController extends Controller
         });
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('role')->latest()->paginate(10);
-        return view('admin.users.index', compact('users'));
+        $query = User::with('role');
+
+        // Filtro de búsqueda por nombre o email
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Filtro por rol
+        if ($request->filled('role')) {
+            $query->where('role_id', $request->role);
+        }
+
+        // Filtro por estado
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status === 'active' ? 1 : 0);
+        }
+
+        $users = $query->latest()->paginate(10)->withQueryString();
+        $roles = Role::all();
+        
+        return view('admin.users.index', compact('users', 'roles'));
     }
 
     public function create()

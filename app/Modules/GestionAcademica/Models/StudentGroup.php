@@ -18,7 +18,10 @@ class StudentGroup extends Model
         'number_of_students',
         'special_requirements',
         'is_active',
-        'academic_period_id'
+        'academic_period_id',
+        'semester_id',
+        'group_type',    // A = Diurno, B = Nocturno
+        'schedule_type', // day = Diurno (8:00-18:00), night = Nocturno (18:00-22:00)
     ];
 
     protected $casts = [
@@ -34,9 +37,28 @@ class StudentGroup extends Model
     }
 
     // AGREGAR ESTA RELACIÓN:
-    public function assignments(): HasMany
+    public function assignments()
     {
-        return $this->hasMany(\App\Models\Assignment::class, 'student_group_id');
+        return $this->hasMany(\App\Modules\Asignacion\Models\Assignment::class, 'student_group_id');
+    }
+
+    // Nueva relación: Pertenece a un semestre
+    public function semester()
+    {
+        return $this->belongsTo(\App\Models\Semester::class);
+    }
+
+    // Nueva relación: A través del semestre, pertenece a una carrera
+    public function career()
+    {
+        return $this->hasOneThrough(
+            \App\Models\Career::class,
+            \App\Models\Semester::class,
+            'id',
+            'id',
+            'semester_id',
+            'career_id'
+        );
     }
 
     // Scope para HU4: Visualizar activos (auditoría soft-delete)

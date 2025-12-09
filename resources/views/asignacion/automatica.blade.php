@@ -3,99 +3,155 @@
 @section('title', 'Asignación Automática')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
 
-            <!-- MENSAJE DE ÉXITO (ahora con texto negro visible) -->
+            <!-- MENSAJE DE ÉXITO -->
             @if(session('success_message'))
-                <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-black p-12 text-center">
-                    <div class="text-8xl mb-6">¡ÉXITO TOTAL!</div>
-                    <h1 class="text-4xl font-bold mb-4 text-black">¡Asignación Automática Completada!</h1>
-                    <p class="text-2xl mb-8 text-black font-semibold">{{ session('success_message') }}</p>
-                    
-                    <a href="{{ route('visualizacion.horario.semestral') }}"
-                       class="inline-flex items-center px-10 py-5 bg-white text-green-700 text-xl font-bold rounded-x2 hover:bg-gray-100 transform hover:scale-105 transition-all shadow-2xl">
-                        VER HORARIO SEMESTRAL COMPLETO
-                    </a>
+                <div class="alert alert-success alert-dismissible fade show shadow-lg" role="alert">
+                    <div class="text-center">
+                        <h2 class="h2 mb-3"><i class="fas fa-check-circle"></i> ¡Asignación Completada!</h2>
+                        <p class="lead mb-4">{{ session('success_message') }}</p>
+                        <a href="{{ route('asignacion.resultados') }}" class="btn btn-success btn-lg me-2">
+                            <i class="fas fa-eye"></i> Ver Resultados
+                        </a>
+                        <a href="{{ route('visualizacion.horario.semestral') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-calendar"></i> Ver Horario Completo
+                        </a>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
 
             @if(session('error_message'))
-                <div class="bg-red-100 border border-red-400 text-red-700 px-8 py-6 rounded-lg mb-8 text-center">
-                    <p class="text-2xl font-bold">Error</p>
-                    <p class="text-lg mt-2">{{ session('error_message') }}</p>
+                <div class="alert alert-danger alert-dismissible fade show shadow-lg" role="alert">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Error en la Asignación</h5>
+                    <p class="mb-0">{{ session('error_message') }}</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
 
             @if(!session('success_message'))
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-black p-6 text-center">
-                    <h1 class="text-3xl font-bold">Asignación Automática de Salones</h1>
-                    <p class="mt-2 opacity-90">El sistema asignará grupos a salones según las reglas y pesos configurados</p>
-                </div>
-
-                <div class="p-8">
-                    <!-- Estadísticas -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                        <div class="bg-blue-50 rounded-lg p-6 text-center border border-blue-200">
-                            <div class="text-3xl font-bold text-blue-700">{{ $gruposCount }}</div>
-                            <p class="text-sm text-gray-600">Grupos activos</p>
-                        </div>
-                        <div class="bg-green-50 rounded-lg p-6 text-center border border-green-200">
-                            <div class="text-3xl font-bold text-green-700">{{ $salonesCount }}</div>
-                            <p class="text-sm text-gray-600">Salones</p>
-                        </div>
-                        <div class="bg-purple-50 rounded-lg p-6 text-center border border-purple-200">
-                            <div class="text-3xl font-bold text-purple-700">{{ $profesoresCount }}</div>
-                            <p class="text-sm text-gray-600">Profesores</p>
-                        </div>
-                        <div class="bg-amber-50 rounded-lg p-6 text-center border border-amber-200">
-                            <div class="text-3xl font-bold text-amber-700">{{ $franjasCount }}</div>
-                            <p class="text-sm text-gray-600">Franjas</p>
-                        </div>
+                <!-- ENCABEZADO -->
+                <div class="card shadow-lg border-0 mb-4">
+                    <div class="card-header bg-gradient text-white p-4" style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);">
+                        <h1 class="mb-2"><i class="fas fa-robot"></i> Asignación Automática de Salones</h1>
+                        <p class="mb-0 opacity-90">El sistema asignará grupos a salones según las reglas y pesos configurados</p>
                     </div>
 
-                    <!-- Reglas -->
-                    <div class="bg-gray-50 rounded-lg p-6 mb-8 border">
-                        <h3 class="text-lg font-semibold mb-4">Reglas activas</h3>
-                        @forelse($reglasActivas as $regla)
-                            <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow mb-3">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-2xl">{{ $regla->icono ?? 'Checkmark' }}</span>
-                                    <div>
-                                        <div class="font-semibold">{{ $regla->name }}</div>
-                                        <div class="text-sm text-gray-600">{{ $regla->description }}</div>
+                    <!-- ESTADÍSTICAS -->
+                    <div class="card-body">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <div class="card text-center border-primary shadow-sm h-100">
+                                    <div class="card-body">
+                                        <div class="h2 text-primary fw-bold">{{ $gruposCount }}</div>
+                                        <p class="text-muted mb-0">Grupos Activos</p>
                                     </div>
                                 </div>
-                                <span class="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-full font-bold">
-                                    Peso: {{ $regla->weight }}
-                                </span>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center border-success shadow-sm h-100">
+                                    <div class="card-body">
+                                        <div class="h2 text-success fw-bold">{{ $salonesCount }}</div>
+                                        <p class="text-muted mb-0">Salones</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center border-info shadow-sm h-100">
+                                    <div class="card-body">
+                                        <div class="h2 text-info fw-bold">{{ $profesoresCount }}</div>
+                                        <p class="text-muted mb-0">Profesores</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center border-warning shadow-sm h-100">
+                                    <div class="card-body">
+                                        <div class="h2 text-warning fw-bold">{{ $franjasCount }}</div>
+                                        <p class="text-muted mb-0">Franjas</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REGLAS ACTIVAS -->
+                <div class="card shadow-lg border-0 mb-4">
+                    <div class="card-header bg-dark text-white p-4">
+                        <h5 class="mb-0"><i class="fas fa-sliders-h"></i> Reglas Activas</h5>
+                    </div>
+                    <div class="card-body">
+                        @forelse($reglasActivas as $regla)
+                            <div class="row align-items-center mb-3 p-3 border-bottom">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1 fw-bold">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                        {{ $regla->name }}
+                                    </h6>
+                                    <p class="text-muted mb-0 small">{{ $regla->description ?? 'Sin descripción' }}</p>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge bg-primary fs-6">
+                                        Peso: {{ number_format($regla->weight * 100, 0) }}%
+                                    </span>
+                                </div>
                             </div>
                         @empty
-                            <p class="text-center text-gray-500 py-8">No hay reglas activas</p>
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-info-circle"></i> No hay reglas activas configuradas
+                            </div>
                         @endforelse
                     </div>
-
-                    <!-- BOTÓN CON TEXTO NEGRO VISIBLE -->
-                    <form action="{{ route('asignacion.asignacion.ejecutar-automatica') }}" method="POST">
-                        @csrf
-                        <div class="bg-gradient-to-r from-red-600 to-pink-600 rounded-xl p-10 text-center">
-                            <h2 class="text-3xl font-bold mb-6 text-black">¿Listo para ejecutar la asignación automática?</h2>
-                            <p class="text-xl mb-10 text-black font-bold">
-                                Se procesarán {{ $gruposCount }} grupos con {{ $reglasActivas->count() }} reglas activas
-                            </p>
-                            <button type="submit" class="px-12 py-6 bg-white text-red-600 text-2xl font-bold rounded-xl hover:bg-gray-100 transform hover:scale-110 transition-all shadow-2xl">
-                                EJECUTAR ASIGNACIÓN AUTOMÁTICA
-                            </button>
-                        </div>
-                    </form>
-
-                        <p class="text-center text-gray-500 mt-8 text-sm">
-                            Esta acción puede tomar varios segundos.
-                        </p>                    
                 </div>
+
+                <!-- BOTÓN DE EJECUCIÓN -->
+                <div class="card shadow-lg border-0 mb-4">
+                    <div class="card-body p-5 text-center">
+                        <form action="{{ route('asignacion.ejecutar-automatica') }}" method="POST">
+                            @csrf
+                            <h3 class="mb-4 fw-bold">¿Listo para ejecutar la asignación automática?</h3>
+                            <p class="lead text-muted mb-4">
+                                Se procesarán <strong>{{ $gruposCount }} grupos</strong> con <strong>{{ $reglasActivas->count() }} reglas activas</strong>
+                            </p>
+                            <button type="submit" class="btn btn-danger btn-lg px-5 py-3">
+                                <i class="fas fa-bolt"></i> EJECUTAR ASIGNACIÓN AUTOMÁTICA
+                            </button>
+                            <p class="text-muted small mt-4">
+                                <i class="fas fa-hourglass-end"></i> Esta acción puede tomar varios segundos
+                            </p>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- INFORMACIÓN ÚTIL -->
+                <div class="alert alert-info border-0 shadow-sm">
+                    <h5 class="alert-heading"><i class="fas fa-lightbulb"></i> Información Importante</h5>
+                    <ul class="mb-0 small">
+                        <li>Las asignaciones se realizarán según los pesos configurados en las reglas</li>
+                        <li>Se respetarán las disponibilidades de profesores y salones</li>
+                        <li>Los resultados pueden revisarse en la página de resultados</li>
+                        <li>Puedes crear nuevas asignaciones en cualquier momento</li>
+                    </ul>
+                </div>
+
             @endif
         </div>
     </div>
 </div>
+
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important;
+    }
+    .card {
+        transition: all 0.3s ease;
+    }
+    .card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+</style>
 @endsection

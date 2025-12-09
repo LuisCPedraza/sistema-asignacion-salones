@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Asignacion\Controllers\AssignmentController;
 use App\Modules\Asignacion\Controllers\AssignmentRuleController;
+use App\Modules\Asignacion\Controllers\TeacherScheduleController;
 
 Route::middleware([
     'auth',
@@ -10,26 +11,48 @@ Route::middleware([
 ])->group(function () {
 
     Route::get('/', [AssignmentController::class, 'index'])
-        ->name('asignacion.index');
+        ->name('index');
 
     Route::get('/automatica', [AssignmentController::class, 'automatica'])
-        ->name('asignacion.automatica');
+        ->name('automatica');
 
     Route::post('/automatica/ejecutar', [AssignmentController::class, 'ejecutarAutomatica'])
-        ->name('asignacion.ejecutar-automatica');
+        ->name('ejecutar-automatica');
+
+    Route::get('/resultados', [AssignmentController::class, 'resultados'])
+        ->name('resultados');
 
     Route::get('/manual', [AssignmentController::class, 'manual'])
-        ->name('asignacion.manual');
+        ->name('manual');
+
+    // Rutas API para asignación manual drag & drop (HU11)
+    Route::post('/manual/store', [AssignmentController::class, 'storeManual'])
+        ->name('manual.store');
+    
+    Route::put('/manual/{assignment}', [AssignmentController::class, 'updateManual'])
+        ->name('manual.update');
+    
+    Route::delete('/manual/{assignment}', [AssignmentController::class, 'destroyManual'])
+        ->name('manual.destroy');
 
     Route::get('/conflictos', [AssignmentController::class, 'conflictos'])
-        ->name('asignacion.conflictos');
+        ->name('conflictos');
 
     Route::get('/reglas', [AssignmentRuleController::class, 'index'])
-        ->name('asignacion.reglas');
+        ->name('reglas');
 
     Route::post('/reglas/actualizar', [AssignmentRuleController::class, 'actualizar'])
-        ->name('asignacion.reglas.actualizar');
+        ->name('reglas.actualizar');
 
     Route::post('/reglas/{id}/toggle', [AssignmentRuleController::class, 'toggle'])
-        ->name('asignacion.reglas.toggle');
+        ->name('reglas.toggle');
+});
+
+// Rutas privadas para profesores (HU14)
+Route::middleware('auth')->group(function () {
+    Route::get('/mi-horario', [TeacherScheduleController::class, 'mySchedule'])
+        ->name('teacher.schedule');
+    
+    Route::get('/mi-horario/descargar', [TeacherScheduleController::class, 'downloadSchedule'])
+        ->name('teacher.schedule.download');
 });

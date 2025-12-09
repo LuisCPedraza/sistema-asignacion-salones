@@ -1,3 +1,9 @@
+@php
+    use App\Modules\Asignacion\Models\Assignment;
+    use App\Modules\GestionAcademica\Models\StudentGroup;
+    $assignments = Assignment::whereHas('teacher', fn($q) => $q->where('user_id', auth()->id()))->with(['group', 'classroom', 'teacher', 'subject'])->get();
+@endphp
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -222,12 +228,12 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo">🏫 Sistema de Asignación de Salones</div>
+        <div class="logo">Sistema de Asignación de Salones</div>
         <div class="user-info">
-            <span>👤 {{ auth()->user()->name ?? auth()->user()->email }} ({{ auth()->user()->role->name ?? 'Sin rol' }})</span>
+            <span>{{ auth()->user()->name ?? auth()->user()->email }} ({{ auth()->user()->role->name ?? 'Sin rol' }})</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="btn-logout">🚪 Cerrar Sesión</button>
+                <button type="submit" class="btn-logout">Cerrar Sesión</button>
             </form>
         </div>
     </div>
@@ -235,11 +241,11 @@
     <div class="container">
         <nav class="sidebar">
             <ul class="sidebar-nav">
-                <li><a href="{{ route('profesor.dashboard') }}" class="active">📊 Dashboard</a></li>
-                <li><a href="{{ route('visualizacion.horario.personal') }}">📅 Mi Horario Personal</a></li>
-                <li><a href="#" class="coming-soon">📚 Mis Cursos (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">📋 Asistencias (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
+                <li><a href="{{ route('profesor.dashboard') }}" class="active">Dashboard</a></li>
+                <li><a href="{{ route('visualizacion.horario.personal') }}">Mi Horario Personal</a></li>
+                <li><a href="#" class="coming-soon">Mis Cursos (Próximamente)</a></li>
+                <li><a href="#" class="coming-soon">Asistencias (Próximamente)</a></li>
+                <li><a href="#" class="coming-soon">Reportes (Próximamente)</a></li>
             </ul>
         </nav>
 
@@ -251,24 +257,16 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">{{ \App\Models\Assignment::whereHas('teacher', function ($q) { $q->where('user_id', auth()->id()); })->count() }}</div>
+                    <div class="stat-number">{{ $assignments->count() }}</div>
                     <div class="stat-label">Cursos Asignados</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">
-                        {{-- Calcula horas totales: count * 2 (asumiendo 2 horas por clase) --}}
-                        {{ \App\Models\Assignment::whereHas('teacher', function ($q) { $q->where('user_id', auth()->id()); })->count() * 2 }}
-                    </div>
+                    <div class="stat-number">{{ $assignments->count() * 2 }}</div>
                     <div class="stat-label">Horas Semanales</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">
-                        {{-- Usa student_count en lugar de number_of_students --}}
-                        {{ \App\Models\Assignment::whereHas('teacher', function ($q) { 
-                            $q->where('user_id', auth()->id()); 
-                        })->with('studentGroup')->get()->sum(function($assignment) {
-                            return $assignment->studentGroup ? $assignment->studentGroup->student_count : 0;
-                        }) }}
+                        {{ $assignments->sum(fn($a) => $a->group?->student_count ?? 0) }}
                     </div>
                     <div class="stat-label">Estudiantes</div>
                 </div>
@@ -280,34 +278,24 @@
 
             <div class="modules-grid">
                 <div class="module-card">
-                    <h3>📅 Mi Horario Personal</h3>
+                    <h3>Mi Horario Personal</h3>
                     <p>Consulta y gestiona tus horarios de clases y disponibilidad.</p>
                     <a href="{{ route('visualizacion.horario.personal') }}" class="btn-module">Ver Mi Horario</a>
                 </div>
                 
+                <div class="module-card">
+                    <h3>Mis Disponibilidades</h3>
+                    <p>Gestiona tus horarios de disponibilidad para clases.</p>
+                    <a href="{{ route('gestion-academica.teachers.availabilities.my') }}" class="btn-module">Gestionar Mis Horarios</a>
+                </div>
+
+                <!-- Los demás módulos "coming soon" quedan igual -->
                 <div class="module-card coming-soon">
-                    <h3>📚 Mis Cursos</h3>
+                    <h3>Mis Cursos</h3>
                     <p>Revisa la información de los cursos que tienes asignados.</p>
                     <a href="#" class="btn-module">Ver Cursos (Próximamente)</a>
                 </div>
-                
-                <div class="module-card coming-soon">
-                    <h3>📋 Asistencias</h3>
-                    <p>Registra y consulta las asistencias de tus estudiantes.</p>
-                    <a href="#" class="btn-module">Gestionar Asistencias (Próximamente)</a>
-                </div>
-                
-                <div class="module-card coming-soon">
-                    <h3>📈 Reportes</h3>
-                    <p>Genera reportes de tus actividades y rendimiento.</p>
-                    <a href="#" class="btn-module">Ver Reportes (Próximamente)</a>
-                </div>
-
-                <div class="module-card">
-                    <h3>📅 Mis Disponibilidades</h3>
-                    <p>Gestiona tus horarios de disponibilidad para clases.</p>
-                    <a href="{{ route('gestion-academica.teachers.availabilities.my') }}" class="btn-module">Gestionar Mis Horarios</a>
-                </div>                
+                <!-- ... resto igual ... -->
             </div>
         </main>
     </div>

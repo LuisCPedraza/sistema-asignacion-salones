@@ -10,54 +10,58 @@ class TimeSlotSeeder extends Seeder
 {
     public function run()
     {
-        $timeSlots = [];
-        
-        // Horarios universitarios típicos
         $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-        $morningSlots = [
-            ['08:00', '10:00'],
-            ['10:00', '12:00'],
-            ['14:00', '16:00'], // Tarde
-        ];
-        $afternoonSlots = [
-            ['16:00', '18:00'],
-        ];
-        $nightSlots = [
-            ['18:00', '20:00'],
-            ['20:00', '22:00'],
+
+        // BLOQUES DIURNOS (8:00 - 18:00)
+        $dayBlocks = [
+            ['start' => '08:00:00', 'end' => '10:00:00', 'shift' => 'morning', 'schedule_type' => 'day'],
+            ['start' => '10:00:00', 'end' => '12:00:00', 'shift' => 'morning', 'schedule_type' => 'day'],
+            ['start' => '14:00:00', 'end' => '16:00:00', 'shift' => 'afternoon', 'schedule_type' => 'day'],
+            ['start' => '16:00:00', 'end' => '18:00:00', 'shift' => 'afternoon', 'schedule_type' => 'day'],
         ];
 
+        // BLOQUES NOCTURNOS (18:00 - 22:00)
+        $nightBlocks = [
+            ['start' => '18:00:00', 'end' => '20:00:00', 'shift' => 'night', 'schedule_type' => 'night'],
+            ['start' => '20:00:00', 'end' => '22:00:00', 'shift' => 'night', 'schedule_type' => 'night'],
+        ];
+
+        // Crear time slots para cada día
         foreach ($days as $day) {
-            // Jornada matutina
-            foreach ($morningSlots as $index => $slot) {
-                $shift = $slot[0] >= '14:00' ? 'afternoon' : 'morning';
-                $timeSlots[] = [
-                    'name' => ucfirst($day) . ' ' . $slot[0] . '-' . $slot[1],
-                    'day' => $day,
-                    'start_time' => $slot[0],
-                    'end_time' => $slot[1],
-                    'shift' => $shift,
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+            // Bloques diurnos
+            foreach ($dayBlocks as $i => $block) {
+                $blockNum = $i + 1;
+                TimeSlot::firstOrCreate(
+                    ['day' => $day, 'start_time' => $block['start'], 'shift' => $block['shift']],
+                    [
+                        'name' => "Bloque {$blockNum}",
+                        'end_time' => $block['end'],
+                        'shift' => $block['shift'],
+                        'schedule_type' => $block['schedule_type'],
+                        'duration_minutes' => 120,
+                        'is_active' => true,
+                    ]
+                );
             }
 
-            // Jornada nocturna
-            foreach ($nightSlots as $slot) {
-                $timeSlots[] = [
-                    'name' => ucfirst($day) . ' ' . $slot[0] . '-' . $slot[1],
-                    'day' => $day,
-                    'start_time' => $slot[0],
-                    'end_time' => $slot[1],
-                    'shift' => 'night',
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+            // Bloques nocturnos
+            foreach ($nightBlocks as $i => $block) {
+                $blockNum = $i + 5;
+                TimeSlot::firstOrCreate(
+                    ['day' => $day, 'start_time' => $block['start'], 'shift' => $block['shift']],
+                    [
+                        'name' => "Bloque {$blockNum}",
+                        'end_time' => $block['end'],
+                        'shift' => $block['shift'],
+                        'schedule_type' => $block['schedule_type'],
+                        'duration_minutes' => 120,
+                        'is_active' => true,
+                    ]
+                );
             }
         }
 
-        TimeSlot::insert($timeSlots);
+        echo "✓ Bloques horarios actualizados con schedule_type\n";
     }
 }
+

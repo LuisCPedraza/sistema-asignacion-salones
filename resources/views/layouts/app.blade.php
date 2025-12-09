@@ -95,6 +95,16 @@
                                 <i class="fas fa-users me-2"></i>Grupos Estudiantes
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('visualizacion.horario.semestral') }}">
+                                <i class="fas fa-calendar-alt me-2"></i>Horario Semestral
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('visualizacion.horario.malla-semestral') }}">
+                                <i class="fas fa-table me-2"></i>Malla Horaria
+                            </a>
+                        </li>
                         @endif
                         
                         @if(auth()->user()->hasRole('coordinador_infraestructura') || auth()->user()->hasRole('secretaria_infraestructura'))
@@ -109,6 +119,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('profesor.dashboard') }}">
                                 <i class="fas fa-chalkboard-teacher me-2"></i>Mi Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('asignacion.teacher.schedule') }}">
+                                <i class="fas fa-calendar-check me-2"></i>Mi Horario
                             </a>
                         </li>
                         @endif

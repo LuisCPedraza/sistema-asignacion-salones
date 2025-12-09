@@ -19,10 +19,53 @@ class StudentGroupController extends Controller
         });
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $groups = StudentGroup::with('academicPeriod')->latest()->paginate(10);
-        return view('gestion-academica.student-groups.index', compact('groups'));
+        $query = StudentGroup::with('semester');
+
+        // Búsqueda por nombre
+        if ($search = $request->get('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // Filtro de estado
+        if ($request->get('status') === 'active') {
+            $query->where('is_active', true);
+        } elseif ($request->get('status') === 'inactive') {
+            $query->where('is_active', false);
+        }
+
+        // Filtro de nivel
+        if ($level = $request->get('level')) {
+            $query->where('level', $level);
+        }
+
+        // Ordenamiento
+        switch ($request->get('sort')) {
+            case 'level':
+                $query->orderBy('level');
+                break;
+            case 'students':
+                $query->orderByDesc('student_count');
+                break;
+            case 'recent':
+                $query->latest();
+                break;
+            default:
+                $query->orderBy('name');
+        }
+
+        $groups = $query->paginate(10)->appends($request->query());
+
+        // Estadísticas globales para tarjetas
+        $stats = [
+            'total' => StudentGroup::count(),
+            'active' => StudentGroup::where('is_active', true)->count(),
+            'students' => StudentGroup::sum('student_count'),
+            'avg' => round(StudentGroup::avg('student_count'), 1),
+        ];
+
+        return view('gestion-academica.student-groups.index', compact('groups', 'stats'));
     }
 
     public function create()

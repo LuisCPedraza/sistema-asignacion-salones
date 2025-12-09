@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Modules\Auth\Models\Role;
 use App\Http\Middleware\AdminMiddleware;
+use App\Modules\Visualization\Controllers\HorarioController;
 
 // Rutas públicas
 Route::get('/', function () {
@@ -50,18 +51,22 @@ Route::middleware('auth')->group(function () {
         };
     })->name('dashboard');
 
-    // Módulos protegidos
+// Módulos protegidos
     require app_path('Modules/GestionAcademica/Routes/web.php');
     require app_path('Modules/Infraestructura/Routes/web.php');
     require __DIR__.'/../app/Modules/Admin/Routes/web.php';
 
-    // Módulo Asignación (con prefix y name correctos)
+    // Módulo Asignación
     Route::prefix('asignacion')->name('asignacion.')->group(function () {
         require __DIR__.'/../app/Modules/Asignacion/Routes/web.php';
     });
-
-    // Módulo Visualización
-    Route::prefix('visualizacion')->name('visualizacion.')->group(function () {
-        require __DIR__.'/../app/Modules/Visualization/Routes/web.php';
-    });
 });
+
+// MÓDULO VISUALIZACIÓN: FUERA DEL middleware('auth'), pero dentro del prefix
+Route::prefix('visualizacion')->name('visualizacion.')->group(function () {
+    require __DIR__.'/../app/Modules/Visualization/Routes/web.php';
+});
+
+// Alias en inglés requerido por las pruebas
+Route::middleware(['auth', 'role:coordinador,secretaria_coordinacion'])->get('/visualization/malla-semestral', [HorarioController::class, 'mallaSemestral'])
+    ->name('visualization.horario.malla-semestral');
