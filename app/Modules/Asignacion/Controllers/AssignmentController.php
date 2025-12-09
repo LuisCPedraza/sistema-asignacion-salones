@@ -101,7 +101,9 @@ class AssignmentController extends Controller
         $periodId = $request->get('period_id');
         $period = $periodId 
             ? AcademicPeriod::find($periodId)
-            : AcademicPeriod::where('is_active', true)->first();
+            : AcademicPeriod::where('is_active', true)
+                ->orderBy('start_date')
+                ->first();
         
         // Obtener todos los períodos para el selector
         $periods = AcademicPeriod::orderBy('start_date', 'desc')->get();
@@ -148,22 +150,22 @@ class AssignmentController extends Controller
                 $endTime = Carbon::parse($assignment->end_time)->format('H:i:s');
 
                 return [
-                    'id' => $assignment->id,
-                    'title' => $assignment->subject->name ?? 'Sin materia',
+                    'id' => (string)$assignment->id,
+                    'title' => $assignment->subject?->name ?? 'Sin materia',
                     'start' => $baseDate . 'T' . $startTime,
                     'end' => $baseDate . 'T' . $endTime,
                     'resourceId' => $assignment->classroom_id,
                     'backgroundColor' => $this->getColorByScore($assignment->score),
                     'borderColor' => $this->getColorByScore($assignment->score),
                     'extendedProps' => [
-                        'group' => $assignment->group->name ?? 'Sin grupo',
-                        'group_id' => $assignment->student_group_id,
-                        'teacher' => ($assignment->teacher->first_name ?? '') . ' ' . ($assignment->teacher->last_name ?? ''),
-                        'teacher_id' => $assignment->teacher_id,
-                        'classroom' => $assignment->classroom->name ?? 'Sin salón',
-                        'classroom_id' => $assignment->classroom_id,
-                        'subject' => $assignment->subject->name ?? 'Sin materia',
-                        'subject_id' => $assignment->subject_id,
+                        'group' => $assignment->group?->name ?? 'Sin grupo',
+                        'group_id' => (int)$assignment->student_group_id,
+                        'teacher' => (($assignment->teacher?->first_name ?? '') . ' ' . ($assignment->teacher?->last_name ?? '')),
+                        'teacher_id' => (int)$assignment->teacher_id,
+                        'classroom' => $assignment->classroom?->name ?? 'Sin salón',
+                        'classroom_id' => (int)$assignment->classroom_id,
+                        'subject' => $assignment->subject?->name ?? 'Sin materia',
+                        'subject_id' => (int)$assignment->subject_id,
                         'day' => strtolower($assignment->day),
                         'score' => round($assignment->score * 100, 1) . '%',
                     ],

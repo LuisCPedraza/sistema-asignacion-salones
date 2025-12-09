@@ -17,17 +17,17 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),  // Pooler URI
+            'url' => env('DB_URL'),
             'host' => env('DB_HOST', 'aws-1-us-east-2.pooler.supabase.com'),
-            'port' => env('DB_PORT', '6543'),  // Pooler port
-            'database' => env('DB_DATABASE', 'postgres'),
-            'username' => env('DB_USERNAME', 'postgres.vzgdbeycqebftjnsmcpj'),
-            'password' => env('DB_PASSWORD', ''),
+            'port' => env('DB_PORT', '6543'),
+            'database' => env('DB_DATABASE_PROD', 'postgres'),
+            'username' => env('DB_USERNAME_PROD', 'postgres.vzgdbeycqebftjnsmcpj'),
+            'password' => env('DB_PASSWORD_PROD', ''),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => env('DB_SSLMODE', 'require'),  // SSL required
+            'sslmode' => env('DB_SSLMODE', 'require'),
         ],
 
         'mysql' => [

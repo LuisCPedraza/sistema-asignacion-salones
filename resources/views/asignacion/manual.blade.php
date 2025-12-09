@@ -150,6 +150,9 @@
     <!-- Calendario con Drag & Drop -->
     <div class="card">
         <div class="card-body">
+            <div id="calendar-status" class="alert alert-info mb-3">
+                Cargando calendario...
+            </div>
             <div id="calendar"></div>
         </div>
     </div>
@@ -263,9 +266,14 @@
 <!-- FullCalendar CSS -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
 <style>
+    .card-body {
+        display: flex;
+        flex-direction: column;
+    }
     #calendar {
-        min-height: 800px;
+        height: 800px;
         background: white;
+        flex: 1;
     }
     .fc {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
@@ -294,15 +302,28 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
+    const calendarStatus = document.getElementById('calendar-status');
     let currentAssignmentId = null;
+    let calendar = null;
+    
     const eventsData = @json($assignments);
+    
+    // Log para verificar los datos
+    console.log('=== DEBUG CALENDAR ===');
+    console.log('Datos crudos recibidos:', eventsData);
+    console.log('Total de eventos:', eventsData ? eventsData.length : 0);
+    
+    if (eventsData && eventsData.length > 0) {
+        console.log('Primer evento:', eventsData[0]);
+    }
+    
     const baseEvents = (eventsData || []).map((event) => {
         const base = JSON.parse(JSON.stringify(event));
         const props = base.extendedProps || {};
         const startDate = base.start ? new Date(base.start) : null;
         const normalizedDay = props.day || (startDate ? getDayFromDate(startDate) : '');
 
-        return {
+        const mappedEvent = {
             ...base,
             extendedProps: {
                 ...props,
@@ -313,65 +334,113 @@ document.addEventListener('DOMContentLoaded', function() {
                 subject_id: props.subject_id ?? base.subject_id ?? null,
             },
         };
+        
+        return mappedEvent;
     });
 
-    console.log('Total eventos base:', baseEvents.length);
+    console.log('Total eventos mapeados:', baseEvents.length);
     if (baseEvents.length > 0) {
-        console.log('Ejemplo de evento base:', baseEvents[0]);
+        console.log('Primer evento mapeado:', baseEvents[0]);
+    }
+    
+    if (calendarStatus) {
+        calendarStatus.innerHTML = `<strong>Cargando calendario...</strong> (${baseEvents.length} eventos encontrados)`;
+        calendarStatus.classList.remove('alert-info', 'alert-success', 'alert-danger');
+        calendarStatus.classList.add('alert-info');
     }
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'timeGridWeek',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'timeGridWeek,timeGridDay'
-        },
-        locale: 'es',
-        slotMinTime: '06:00:00',
-        slotMaxTime: '23:00:00',
-        allDaySlot: false,
-        editable: true,
-        droppable: true,
-        eventResizableFromStart: true,
-        height: 'auto',
-        contentHeight: 'auto',
-        
-        // Eventos desde Laravel
-        events: baseEvents,
-        
-        eventDidMount: function(info) {
-            console.log('Evento montado:', info.event.title);
-        },
-
-        // Cuando se hace clic en un evento
-        eventClick: function(info) {
-            currentAssignmentId = info.event.id;
-            const props = info.event.extendedProps;
-            
-            document.getElementById('detalleAsignacionBody').innerHTML = `
-                <p><strong>Título:</strong> ${info.event.title}</p>
-                <p><strong>Grupo:</strong> ${props.group}</p>
-                <p><strong>Profesor:</strong> ${props.teacher}</p>
-                <p><strong>Salón:</strong> ${props.classroom}</p>
-                <p><strong>Horario:</strong> ${info.event.start.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})} - ${info.event.end.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</p>
-                <p><strong>Puntaje:</strong> ${props.score}</p>
-            `;
-            
-            new bootstrap.Modal(document.getElementById('detalleAsignacionModal')).show();
-        },
-
-        // Cuando se mueve o redimensiona un evento (Drag & Drop)
-        eventDrop: function(info) {
-            updateAssignment(info.event);
-        },
-        
-        eventResize: function(info) {
-            updateAssignment(info.event);
+    try {
+        if (!FullCalendar || !FullCalendar.Calendar) {
+            throw new Error('FullCalendar no está disponible en el entorno global');
         }
-    });
 
-    calendar.render();
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridDay',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'timeGridDay,timeGridWeek'
+            },
+            locale: 'es',
+            slotMinTime: '06:00:00',
+            slotMaxTime: '23:00:00',
+            slotDuration: '00:30:00',
+            allDaySlot: false,
+            editable: true,
+            droppable: true,
+            eventResizableFromStart: true,
+            height: 'auto',
+            contentHeight: 800,
+            
+            // Eventos desde Laravel - IMPORTANTE: pasar directamente
+            events: baseEvents,
+            
+            eventDidMount: function(info) {
+                console.log('✓ Evento renderizado:', info.event.title, 'ID:', info.event.id);
+            },
+
+            // Cuando se hace clic en un evento
+            eventClick: function(info) {
+                currentAssignmentId = info.event.id;
+                const props = info.event.extendedProps;
+                
+                document.getElementById('detalleAsignacionBody').innerHTML = `
+                    <p><strong>Título:</strong> ${info.event.title}</p>
+                    <p><strong>Grupo:</strong> ${props.group}</p>
+                    <p><strong>Profesor:</strong> ${props.teacher}</p>
+                    <p><strong>Salón:</strong> ${props.classroom}</p>
+                    <p><strong>Horario:</strong> ${info.event.start.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})} - ${info.event.end.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</p>
+                    <p><strong>Puntaje:</strong> ${props.score}</p>
+                `;
+                
+                new bootstrap.Modal(document.getElementById('detalleAsignacionModal')).show();
+            },
+
+            // Cuando se mueve o redimensiona un evento (Drag & Drop)
+            eventDrop: function(info) {
+                updateAssignment(info.event);
+            },
+            
+            eventResize: function(info) {
+                updateAssignment(info.event);
+            },
+            
+            // Callback para cuando el calendario esté completamente renderizado
+            datesSet: function(info) {
+                const renderedEvents = calendar.getEvents();
+                console.log('Calendario renderizado. Eventos visibles:', renderedEvents.length);
+            }
+        });
+
+        calendar.render();
+        
+        // Verificar eventos después de renderizar
+        setTimeout(() => {
+            const renderedEvents = calendar.getEvents();
+            console.log('Eventos después del render:', renderedEvents.length);
+            
+            if (calendarStatus) {
+                if (baseEvents.length > 0) {
+                    calendarStatus.innerHTML = `<strong>✓ Calendario listo</strong> (${renderedEvents.length} eventos visibles)`;
+                    calendarStatus.classList.remove('alert-info', 'alert-danger');
+                    calendarStatus.classList.add('alert-success');
+                } else {
+                    calendarStatus.innerHTML = `<strong>⚠️ No hay asignaciones</strong> para este período`;
+                    calendarStatus.classList.remove('alert-info', 'alert-danger');
+                    calendarStatus.classList.add('alert-warning');
+                }
+                setTimeout(() => calendarStatus.remove(), 3000);
+            }
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error inicializando calendario:', error);
+        if (calendarStatus) {
+            calendarStatus.innerHTML = `<strong>❌ Error:</strong> ${error.message}. Revisa la consola.`;
+            calendarStatus.classList.remove('alert-info', 'alert-success');
+            calendarStatus.classList.add('alert-danger');
+        }
+    }
 
     const filters = {
         day: document.getElementById('filter_day'),
@@ -382,12 +451,20 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     document.getElementById('applyFilters').addEventListener('click', function() {
+        if (!calendar) return;
+        
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Filtrando...';
+        
         const day = filters.day.value;
         const groupId = filters.group.value;
         const teacherId = filters.teacher.value;
         const classroomId = filters.classroom.value;
         const subjectId = filters.subject.value;
 
+        const startTime = performance.now();
+        
         const filtered = baseEvents.filter(event => {
             const props = event.extendedProps || {};
             const matchesDay = !day || props.day === day;
@@ -398,16 +475,51 @@ document.addEventListener('DOMContentLoaded', function() {
             return matchesDay && matchesGroup && matchesTeacher && matchesClassroom && matchesSubject;
         });
 
-        console.log('Filtros -> day:', day, 'group:', groupId, 'teacher:', teacherId, 'classroom:', classroomId, 'subject:', subjectId, 'Resultado:', filtered.length);
+        // Usar batchRendering para optimizar el renderizado
+        calendar.batchRendering(() => {
+            calendar.getEvents().forEach(event => event.remove());
+            filtered.forEach(event => {
+                calendar.addEvent(event);
+            });
+        });
+        
+        const duration = (performance.now() - startTime).toFixed(2);
+        console.log(`✓ Filtros aplicados en ${duration}ms ->, { day, groupId, teacherId, classroomId, subjectId }, '| Resultado:', filtered.length, 'eventos`);
 
-        calendar.removeAllEvents();
-        calendar.addEventSource(filtered);
+        // Restaurar botón
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-search"></i> Aplicar filtros';
+        }, 300);
     });
 
     document.getElementById('clearFilters').addEventListener('click', function() {
+        if (!calendar) return;
+        
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Limpiando...';
+        
         Object.values(filters).forEach(select => select.value = '');
-        calendar.removeAllEvents();
-        calendar.addEventSource(baseEvents);
+        
+        const startTime = performance.now();
+        
+        // Usar batchRendering para optimizar
+        calendar.batchRendering(() => {
+            calendar.getEvents().forEach(event => event.remove());
+            baseEvents.forEach(event => {
+                calendar.addEvent(event);
+            });
+        });
+        
+        const duration = (performance.now() - startTime).toFixed(2);
+        console.log(`✓ Filtros limpiados en ${duration}ms. Total eventos: ${baseEvents.length}`);
+        
+        // Restaurar botón
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-times"></i> Limpiar';
+        }, 300);
     });
 
     // Función para verificar conflictos
