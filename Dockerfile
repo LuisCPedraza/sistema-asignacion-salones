@@ -18,11 +18,15 @@ RUN composer install --optimize-autoloader --no-dev
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Crear script de inicio
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Copia configuración de Nginx personalizada
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expón el puerto 80 para Nginx
 EXPOSE 80
 
-# Inicia Nginx y PHP-FPM juntos en el contenedor
-CMD ["/bin/sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
+# Usar script de inicio que ejecuta migraciones y optimizaciones
+CMD ["docker-entrypoint.sh"]
