@@ -47,16 +47,14 @@ A continuación, una breve descripción de cada caso de uso (UC), agrupados por 
 ### Diagrama de Casos de Uso (Actualizado)
 ```mermaid
 graph TD
-    %% Actores (con sub-roles para visibilidad)
+    %% Actores (8 roles del sistema)
     subgraph "Actores/Roles"
         A[Administrador]:::actor
-        SA[Superadministrador]:::actor
-        C[Coordinador General]:::actor
-        CA[Coordinador Académico]:::actor
+        C[Coordinador]:::actor
+        SA[Secretaria Administrativa]:::actor
+        SC[Secretaria de Coordinación]:::actor
         CI[Coordinador de Infraestructura]:::actor
-        S[Secretaría General]:::actor
-        SAca[Secretaría Académica]:::actor
-        SInf[Secretaría de Infraestructura]:::actor
+        SI[Secretaria de Infraestructura]:::actor
         P[Profesor]:::actor
         PI[Profesor Invitado]:::actor
     end
@@ -116,8 +114,6 @@ graph TD
     A -.-> UC15
     A -.-> UC18
     A -.-> UC19
-    SA -.-> UC1
-    SA -.-> UC2
     C -.-> UC2
     C -.-> UC3
     C -.-> UC7
@@ -125,19 +121,25 @@ graph TD
     C -.-> UC11
     C -.-> UC13
     C -.-> UC16
-    CA -.-> UC3
-    CA -.-> UC7
+    SA -.-> UC1
+    SA -.-> UC2
+    SA -.-> UC15
+    SA -.-> UC18
+    SC -.-> UC2
+    SC -.-> UC13
+    SC -.-> UC14
+    CI -.-> UC2
     CI -.-> UC5
     CI -.-> UC6
-    S -.-> UC1
-    S -.-> UC15
-    SAca -.-> UC3
-    SInf -.-> UC5
+    SI -.-> UC2
+    SI -.-> UC5
+    SI -.-> UC6
     P -.-> UC2
     P -.-> UC8
     P -.-> UC14
     PI -.-> UC2
     PI -.-> UC8
+    PI -.-> UC14
 
     %% Estilos Atractivo
     classDef actor fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000
@@ -151,13 +153,11 @@ Todos estos roles deben **iniciar sesión** (UC2) para acceder al sistema, con r
 
 | Rol                          | Actividades Principales (Qué Hace) | Restricciones Específicas |
 |------------------------------|-----------------------------------|---------------------------|
-| **Secretaría** (General)    | Apoya en creación de cuentas, gestiona solicitudes de cambios en horarios, genera/distribuye reportes básicos y mantiene auditoría rutinaria. | Acceso limitado a lectura/edición básica (no asignaciones ni configs globales). Depende de aprobaciones superiores. Solo visualiza datos no sensibles. |
-| **Superadministrador**      | Gestiona backups/restauraciones, integra con herramientas externas (ej: LMS), monitorea rendimiento global y aprueba cambios estructurales. | Acceso exclusivo y auditado (solo para IT/directivos). No interfiere en operaciones diarias. Requiere logs avanzados con doble verificación. |
-| **Administrador**           | Crea/gestiona cuentas, genera reportes de recursos/estadísticas, visualiza historial/auditoría y configura parámetros generales (períodos, días laborables). | Acceso total pero controlado por rol (no ejecución de asignaciones). Debe registrar todas las acciones para auditoría. |
+| **Administrador**            | Crea/gestiona cuentas, genera reportes de recursos/estadísticas, visualiza historial/auditoría y configura parámetros generales (períodos, días laborables). | Acceso total pero controlado por rol (no ejecución de asignaciones). Debe registrar todas las acciones para auditoría. |
+| **Coordinador**              | Registra/edita grupos y profesores, ejecuta asignaciones automáticas/manuales, visualiza horarios/conflictos y establece restricciones académicas. | Dependiente de disponibilidades reales; no configs globales (eso es de admin). Acceso amplio a datos académicos. |
+| **Secretaria Administrativa** | Apoya en creación de cuentas, gestiona solicitudes de cambios en horarios, genera/distribuye reportes básicos y mantiene auditoría rutinaria. | Acceso limitado a lectura/edición básica (no asignaciones ni configs globales). Depende de aprobaciones superiores. |
+| **Secretaria de Coordinación** | Distribuye horarios a estudiantes/familias, exporta a calendarios externos, visualiza horarios académicos y maneja registros administrativos de grupos. | Acceso a datos no sensibles. Requiere aprobación para cambios. No edita disponibilidades ni infraestructura. |
 | **Profesor**                | Inicia sesión, visualiza horario personal y salones asignados, actualiza su disponibilidad horaria y preferencias. | Acceso solo a datos personales (no edición global). Dependiente de asignaciones de coordinadores; no ve horarios ajenos. |
-| **Secretaría de Infraestructura** | Actualiza disponibilidades de salones (ej: por mantenimiento), genera reportes de uso de recursos físicos y notifica restricciones. | Enfocado solo en datos de salones/infraestructura; no accede a horarios académicos o grupos. Requiere aprobación para cambios. |
-| **Coordinador Académico**   | Registra/edita grupos y profesores (enfoque en datos académicos como niveles/especialidades), coordina preferencias pedagógicas y aprueba horarios propuestos. | No gestiona infraestructura física; reporta a coordinador general. Limitado a filtros académicos, sin configs globales. |
-| **Secretaria Académica**    | Maneja registros administrativos de grupos/profesores, distribuye horarios a estudiantes/familias y exporta a calendarios externos. | No asigna salones ni edita disponibilidades; solo datos no sensibles. Acceso temporal a info de estudiantes (con privacidad GDPR-like). |
-| **Profesor Invitado**       | Visualiza horarios temporales y salones asignados, reporta disponibilidades limitadas y recibe notificaciones por email/SMS. | Acceso caduco (expira automáticamente); sin edición profunda ni gestión de recursos. Solo para sesiones puntuales. |
-| **Coordinador General**   | Registra/edita grupos/profesores, ejecuta asignaciones automáticas/manuales, visualiza horarios/conflictos y establece restricciones. | Dependiente de disponibilidades reales; no configs globales (eso es de admin). Acceso amplio pero no ilimitado a datos sensibles. |
 | **Coordinador de Infraestructura** | Registra/gestiona salones (capacidad, recursos, ubicación) y configura su disponibilidad horaria/restricciones de uso. | Enfocado solo en recursos físicos; no ve/edita datos académicos. Cambios requieren validación para evitar conflictos. |
+| **Secretaria de Infraestructura** | Actualiza disponibilidades de salones (ej: por mantenimiento), genera reportes de uso de recursos físicos y notifica restricciones. | Enfocado solo en datos de salones/infraestructura; no accede a horarios académicos o grupos. Requiere aprobación para cambios. |
+| **Profesor Invitado**       | Visualiza horarios temporales y salones asignados, reporta disponibilidades limitadas y recibe notificaciones por email/SMS. | Acceso caduco (expira automáticamente); sin edición profunda ni gestión de recursos. Solo para sesiones puntuales. |

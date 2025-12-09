@@ -1,277 +1,471 @@
 # Diagramas de Secuencia para Casos de Uso por Rol
 
 ## Introducción
-Estos diagramas de secuencia ilustran las interacciones clave de cada rol con el sistema, enfocándose en sus **actividades principales** y **restricciones específicas**. Cada diagrama usa sintaxis Mermaid para renderizarse en GitHub. Las restricciones se representan como notas o guards (condiciones) en las flechas. Todos los roles inician con autenticación (UC2), como se detalló previamente.
+Estos diagramas de secuencia ilustran las interacciones clave de cada **rol real del sistema** (8 roles del `RoleSeeder.php`) con el backend Laravel. Cada diagrama usa sintaxis Mermaid y refleja las restricciones de permisos implementadas vía `RoleMiddleware`.
 
-### 1. Secretaría (General)
+**Actualización**: Se eliminaron diagramas para roles ficticios (Superadministrador, CoordinadorAcademico, SecretariaAcademica, SecretariaInfraestructura) que no existen en el proyecto. Los 8 roles reales son:
 
-- **Actividades Principales**: Apoya en creación de cuentas, gestiona solicitudes de cambios en horarios, genera/distribuye reportes básicos y mantiene auditoría rutinaria.  
+1. **Administrador** (`administrador`)
+2. **Secretaria Administrativa** (`secretaria_administrativa`)
+3. **Coordinador** (`coordinador`)
+4. **Secretaria de Coordinación** (`secretaria_coordinacion`)
+5. **Coordinador de Infraestructura** (`coordinador_infraestructura`)
+6. **Secretaria de Infraestructura** (`secretaria_infraestructura`)
+7. **Profesor** (`profesor`)
+8. **Profesor Invitado** (`profesor_invitado`)
 
-- **Restricciones Específicas**: Acceso limitado a lectura/edición básica (no asignaciones ni configs globales). Depende de aprobaciones superiores. Solo visualiza datos no sensibles.
+## 1. Administrador
 
-```mermaid
-sequenceDiagram
-actor Usuario
-Usuario->>S: Ingresar Como:
-    participant S as Secretaría
-    participant Sys as Sistema
-    participant A as Aprobador (Superior)
+**Actividades Principales**: 
+- Crea/gestiona cuentas de usuarios (UC1)
+- Genera reportes estadísticos (UC15)
+- Configura parámetros generales del sistema (UC19)
+- Visualiza historial de auditoría (UC18)
 
-    S->>Sys: Iniciar Sesión (UC2)
-    Sys->>S: Acceso concedido (limitado)
-    Note over S,Sys: Restricción: Solo lectura/edición básica
-
-    S->>Sys: Crear/Actualizar Cuenta (UC1, soporte)
-    Sys->>A: Solicitar Aprobación
-    A->>Sys: Aprobar
-    Sys->>S: Confirmación
-
-    S->>Sys: Generar Reporte Básico (UC15)
-    Sys->>S: Reporte (no sensibles)
-    Note over S,Sys: Restricción: Sin asignaciones
-
-    S->>Sys: Registrar en Auditoría (UC18)
-    Sys->>S: Historial actualizado
-```
-### 2. Superadministrador
-
-- **Actividades Principales**: Gestiona backups/restauraciones, integra con herramientas externas (ej: LMS), monitorea rendimiento global y aprueba cambios estructurales.
-
-- **Restricciones Específicas**: Acceso exclusivo y auditado (solo para IT/directivos). No interfiere en operaciones diarias. Requiere logs avanzados con doble verificación.
+**Restricciones Específicas**: 
+- Acceso total pero registrado (todas las acciones se auditan vía middleware)
+- No ejecuta asignaciones directamente (eso es del Coordinador)
+- Puede ver todos los datos pero no modificar asignaciones confirmadas
 
 ```mermaid
 sequenceDiagram
-actor Usuario
-Usuario->>SA: Ingresar Como:
-    participant SA as Superadministrador
-    participant Sys as Sistema
-    participant Log as Logs Avanzados
+    actor Admin as Administrador
+    participant Sys as Sistema Laravel
+    participant DB as Base de Datos
 
-    SA->>Sys: Iniciar Sesión (UC2)
-    Sys->>SA: Acceso exclusivo
-    Note over SA,Sys: Restricción: Auditado con doble verificación
+    Admin->>Sys: POST /login (email, password)
+    Sys->>DB: SELECT * FROM users WHERE email=? AND role_id=(SELECT id FROM roles WHERE slug='administrador')
+    DB->>Sys: User data + role
+    Sys->>Admin: JWT token + permissions
+    Note over Admin,Sys: Restricción: Solo role_id con slug='administrador'
 
-    SA->>Sys: Gestionar Backup/Restauración (UC19 extendido)
-    Sys->>Log: Registrar Acción
-    Log->>SA: Confirmación auditada
+    Admin->>Sys: POST /users (crear cuenta, UC1)
+    Sys->>DB: INSERT INTO users (name, email, role_id)
+    DB->>Sys: User created
+    Sys->>Admin: Confirmación
+    Note over Admin,DB: Middleware: RoleMiddleware verifica role=administrador
 
-    SA->>Sys: Integrar Herramienta Externa (UC19)
-    Sys->>SA: Integración completada
-    Note over SA,Sys: Restricción: No operaciones diarias
+    Admin->>Sys: GET /reports/statistics (UC15)
+    Sys->>DB: SELECT COUNT(*), AVG(score) FROM assignments GROUP BY...
+    DB->>Sys: Estadísticas
+    Sys->>Admin: JSON con reportes
 
-    SA->>Sys: Monitorear Rendimiento (UC18)
-    Sys->>SA: Métricas globales
+    Admin->>Sys: PUT /config/academic-period (UC19)
+    Sys->>DB: UPDATE academic_periods SET start_date=?, end_date=?
+    DB->>Sys: Config updated
+    Sys->>Admin: Confirmación
+    Note over Admin,Sys: Restricción: Sin modificar asignaciones
 ```
-### 3. Administrador
 
-- **Actividades Principales**: Crea/gestiona cuentas, genera reportes de recursos/estadísticas, visualiza historial/auditoría y configura parámetros generales (períodos, días laborables).
+## 2. Secretaria Administrativa
 
-- **Restricciones Específicas**: Acceso total pero controlado por rol (no ejecución de asignaciones). Debe registrar todas las acciones para auditoría.
+**Actividades Principales**:
+- Apoya en creación de cuentas básicas (UC1, con aprobación)
+- Genera reportes simples (UC15, solo lectura)
+- Distribuye horarios a estudiantes/familias (UC13, exportación)
+
+**Restricciones Específicas**:
+- Acceso limitado a lectura/edición básica
+- No gestiona asignaciones ni configuración global
+- Solo visualiza datos no sensibles (sin salarios, evaluaciones personales)
 
 ```mermaid
 sequenceDiagram
-actor Usuario
-Usuario->>Admin: Ingresar Como:
-    participant Admin as Administrador
-    participant Sys as Sistema
-    participant Audit as Auditoría
+    actor SecAdmin as Secretaria Administrativa
+    participant Sys as Sistema Laravel
+    participant Admin as Administrador (Aprobador)
+    participant DB as Base de Datos
 
-    Admin->>Sys: Iniciar Sesión (UC2)
-    Sys->>Admin: Acceso total (controlado)
-    Note over Admin,Sys: Restricción: Registrar acciones
+    SecAdmin->>Sys: POST /login (UC2)
+    Sys->>DB: SELECT * FROM users WHERE role_id=(SELECT id FROM roles WHERE slug='secretaria_administrativa')
+    DB->>Sys: User + role
+    Sys->>SecAdmin: Acceso limitado
+    Note over SecAdmin,Sys: Restricción: Solo lectura/edición básica
 
-    Admin->>Sys: Crear/Gestionar Cuentas (UC1)
-    Sys->>Audit: Registrar Acción
-    Audit->>Admin: Confirmación
+    SecAdmin->>Sys: POST /users (UC1, soporte)
+    Sys->>Admin: Notificación de solicitud
+    Admin->>Sys: POST /users/approve
+    Sys->>DB: INSERT INTO users
+    DB->>Sys: Created
+    Sys->>SecAdmin: Confirmación diferida
+    Note over SecAdmin,Admin: Restricción: Requiere aprobación superior
 
-    Admin->>Sys: Generar Reportes (UC15)
-    Sys->>Admin: Estadísticas recursos
+    SecAdmin->>Sys: GET /reports/basic (UC15)
+    Sys->>DB: SELECT * FROM assignments WHERE is_confirmed=true (solo públicos)
+    DB->>Sys: Datos no sensibles
+    Sys->>SecAdmin: Reporte básico
+    Note over SecAdmin,DB: Restricción: Sin datos sensibles
 
-    Admin->>Sys: Configurar Parámetros (UC19)
-    Sys->>Audit: Log de cambio
-    Note over Admin,Sys: Restricción: Sin asignaciones
+    SecAdmin->>Sys: GET /schedules/export (UC13)
+    Sys->>DB: SELECT * FROM assignments JOIN student_groups...
+    DB->>Sys: Horarios
+    Sys->>SecAdmin: CSV/PDF export
 ```
-### 4. Profesor
 
-- **Actividades Principales**: Inicia sesión, visualiza horario personal y salones asignados, actualiza su disponibilidad horaria y preferencias.
+## 3. Coordinador
 
-- **Restricciones Específicas**: Acceso solo a datos personales (no edición global). Dependiente de asignaciones de coordinadores; no ve horarios ajenos.
+**Actividades Principales**:
+- Registra/edita grupos de estudiantes (UC3)
+- Gestiona profesores (UC7) - incluye funciones académicas
+- Ejecuta asignación automática (UC9)
+- Realiza asignación manual (UC10)
+- Visualiza horarios y conflictos (UC12, UC13)
+- Establece restricciones (UC17)
+
+**Restricciones Específicas**:
+- Dependiente de disponibilidades reales (no puede asignar si hay conflictos)
+- No accede a configuración global (eso es del Administrador)
+- Acceso amplio a gestión académica pero con validaciones
 
 ```mermaid
 sequenceDiagram
-actor Usuario
-Usuario->>P: Ingresar Como:
-    participant P as Profesor
-    participant Sys as Sistema
+    actor Coord as Coordinador
+    participant Sys as Sistema Laravel
+    participant Algo as Algoritmo Asignación
+    participant DB as Base de Datos
 
-    P->>Sys: Iniciar Sesión (UC2)
-    Sys->>P: Acceso personal
-    Note over P,Sys: Restricción: Solo datos propios
+    Coord->>Sys: POST /login (UC2)
+    Sys->>DB: SELECT * FROM users WHERE role_id=(SELECT id FROM roles WHERE slug='coordinador')
+    DB->>Sys: User + role
+    Sys->>Coord: Acceso general
+    Note over Coord,Sys: Restricción: Dependiente de disponibilidades
 
-    P->>Sys: Visualizar Horario Personal (UC14)
-    Sys->>P: Horario y salones
+    Coord->>Sys: POST /student-groups (UC3)
+    Sys->>DB: INSERT INTO student_groups (name, level, semester_id, group_type, schedule_type)
+    DB->>Sys: Created
+    Sys->>Coord: Confirmación
 
-    P->>Sys: Actualizar Disponibilidad (UC8)
-    alt Dependiente de Coordinador
-        Sys->>P: Validación pendiente
-    else
-        Sys->>P: Actualizado
-    end
-    Note over P,Sys: Restricción: No edición global
+    Coord->>Sys: POST /teachers (UC7)
+    Sys->>DB: INSERT INTO teachers (first_name, last_name, specialties JSONB)
+    DB->>Sys: Created
+    Sys->>Coord: Confirmación
+
+    Coord->>Sys: POST /assignments/auto (UC9)
+    Sys->>Algo: Ejecutar algoritmo
+    Algo->>DB: SELECT * FROM assignment_rules, teacher_availabilities, classroom_availabilities
+    DB->>Algo: Reglas + disponibilidades
+    Algo->>DB: INSERT INTO assignments (assigned_by_algorithm=true, score)
+    DB->>Algo: Assignments created
+    Algo->>Sys: Resultados + conflictos
+    Sys->>Coord: Lista de asignaciones + conflictos detectados (UC12)
+    Note over Coord,Algo: Restricción: Validación automática de conflictos
+
+    Coord->>Sys: POST /assignments/manual (UC10)
+    Sys->>DB: CHECK si hay overlap en (student_group_id, day, start_time)
+    DB->>Sys: Conflicto detectado
+    Sys->>Coord: Error 409 (conflicto)
+    Coord->>Sys: PUT /assignments/{id} (ajustar horario)
+    Sys->>DB: INSERT (sin conflictos)
+    DB->>Sys: Created
+    Sys->>Coord: Confirmación
+
+    Coord->>Sys: GET /schedules/semester (UC13)
+    Sys->>DB: SELECT * FROM assignments JOIN teachers, classrooms, student_groups
+    DB->>Sys: Horarios completos
+    Sys->>Coord: Vista semestral
 ```
-### 5. Secretaría de Infraestructura
 
-- **Actividades Principales**: Actualiza disponibilidades de salones (ej: por mantenimiento), genera reportes de uso de recursos físicos y notifica restricciones.
+## 4. Secretaria de Coordinación
 
-- **Restricciones Específicas**: Enfocado solo en datos de salones/infraestructura; no accede a horarios académicos o grupos. Requiere aprobación para cambios.
+**Actividades Principales**:
+- Maneja registros administrativos de grupos/profesores (UC3/UC7, soporte)
+- Distribuye horarios a estudiantes/familias (UC13)
+- Exporta a calendarios externos (UC13)
+
+**Restricciones Específicas**:
+- No asigna salones ni edita disponibilidades físicas
+- Solo datos académicos no sensibles
+- Acceso temporal a info de estudiantes (privacidad)
 
 ```mermaid
 sequenceDiagram
-actor Usuario
-Usuario->>SI: Ingresar Como:
-    participant SI as Secretaría Infra
-    participant Sys as Sistema
-    participant A as Aprobador
+    actor SecCoord as Secretaria de Coordinación
+    participant Sys as Sistema Laravel
+    participant DB as Base de Datos
 
-    SI->>Sys: Iniciar Sesión (UC2)
-    Sys->>SI: Acceso infra
-    Note over SI,Sys: Restricción: Solo salones
+    SecCoord->>Sys: POST /login (UC2)
+    Sys->>DB: SELECT * FROM users WHERE role_id=(SELECT id FROM roles WHERE slug='secretaria_coordinacion')
+    DB->>Sys: User + role
+    Sys->>SecCoord: Acceso admin académico
+    Note over SecCoord,Sys: Restricción: Datos no sensibles
 
-    SI->>Sys: Actualizar Disponibilidad Salones (UC6)
-    Sys->>A: Solicitar Aprobación
-    A->>Sys: Aprobar
-    Sys->>SI: Actualizado
+    SecCoord->>Sys: PUT /student-groups/{id} (UC3, soporte)
+    Sys->>DB: UPDATE student_groups SET number_of_students=?
+    DB->>Sys: Updated
+    Sys->>SecCoord: Confirmación
 
-    SI->>Sys: Generar Reporte Recursos (UC15)
-    Sys->>SI: Reporte físico
-    Note over SI,Sys: Restricción: Sin académicos
+    SecCoord->>Sys: GET /schedules/export (UC13)
+    Sys->>DB: SELECT * FROM assignments WHERE student_group_id IN (...)
+    DB->>Sys: Horarios
+    Sys->>SecCoord: iCal/CSV export
+    Note over SecCoord,DB: Restricción: Acceso temporal estudiantes
+
+    SecCoord->>Sys: POST /teachers (UC7, registro básico)
+    Sys->>DB: INSERT INTO teachers (first_name, last_name, email)
+    DB->>Sys: Created
+    Sys->>SecCoord: Confirmación
 ```
-### 6. Coordinador Académico
 
-- **Actividades Principales**: Registra/edita grupos y profesores (enfoque en datos académicos como niveles/especialidades), coordina preferencias pedagógicas y aprueba horarios propuestos.
+## 5. Coordinador de Infraestructura
 
-- **Restricciones Específicas**: No gestiona infraestructura física; reporta a coordinador general. Limitado a filtros académicos, sin configs globales.
+**Actividades Principales**:
+- Registra/gestiona salones (UC5) - capacidad, recursos, ubicación
+- Configura disponibilidad horaria de salones (UC6)
+- Establece restricciones de uso (UC17, físicas)
+
+**Restricciones Específicas**:
+- Enfocado solo en recursos físicos (classrooms, buildings)
+- No ve/edita datos académicos (grupos, profesores, asignaciones)
+- Cambios requieren validación para evitar conflictos con asignaciones existentes
 
 ```mermaid
 sequenceDiagram
-actor Usuario
-Usuario->>CA: Ingresar Como:
-    participant CA as Coord. Académico
-    participant Sys as Sistema
-    participant CG as Coord. General
+    actor CoordInfra as Coordinador Infraestructura
+    participant Sys as Sistema Laravel
+    participant Valid as Validador
+    participant DB as Base de Datos
 
-    CA->>Sys: Iniciar Sesión (UC2)
-    Sys->>CA: Acceso académico
-    Note over CA,Sys: Restricción: Sin infra/configs
+    CoordInfra->>Sys: POST /login (UC2)
+    Sys->>DB: SELECT * FROM users WHERE role_id=(SELECT id FROM roles WHERE slug='coordinador_infraestructura')
+    DB->>Sys: User + role
+    Sys->>CoordInfra: Acceso infraestructura
+    Note over CoordInfra,Sys: Restricción: Solo recursos físicos
 
-    CA->>Sys: Registrar/Editar Grupos (UC3)
-    Sys->>CA: Confirmación
+    CoordInfra->>Sys: POST /classrooms (UC5)
+    Sys->>DB: INSERT INTO classrooms (name, code, capacity, resources JSONB, type)
+    DB->>Sys: Created
+    Sys->>CoordInfra: Confirmación
 
-    CA->>Sys: Aprobar Horarios (UC13)
-    Sys->>CG: Reportar
-    CG->>CA: Feedback
+    CoordInfra->>Sys: POST /classroom-availabilities (UC6)
+    Sys->>Valid: Verificar si hay assignments en ese horario
+    Valid->>DB: SELECT * FROM assignments WHERE classroom_id=? AND day=? AND start_time<?
+    DB->>Valid: Asignaciones existentes
+    Valid->>Sys: Conflicto detectado
+    Sys->>CoordInfra: Warning: 5 asignaciones afectadas, confirmar cambio
+    CoordInfra->>Sys: PUT /classroom-availabilities (confirmado)
+    Sys->>DB: INSERT INTO classroom_availabilities (classroom_id, day_of_week, is_available=false, availability_type='maintenance')
+    DB->>Sys: Updated
+    Sys->>CoordInfra: Confirmación
+    Note over CoordInfra,Valid: Restricción: Validación para evitar conflictos
 
-    CA->>Sys: Editar Profesores (UC7)
-    Note over CA,Sys: Restricción: Filtros académicos solo
+    CoordInfra->>Sys: PUT /classrooms/{id} (UC5, editar recursos)
+    Sys->>DB: UPDATE classrooms SET resources=?::jsonb
+    DB->>Sys: Updated
+    Sys->>CoordInfra: Confirmación
+    Note over CoordInfra,DB: Restricción: Sin académicos
 ```
-### 7. Secretaria Académica
 
-- **Actividades Principales**: Maneja registros administrativos de grupos/profesores, distribuye horarios a estudiantes/familias y exporta a calendarios externos.
+## 6. Secretaria de Infraestructura
 
-- **Restricciones Específicas**: No asigna salones ni edita disponibilidades; solo datos no sensibles. Acceso temporal a info de estudiantes (con privacidad GDPR-like).
+**Actividades Principales**:
+- Actualiza disponibilidades de salones (UC6, por mantenimiento/eventos)
+- Genera reportes de uso de recursos físicos (UC15, infraestructura)
+- Notifica restricciones a coordinadores
+
+**Restricciones Específicas**:
+- Enfocado solo en datos de salones/infraestructura
+- No accede a horarios académicos o grupos
+- Requiere aprobación para cambios que afecten asignaciones activas
 
 ```mermaid
 sequenceDiagram
-actor Usuario
-Usuario->>SAca: Ingresar Como:
-    participant SAca as Sec. Académica
-    participant Sys as Sistema
+    actor SecInfra as Secretaria Infraestructura
+    participant Sys as Sistema Laravel
+    participant Aprobador as Coordinador Infraestructura
+    participant DB as Base de Datos
 
-    SAca->>Sys: Iniciar Sesión (UC2)
-    Sys->>SAca: Acceso admin académico
-    Note over SAca,Sys: Restricción: Datos no sensibles
+    SecInfra->>Sys: POST /login (UC2)
+    Sys->>DB: SELECT * FROM users WHERE role_id=(SELECT id FROM roles WHERE slug='secretaria_infraestructura')
+    DB->>Sys: User + role
+    Sys->>SecInfra: Acceso infraestructura limitado
+    Note over SecInfra,Sys: Restricción: Solo salones
 
-    SAca->>Sys: Manejar Registros Grupos/Profesores (UC3/UC7)
-    Sys->>SAca: Actualizado
+    SecInfra->>Sys: PUT /classroom-availabilities/{id} (UC6)
+    Sys->>Aprobador: Solicitar aprobación (afecta 3 asignaciones)
+    Aprobador->>Sys: POST /classroom-availabilities/approve
+    Sys->>DB: UPDATE classroom_availabilities SET is_available=false, notes='Mantenimiento'
+    DB->>Sys: Updated
+    Sys->>SecInfra: Actualizado
+    Note over SecInfra,Aprobador: Restricción: Requiere aprobación
 
-    SAca->>Sys: Distribuir/Exportar Horarios (UC13/UC14)
-    Sys->>SAca: Export completado
-    Note over SAca,Sys: Restricción: Acceso temporal estudiantes
+    SecInfra->>Sys: GET /reports/classrooms (UC15)
+    Sys->>DB: SELECT classroom_id, COUNT(*) FROM assignments GROUP BY classroom_id
+    DB->>Sys: Estadísticas de uso
+    Sys->>SecInfra: Reporte físico
+    Note over SecInfra,DB: Restricción: Sin datos académicos
 ```
-### 8. Profesor Invitado
 
-- **Actividades Principales**: Visualiza horarios temporales y salones asignados, reporta disponibilidades limitadas y recibe notificaciones por email/SMS.
+## 7. Profesor
 
-- **Restricciones Específicas**: Acceso caduco (expira automáticamente); sin edición profunda ni gestión de recursos. Solo para sesiones puntuales.
+**Actividades Principales**:
+- Inicia sesión (UC2)
+- Visualiza horario personal y salones asignados (UC14)
+- Actualiza disponibilidad horaria (UC8)
+- Reporta preferencias de horarios
+
+**Restricciones Específicas**:
+- Acceso solo a datos personales (filtro por `teacher.user_id` o `teacher_id`)
+- No edición global de recursos
+- Dependiente de asignaciones de coordinadores
+- No ve horarios de otros profesores
 
 ```mermaid
 sequenceDiagram
-actor Usuario
-Usuario->>PI: Ingresar Como:
-    participant PI as Prof. Invitado
-    participant Sys as Sistema
+    actor Prof as Profesor
+    participant Sys as Sistema Laravel
+    participant DB as Base de Datos
 
-    PI->>Sys: Iniciar Sesión Temporal (UC2)
-    Sys->>PI: Acceso caduco
-    Note over PI,Sys: Restricción: Expira automáticamente
+    Prof->>Sys: POST /login (UC2)
+    Sys->>DB: SELECT u.*, t.id AS teacher_id FROM users u JOIN teachers t ON t.user_id=u.id WHERE u.role_id=(SELECT id FROM roles WHERE slug='profesor')
+    DB->>Sys: User + teacher_id
+    Sys->>Prof: Acceso personal
+    Note over Prof,Sys: Restricción: Solo datos propios
 
-    PI->>Sys: Visualizar Horarios Temporales (UC14)
-    Sys->>PI: Horarios y salones
+    Prof->>Sys: GET /schedules/my (UC14)
+    Sys->>DB: SELECT * FROM assignments WHERE teacher_id=(SELECT id FROM teachers WHERE user_id=?)
+    DB->>Sys: Horarios personales
+    Sys->>Prof: Vista de horario y salones asignados
+    Note over Prof,DB: Restricción: Filtro por teacher_id
 
-    PI->>Sys: Reportar Disponibilidad Limitada (UC8)
-    Sys->>PI: Notificación enviada (email/SMS)
-    Note over PI,Sys: Restricción: Sin edición profunda
+    Prof->>Sys: PUT /teacher-availabilities (UC8)
+    Sys->>DB: INSERT INTO teacher_availabilities (teacher_id, day_of_week, start_time, end_time, is_available)
+    DB->>Sys: Created
+    Sys->>Prof: Disponibilidad actualizada
+    Note over Prof,Sys: Validación: Coordinador debe aprobar si afecta asignaciones
+
+    Prof->>Sys: GET /assignments/{id}/details (UC14)
+    Sys->>DB: SELECT * FROM assignments WHERE id=? AND teacher_id=(SELECT id FROM teachers WHERE user_id=?)
+    DB->>Sys: Assignment details
+    Sys->>Prof: Detalles de asignación
+    Note over Prof,DB: Restricción: No edición global
 ```
-### 9. Coordinador (General)
 
-- **Actividades Principales**: Registra/edita grupos/profesores, ejecuta asignaciones automáticas/manuales, visualiza horarios/conflictos y establece restricciones.
+## 8. Profesor Invitado
 
-- **Restricciones Específicas**: Dependiente de disponibilidades reales; no configs globales (eso es de admin). Acceso amplio pero no ilimitado a datos sensibles.
+**Actividades Principales**:
+- Visualiza horarios temporales (UC14, acceso limitado por fecha)
+- Reporta disponibilidades limitadas (UC8, temporal)
+- Recibe notificaciones por email/SMS
+
+**Restricciones Específicas**:
+- Acceso caduco (expira automáticamente vía `temporary_access_expires_at`)
+- Sin edición profunda ni gestión de recursos
+- Solo para sesiones puntuales (1-2 semestres máximo)
+- No puede crear/modificar grupos o salones
 
 ```mermaid
 sequenceDiagram
-actor Usuario
-Usuario->>C: Ingresar Como:
-    participant C as Coordinador
-    participant Sys as Sistema
+    actor ProfInv as Profesor Invitado
+    participant Sys as Sistema Laravel
+    participant DB as Base de Datos
 
-    C->>Sys: Iniciar Sesión (UC2)
-    Sys->>C: Acceso general
-    Note over C,Sys: Restricción: Dependiente disponibilidades
+    ProfInv->>Sys: POST /login (UC2, temporal)
+    Sys->>DB: SELECT * FROM users WHERE role_id=(SELECT id FROM roles WHERE slug='profesor_invitado') AND temporary_access=true AND temporary_access_expires_at > NOW()
+    DB->>Sys: User + expiration
+    Sys->>ProfInv: Acceso caduco (válido hasta YYYY-MM-DD)
+    Note over ProfInv,Sys: Restricción: Expira automáticamente
 
-    C->>Sys: Registrar Grupos/Profesores (UC3/UC7)
-    Sys->>C: Confirmado
+    ProfInv->>Sys: GET /schedules/my (UC14)
+    Sys->>DB: SELECT * FROM assignments WHERE teacher_id=(SELECT id FROM teachers WHERE user_id=?) AND created_at >= (NOW() - INTERVAL '3 months')
+    DB->>Sys: Horarios temporales (últimos 3 meses)
+    Sys->>ProfInv: Vista temporal
+    Note over ProfInv,DB: Restricción: Solo asignaciones recientes
 
-    C->>Sys: Ejecutar Asignación Automática (UC9)
-    Sys->>C: Resultados (con conflictos UC12)
+    ProfInv->>Sys: POST /teacher-availabilities (UC8, limitado)
+    Sys->>DB: INSERT INTO teacher_availabilities (teacher_id, day_of_week, start_time, end_time, notes='Disponibilidad temporal')
+    DB->>Sys: Created
+    Sys->>ProfInv: Notificación enviada (email/SMS)
+    Note over ProfInv,Sys: Restricción: Sin edición profunda
 
-    C->>Sys: Establecer Restricciones (UC17)
-    Note over C,Sys: Restricción: Sin configs globales
+    %% Acceso expirado
+    Note over ProfInv,Sys: DESPUÉS de temporary_access_expires_at
+    ProfInv->>Sys: GET /schedules/my (intento post-expiración)
+    Sys->>DB: SELECT * FROM users WHERE id=? AND temporary_access_expires_at > NOW()
+    DB->>Sys: No results (expirado)
+    Sys->>ProfInv: HTTP 401 Unauthorized - Acceso expirado
 ```
-### 10. Coordinador de Infraestructura
 
-- **Actividades Principales**: Registra/gestiona salones (capacidad, recursos, ubicación) y configura su disponibilidad horaria/restricciones de uso.
+## Notas de Implementación
 
-- **Restricciones Específicas**: Enfocado solo en recursos físicos; no ve/edita datos académicos. Cambios requieren validación para evitar conflictos.
-
-```mermaid
-sequenceDiagram
-actor Usuario
-Usuario->>CI: Ingresar Como:
-    participant CI as Coord. Infra
-    participant Sys as Sistema
-    participant V as Validador
-
-    CI->>Sys: Iniciar Sesión (UC2)
-    Sys->>CI: Acceso infra
-    Note over CI,Sys: Restricción: Solo físicos
-
-    CI->>Sys: Registrar Salones (UC5)
-    Sys->>CI: Confirmado
-
-    CI->>Sys: Configurar Disponibilidad (UC6)
-    Sys->>V: Validar Conflicto
-    V->>Sys: Aprobado
-    Sys->>CI: Actualizado
-    Note over CI,Sys: Restricción: Sin académicos
+### Middleware de Autorización (RoleMiddleware)
+Todas las rutas protegidas usan `RoleMiddleware` que verifica:
+```php
+// app/Http/Middleware/RoleMiddleware.php
+public function handle($request, Closure $next, ...$roles)
+{
+    if (!auth()->check()) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+    
+    $userRole = auth()->user()->role->slug;
+    
+    if (!in_array($userRole, $roles)) {
+        return response()->json(['error' => 'Forbidden'], 403);
+    }
+    
+    return $next($request);
+}
 ```
+
+### Ejemplo de Rutas con Roles
+```php
+// routes/web.php
+Route::middleware(['auth', 'role:administrador'])->group(function () {
+    Route::post('/users', [UserController::class, 'store']); // UC1
+    Route::get('/reports/statistics', [ReportController::class, 'statistics']); // UC15
+});
+
+Route::middleware(['auth', 'role:coordinador'])->group(function () {
+    Route::post('/student-groups', [StudentGroupController::class, 'store']); // UC3
+    Route::post('/assignments/auto', [AssignmentController::class, 'auto']); // UC9
+    Route::post('/assignments/manual', [AssignmentController::class, 'manual']); // UC10
+});
+
+Route::middleware(['auth', 'role:coordinador_infraestructura'])->group(function () {
+    Route::post('/classrooms', [ClassroomController::class, 'store']); // UC5
+    Route::post('/classroom-availabilities', [ClassroomAvailabilityController::class, 'store']); // UC6
+});
+
+Route::middleware(['auth', 'role:profesor,profesor_invitado'])->group(function () {
+    Route::get('/schedules/my', [ScheduleController::class, 'personal']); // UC14
+});
+```
+
+### Validación de Acceso Temporal (Profesor Invitado)
+```php
+// app/Http/Middleware/CheckTemporaryAccess.php
+public function handle($request, Closure $next)
+{
+    $user = auth()->user();
+    
+    if ($user->temporary_access && 
+        $user->temporary_access_expires_at < now()) {
+        auth()->logout();
+        return response()->json(['error' => 'Temporary access expired'], 401);
+    }
+    
+    return $next($request);
+}
+```
+
+## Diferencias con Documentación Anterior
+
+**❌ Eliminado**:
+- Diagrama para **Superadministrador** (rol inexistente)
+- Diagrama para **Coordinador Académico** (consolidado en Coordinador)
+- Diagrama para **Secretaria Académica** (ahora es Secretaria de Coordinación)
+- Diagramas separados para subtipos de secretarias (unificados)
+
+**✅ Actualizado**:
+- 8 roles reales del `RoleSeeder.php`
+- Interacciones con tablas reales (users, roles, teachers, assignments, etc.)
+- Restricciones implementadas vía `RoleMiddleware` y policies Laravel
+- Validaciones de conflictos vía queries SQL (no triggers)
+- Acceso temporal para Profesor Invitado con expiración automática
+
+**✅ Agregado**:
+- Flujos para Secretaria de Coordinación (apoyo académico)
+- Flujos para Secretaria de Infraestructura (apoyo en salones)
+- Validación de disponibilidades antes de asignaciones
+- Notificaciones de conflictos al Coordinador
+- Aprobaciones para cambios críticos (Secretarias → Administrador/Coordinadores)
