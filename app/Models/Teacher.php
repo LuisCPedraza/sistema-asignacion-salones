@@ -38,6 +38,11 @@ class Teacher extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function availabilities()
+    {
+        return $this->hasMany(\App\Modules\GestionAcademica\Models\TeacherAvailability::class);
+    }
+
     public function getFullNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
