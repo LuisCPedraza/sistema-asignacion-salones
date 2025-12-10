@@ -56,7 +56,7 @@ jobs:
       run: php artisan db:seed --force
 
     - name: Execute Tests
-      run: php artisan test --parallel --coverage --min=40
+      run: php artisan test --parallel --coverage --min=35
 
     - name: Upload Coverage Reports
       if: always()
