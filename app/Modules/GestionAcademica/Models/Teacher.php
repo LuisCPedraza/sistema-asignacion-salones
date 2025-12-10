@@ -53,6 +53,11 @@ class Teacher extends Model
         return $this->specialties ? implode(', ', $this->specialties) : 'Ninguna';
     }
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\TeacherFactory::new();
+    }
+
     // Relación con disponibilidades
     public function availabilities()
     {

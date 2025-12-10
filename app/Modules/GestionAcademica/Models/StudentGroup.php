@@ -49,6 +49,12 @@ class StudentGroup extends Model
         return $this->belongsTo(\App\Models\Semester::class);
     }
 
+    // Nueva relación: Estudiantes del grupo
+    public function students()
+    {
+        return $this->hasMany(\App\Models\Student::class, 'group_id');
+    }
+
     // Nueva relación: A través del semestre, pertenece a una carrera
     public function career()
     {

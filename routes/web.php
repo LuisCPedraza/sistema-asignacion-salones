@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Profesor\ProfesorController;
+use App\Http\Controllers\Profesor\AsistenciaController;
+use App\Http\Controllers\Profesor\EstudianteController;
 use App\Modules\Auth\Models\Role;
 use App\Http\Middleware\AdminMiddleware;
 use App\Modules\Visualization\Controllers\HorarioController;
@@ -42,6 +44,24 @@ Route::middleware('auth')->group(function () {
     Route::prefix('profesor')->name('profesor.')->middleware(['auth', 'role:profesor,profesor_invitado'])->group(function () {
         Route::get('/mis-cursos', [ProfesorController::class, 'misCursos'])->name('mis-cursos');
         Route::get('/curso/{assignmentId}', [ProfesorController::class, 'detalleCurso'])->name('detalle-curso');
+        
+        // Rutas de Control de Asistencias
+        Route::prefix('asistencias')->name('asistencias.')->group(function () {
+            Route::get('/', [AsistenciaController::class, 'index'])->name('index');
+            Route::get('/tomar/{assignmentId}', [AsistenciaController::class, 'tomarAsistencia'])->name('tomar');
+            Route::post('/guardar/{assignmentId}', [AsistenciaController::class, 'guardarAsistencia'])->name('guardar');
+            Route::get('/historial/{assignmentId}', [AsistenciaController::class, 'historial'])->name('historial');
+        });
+        
+        // Rutas de Gestión de Estudiantes
+        Route::prefix('estudiantes')->name('estudiantes.')->group(function () {
+            Route::get('/', [EstudianteController::class, 'index'])->name('index');
+            Route::get('/crear', [EstudianteController::class, 'create'])->name('create');
+            Route::post('/guardar', [EstudianteController::class, 'store'])->name('store');
+            Route::get('/editar/{id}', [EstudianteController::class, 'edit'])->name('edit');
+            Route::put('/actualizar/{id}', [EstudianteController::class, 'update'])->name('update');
+            Route::delete('/eliminar/{id}', [EstudianteController::class, 'destroy'])->name('destroy');
+        });
     });
 
     // Fallback dashboard
