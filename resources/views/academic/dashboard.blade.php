@@ -393,7 +393,7 @@
                             </div>
                         </a>
 
-                        <a href="#" class="visualization-btn visualization-btn-green coming-soon">
+                        <a href="{{ route('visualizacion.horario.personal') }}" class="visualization-btn visualization-btn-green">
                             <div>
                                 <div class="font-semibold">📅 Personalizado</div>
                                 <div class="text-green-100 text-xs mt-1">Para profesores</div>
