@@ -20,7 +20,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     
     // Profesores Invitados (HU8/HU14)
     Route::get('/guest-teachers', [GuestTeachersController::class, 'index'])->name('guest-teachers.index');
+    Route::get('/guest-teachers/create', [GuestTeachersController::class, 'create'])->name('guest-teachers.create');
+    Route::post('/guest-teachers', [GuestTeachersController::class, 'store'])->name('guest-teachers.store');
     Route::get('/guest-teachers/{teacher}', [GuestTeachersController::class, 'show'])->name('guest-teachers.show');
+    Route::get('/guest-teachers/{teacher}/edit', [GuestTeachersController::class, 'edit'])->name('guest-teachers.edit');
+    Route::put('/guest-teachers/{teacher}', [GuestTeachersController::class, 'update'])->name('guest-teachers.update');
+    Route::post('/guest-teachers/{teacher}/revoke', [GuestTeachersController::class, 'revoke'])->name('guest-teachers.revoke');
     
     // Reportes (HU15)
     Route::prefix('reports')->name('reports.')->group(function () {

@@ -29,7 +29,8 @@ class LogGuestTeacherAccessChange implements ShouldQueue
         $performedBy = $event->performedBy;
 
         // Preparar descripción del cambio
-        $description = $this->getActionDescription($action, $event->oldData, $event->newData);
+        // Build a human-readable description using the old/new data snapshot
+        $description = $this->getActionDescription($event->oldData, $event->newData);
 
         // Registrar en logs
         Log::channel('guest_teacher_access')->info("Guest teacher access {$action}", [

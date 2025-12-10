@@ -60,7 +60,7 @@
                     <select name="role_id" id="role_id" class="form-select @error('role_id') is-invalid @enderror" required>
                         <option value="">Seleccionar rol</option>
                         @foreach($roles as $role)
-                            <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                            <option value="{{ $role->id }}" data-slug="{{ $role->slug }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
                                 {{ $role->name }}
                             </option>
                         @endforeach
@@ -122,13 +122,6 @@
                 </div>
             </div>
         </div>
-                            <button type="button" class="btn btn-outline-secondary quick-duration" data-days="90">3 meses</button>
-                            <button type="button" class="btn btn-outline-secondary quick-duration" data-days="365">1 año</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <button type="submit" class="btn btn-success">Crear Usuario</button>
         <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Cancelar</a>
@@ -141,11 +134,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const guestSection = document.getElementById('guest_teacher_section');
     const accessExpiresInput = document.getElementById('access_expires_at');
     const quickDurationButtons = document.querySelectorAll('.quick-duration');
+    const INVITED_SLUG = 'profesor_invitado';
+
+    if (!roleSelect || !guestSection) {
+        return;
+    }
 
     // Función para mostrar/ocultar sección de profesor invitado
     function toggleGuestSection() {
         const selectedOption = roleSelect.options[roleSelect.selectedIndex];
-        const isGuestTeacher = selectedOption.text.toLowerCase().includes('invitado');
+        const selectedSlug = selectedOption?.dataset?.slug || '';
+        const isGuestTeacher = selectedSlug === INVITED_SLUG;
         guestSection.style.display = isGuestTeacher ? 'block' : 'none';
     }
 

@@ -19,13 +19,35 @@ class AssignmentAlgorithm
     {
         $this->reglas = AssignmentRule::where('is_active', true)
             ->orderBy('weight', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($rule) {
+                // Normalizar pesos para compatibilidad con HU10 (acepta 0-1 o 0-100)
+                $rule->normalized_weight = $this->normalizeWeight($rule->weight);
+                return $rule;
+            });
     }
 
     public function enableDebug()
     {
         $this->debug = true;
         return $this;
+    }
+
+    /**
+     * Compatibilidad HU10: pesos en 0-1 o 0-100
+     */
+    protected function normalizeWeight($weight): float
+    {
+        $numeric = (float) $weight;
+        if ($numeric > 1) {
+            $numeric = $numeric / 100; // soporta pesos almacenados como porcentaje entero
+        }
+        return max(0.0, min(1.0, $numeric));
+    }
+
+    protected function isRuleEnabled(string $parameter): bool
+    {
+        return $this->reglas->contains(fn($rule) => $rule->parameter === $parameter && ($rule->normalized_weight ?? 0) > 0);
     }
 
     public function generateAssignments()
@@ -106,7 +128,15 @@ class AssignmentAlgorithm
                     continue;
                 }
 
-                // VALIDACIÓN 2: Verificar disponibilidad del profesor
+                // VALIDACIÓN 2: Requerimientos de recursos (solo si la regla está activa)
+                if ($this->isRuleEnabled('resources') && !$this->validateResources($group, $newClassroom)) {
+                    if ($this->debug) {
+                        Log::info("Intento {$attemptCount}: Salón no cumple requerimientos del grupo");
+                    }
+                    continue;
+                }
+
+                // VALIDACIÓN 3: Verificar disponibilidad del profesor
                 if (!$this->validateTeacherAvailability($newTeacher, $newDay, $newTimeSlot)) {
                     if ($this->debug) {
                         Log::info("Intento {$attemptCount}: Profesor no disponible en {$newDay} {$newTimeSlot->start_time}-{$newTimeSlot->end_time}");
@@ -114,7 +144,7 @@ class AssignmentAlgorithm
                     continue;
                 }
 
-                // VALIDACIÓN 3: Verificar disponibilidad del salón
+                // VALIDACIÓN 4: Verificar disponibilidad del salón
                 if (!$this->validateClassroomAvailability($newClassroom, $newDay, $newTimeSlot)) {
                     if ($this->debug) {
                         Log::info("Intento {$attemptCount}: Salón no disponible en {$newDay} {$newTimeSlot->start_time}-{$newTimeSlot->end_time}");
@@ -122,7 +152,7 @@ class AssignmentAlgorithm
                     continue;
                 }
 
-                // VALIDACIÓN 4: Verificar conflictos de horario
+                // VALIDACIÓN 5: Verificar conflictos de horario
                 $conflict = $this->detectConflicts($assignment->id, $newTeacher->id, $newClassroom->id, $group->id, $newDay, $newTimeSlot);
                 if ($conflict) {
                     if ($this->debug) {
@@ -179,11 +209,18 @@ class AssignmentAlgorithm
 
         foreach ($this->reglas as $regla) {
             $metodo = 'regla_' . $regla->parameter;
-            if (method_exists($this, $metodo)) {
-                $puntaje = $this->$metodo($grupo, $salon, $franja);
-                $scoreTotal += $puntaje * $regla->weight;
-                $pesoTotal += $regla->weight;
+            if (!method_exists($this, $metodo)) {
+                continue;
             }
+
+            $peso = $regla->normalized_weight ?? $this->normalizeWeight($regla->weight);
+            if ($peso <= 0) {
+                continue;
+            }
+
+            $puntaje = $this->$metodo($grupo, $salon, $franja);
+            $scoreTotal += $puntaje * $peso;
+            $pesoTotal += $peso;
         }
 
         // Si no hay reglas, retornar 0.5 (calidad media)
@@ -304,6 +341,30 @@ class AssignmentAlgorithm
         }
 
         return $classroom->capacity >= $group->number_of_students;
+    }
+
+    /**
+     * Valida que el salón cumpla los requerimientos especiales del grupo
+     */
+    protected function validateResources($group, $classroom)
+    {
+        if (!$group->special_requirements) {
+            return true;
+        }
+
+        $reqs = json_decode($group->special_requirements, true) ?? [];
+        if (empty($reqs)) {
+            return true;
+        }
+
+        $resources = strtolower($classroom->resources ?? '');
+        foreach ($reqs as $req) {
+            if (!str_contains($resources, strtolower($req))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

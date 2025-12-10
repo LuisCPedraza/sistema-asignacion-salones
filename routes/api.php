@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\N8nWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,13 +14,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Rutas para n8n (requieren token de API)
-Route::prefix('n8n')->group(function () {
-    // Obtener clases del día siguiente para envío de correos
-    Route::get('/tomorrow-classes', [NotificationController::class, 'getTomorrowClasses']);
+Route::prefix('webhooks/n8n')->group(function () {
+    // Webhook principal para recibir eventos de n8n
+    Route::post('/notify', [N8nWebhookController::class, 'notify']);
     
-    // Obtener estadísticas diarias para informe al admin
-    Route::get('/daily-stats', [NotificationController::class, 'getDailyStats']);
-    
-    // Obtener conflictos detectados
-    Route::get('/conflicts', [NotificationController::class, 'getConflicts']);
+    // Endpoints para obtener datos (consultados por n8n)
+    Route::get('/next-day-assignments', [N8nWebhookController::class, 'getNextDayAssignments']);
+    Route::get('/conflicts', [N8nWebhookController::class, 'getConflicts']);
+    Route::get('/expiring-guests', [N8nWebhookController::class, 'getExpiringGuests']);
 });

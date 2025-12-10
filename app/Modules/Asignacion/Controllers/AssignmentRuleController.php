@@ -45,6 +45,16 @@ class AssignmentRuleController extends Controller
         ]);
 
         try {
+            // Validar que el total sea 100% (tolerancia de 0.5% por redondeo)
+            $totalWeight = collect($request->rules)
+                ->sum(fn($rule) => (float) $rule['weight']);
+
+            if (abs($totalWeight - 100) > 0.5) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'El total de los pesos debe sumar 100%. Actualmente suma ' . number_format($totalWeight, 1) . '%.');
+            }
+
             foreach ($request->rules as $ruleData) {
                 // Convertir de porcentaje (0-100) a decimal (0-1)
                 $weightDecimal = $ruleData['weight'] / 100;
@@ -63,14 +73,21 @@ class AssignmentRuleController extends Controller
     }
 
     /**
-     * HU10: Activar/desactivar reglas (existente)
+     * HU10: Activar/desactivar reglas
      */
-    public function toggleRule(Request $request, AssignmentRule $rule)
+    public function toggle(AssignmentRule $rule)
     {
-        $rule->update(['is_active' => !$rule->is_active]);
+        try {
+            // Actualizar solo el campo is_active sin tocar otros campos
+            $rule->update(['is_active' => !$rule->is_active]);
 
-        $status = $rule->is_active ? 'activada' : 'desactivada';
-        return redirect()->route('asignacion.reglas')
-            ->with('success', "Regla {$rule->name} {$status}.");
+            $status = $rule->is_active ? 'activada' : 'desactivada';
+
+            return redirect()->route('asignacion.reglas')
+                ->with('success', "✓ Regla \"{$rule->name}\" {$status}.");
+        } catch (\Exception $e) {
+            return redirect()->route('asignacion.reglas')
+                ->with('error', "❌ Error al actualizar regla: {$e->getMessage()}");
+        }
     }
 }

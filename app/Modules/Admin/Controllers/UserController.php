@@ -83,6 +83,7 @@ class UserController extends Controller
                 'first_name' => explode(' ', $validated['name'])[0],
                 'last_name' => implode(' ', array_slice(explode(' ', $validated['name']), 1)),
                 'email' => $validated['email'],
+                'specialty' => 'Profesor Invitado',
                 'is_guest' => true,
                 'access_expires_at' => $validated['access_expires_at'] ?? null,
                 'ip_address_allowed' => $validated['ip_address_allowed'] ?? null,

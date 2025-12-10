@@ -88,7 +88,34 @@
                     @forelse($guestTeachers as $teacher)
                         @php
                             $isValid = $teacher->isAccessValid();
-                            $daysRemaining = $teacher->access_expires_at ? $teacher->access_expires_at->diffInDays(now()) : null;
+                            $expiresAt = $teacher->access_expires_at;
+                            $now = now();
+                            
+                            // Calcular días restantes correctamente
+                            if ($expiresAt) {
+                                if ($expiresAt->isFuture()) {
+                                    // Usar floor para obtener días completos sin decimales
+                                    $daysRemaining = floor($now->diffInDays($expiresAt, false));
+                                    $hoursRemaining = floor($now->copy()->addDays($daysRemaining)->diffInHours($expiresAt, false));
+                                    
+                                    // Formatear texto legible
+                                    if ($daysRemaining > 0) {
+                                        $remainingText = "{$daysRemaining} día" . ($daysRemaining > 1 ? 's' : '');
+                                        if ($hoursRemaining > 0) {
+                                            $remainingText .= " y {$hoursRemaining} hora" . ($hoursRemaining > 1 ? 's' : '');
+                                        }
+                                    } else {
+                                        $remainingText = "{$hoursRemaining} hora" . ($hoursRemaining > 1 ? 's' : '');
+                                    }
+                                } else {
+                                    $daysRemaining = -1;
+                                    $remainingText = 'Expirado';
+                                }
+                            } else {
+                                $daysRemaining = null;
+                                $remainingText = null;
+                            }
+                            
                             $statusClass = !$isValid ? 'danger' : ($daysRemaining !== null && $daysRemaining <= 7 ? 'warning' : 'success');
                         @endphp
                         <tr>
@@ -108,8 +135,12 @@
                                 @endif
                             </td>
                             <td>
-                                @if($daysRemaining !== null)
-                                    <strong class="text-{{ $statusClass }}">{{ $daysRemaining }} día(s)</strong>
+                                @if($remainingText)
+                                    @if($daysRemaining >= 0)
+                                        <strong class="text-{{ $statusClass }}">{{ $remainingText }}</strong>
+                                    @else
+                                        <strong class="text-danger">{{ $remainingText }}</strong>
+                                    @endif
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif

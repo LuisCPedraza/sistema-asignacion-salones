@@ -1,53 +1,158 @@
-# Integración con n8n para Automatización de Correos
+# 🔄 GUÍA DE INTEGRACIÓN: n8n Workflows
 
-## 📧 Correos Automatizados Implementados
+## Overview
+n8n se integra con tu app Laravel para automatizar:
+1. **Correos diarios a profesores** (día previo a sus clases)
+2. **Reportes de conflictos a admin** (conflictos detectados)
+3. **Avisos de expiración a invitados** (acceso próximo a vencer)
 
-### 1. **Recordatorio Diario a Profesores**
-Envía un correo 1 día antes con las clases del día siguiente.
+---
 
-**Endpoint:** `GET /api/n8n/tomorrow-classes`
+## 📝 Requisitos Previos
 
-**Workflow n8n:**
-1. **Schedule Trigger** - Ejecutar diariamente a las 6:00 PM
-2. **HTTP Request** - Llamar al endpoint
-3. **Split Out** - Dividir por profesor
-4. **Email Send** - Enviar correo personalizado a cada profesor
+- n8n instalado: `n8n --version` → debe mostrar versión (v1.120.4)
+- Laravel app corriendo: `http://localhost:8000`
+- API disponible en: `http://localhost:8000/api/webhooks/n8n/...`
 
-**Ejemplo de Response:**
-```json
-{
-  "success": true,
-  "date": "2025-12-11",
-  "day_name": "miércoles",
-  "total_teachers": 5,
-  "total_classes": 12,
-  "teachers": [
-    {
-      "teacher_id": 1,
-      "teacher_name": "Juan Pérez",
-      "email": "juan.perez@universidad.edu",
-      "date": "2025-12-11",
-      "date_formatted": "miércoles, 11 de diciembre de 2025",
-      "classes": [
-        {
-          "subject": "Programación I",
-          "group": "IS-301",
-          "classroom": "Lab 203",
-          "classroom_location": "Edificio B, Piso 2",
-          "classroom_building": "Edificio B",
-          "start_time": "08:00",
-          "end_time": "10:00",
-          "duration_hours": 2
-        }
-      ]
-    }
-  ]
-}
-```
+---
 
-**Template de Correo (n8n):**
-```html
-<h2>🗓️ Recordatorio de Clases - {{ $json.date_formatted }}</h2>
+## 🚀 WORKFLOW 1: Correo Diario a Profesores
+
+### Descripción
+- **Trigger**: Cada día a las 17:00 (antes de que terminen clases)
+- **Acción**: Consulta asignaciones del día siguiente de cada profesor
+- **Resultado**: Envía correo con horario, salón, materia, ubicación
+
+### Pasos en n8n
+
+1. **Trigger: Schedule**
+   - Type: `Every Day`
+   - Time: `17:00`
+   - Timezone: `America/Bogota`
+
+2. **HTTP Request: Obtener profesores**
+   ```
+   GET http://localhost:8000/api/v1/teachers?is_active=true
+   Headers: Accept: application/json
+   ```
+
+3. **Loop: Para cada profesor**
+   - **Node**: Loop Over Items
+   - Item: Cada profesor de la respuesta anterior
+
+4. **HTTP Request: Obtener asignaciones mañana**
+   ```
+   GET http://localhost:8000/api/webhooks/n8n/next-day-assignments?teacher_id={{$node["Loop"].item.id}}
+   ```
+
+5. **Condition: ¿Tiene asignaciones?**
+   - Si `count > 0` → continuar a paso 6
+   - Si `count == 0` → saltar
+
+6. **Send Email (SMTP/Gmail/SendGrid)**
+   - To: `{{$node["Loop"].item.email}}`
+   - Subject: `Tu horario de mañana - {{$node["Get Assignments"].data.assignments[0].day}}`
+   - Body (HTML template):
+   ```html
+   <h2>Hola {{$node["Loop"].item.name}},</h2>
+   <p>Mañana {{date}} tienes las siguientes clases:</p>
+   <table border="1">
+     <tr>
+       <th>Materia</th>
+       <th>Grupo</th>
+       <th>Salón</th>
+       <th>Horario</th>
+     </tr>
+     {{loop assignments}}
+     <tr>
+       <td>{{assignment.subject}}</td>
+       <td>{{assignment.group}}</td>
+       <td>{{assignment.classroom}}</td>
+       <td>{{assignment.start_time}} - {{assignment.end_time}}</td>
+     </tr>
+     {{/loop}}
+   </table>
+   ```
+
+---
+
+## 🚀 WORKFLOW 2: Reporte de Conflictos a Admin
+
+### Descripción
+- **Trigger**: Cada día a las 06:00
+- **Acción**: Consulta conflictos detectados
+- **Resultado**: Envía resumen a admin si hay conflictos
+
+### Pasos en n8n
+
+1. **Trigger: Schedule**
+   - Type: `Every Day`
+   - Time: `06:00`
+   - Timezone: `America/Bogota`
+
+2. **HTTP Request: Obtener conflictos**
+   ```
+   GET http://localhost:8000/api/webhooks/n8n/conflicts
+   ```
+
+3. **Condition: ¿Hay conflictos?**
+   - Si `total_conflicts > 0` → continuar
+   - Si `== 0` → terminar
+
+4. **Send Email a Admin**
+   - To: `admin@universidad.edu.co`
+   - Subject: `⚠️ ALERTA: {{$node["Get Conflicts"].data.total_conflicts}} conflictos detectados`
+   - Body (HTML):
+   ```html
+   <h2>Reporte de Conflictos</h2>
+   <p>Se detectaron {{total}} conflictos:</p>
+   <ul>
+     {{loop conflicts}}
+     <li>
+       {{type}}: {{description}}<br/>
+       Grupos: {{group1}} ↔ {{group2}}<br/>
+       Día: {{day}}
+     </li>
+     {{/loop}}
+   </ul>
+   <p><a href="http://localhost:8000/asignacion/conflictos">Ver detalles</a></p>
+   ```
+
+---
+
+## 🚀 WORKFLOW 3: Aviso de Expiración a Invitados
+
+### Descripción
+- **Trigger**: Cada día a las 10:00
+- **Acción**: Consulta profesores invitados con acceso próximo a expirar (7 días)
+- **Resultado**: Envía aviso individual a cada invitado
+
+### Pasos en n8n
+
+1. **Trigger: Schedule**
+   - Type: `Every Day`
+   - Time: `10:00`
+   - Timezone: `America/Bogota`
+
+2. **HTTP Request: Obtener invitados próximos a expirar**
+   ```
+   GET http://localhost:8000/api/webhooks/n8n/expiring-guests
+   ```
+
+3. **Loop: Para cada invitado**
+   - Item: Cada guest de la respuesta
+
+4. **Send Email**
+   - To: `{{$node["Loop"].item.email}}`
+   - Subject: `⏰ Tu acceso temporal vence en {{days_left}} días`
+   - Body (HTML):
+   ```html
+   <h2>Hola {{name}},</h2>
+   <p>Tu acceso temporal al sistema vence en <strong>{{days_left}} días</strong>.</p>
+   <p>Fecha de expiración: <strong>{{expires_at}}</strong></p>
+   <p>Contacta a la coordinación si necesitas extender tu acceso.</p>
+   <p>Saludos,<br/>Sistema de Asignación de Salones</p>
+   ```
 
 <p>Hola {{ $json.teacher_name }},</p>
 

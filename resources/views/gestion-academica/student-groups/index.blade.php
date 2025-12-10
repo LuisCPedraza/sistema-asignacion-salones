@@ -261,7 +261,46 @@
                     <small class="text-muted">
                         Mostrando {{ $groups->firstItem() }} - {{ $groups->lastItem() }} de {{ $groups->total() }} grupos
                     </small>
-                    {{ $groups->links() }}
+                    
+                    <!-- Paginación Personalizada Pequeña -->
+                    <nav aria-label="Paginación">
+                        <ul class="pagination pagination-sm mb-0">
+                            {{-- Previous Page Link --}}
+                            @if ($groups->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">‹</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $groups->previousPageUrl() }}" rel="prev">‹</a>
+                                </li>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @foreach ($groups->getUrlRange(1, $groups->lastPage()) as $page => $url)
+                                @if ($page == $groups->currentPage())
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+
+                            {{-- Next Page Link --}}
+                            @if ($groups->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $groups->nextPageUrl() }}" rel="next">›</a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">›</span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
                 </div>
             </div>
         @endif
@@ -276,5 +315,47 @@
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 </script>
+@endpush
+
+@push('styles')
+<style>
+    /* Paginación pequeña personalizada */
+    .pagination-sm {
+        margin: 0;
+        gap: 2px;
+    }
+    
+    .pagination-sm .page-link {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.4rem;
+        line-height: 1;
+        border: 1px solid #dee2e6;
+        color: #0d6efd;
+        background-color: #fff;
+        border-radius: 0.2rem;
+        transition: all 0.15s ease;
+        min-width: 24px;
+        text-align: center;
+    }
+    
+    .pagination-sm .page-link:hover:not(.disabled) {
+        color: #0b5ed7;
+        background-color: #e9ecef;
+        border-color: #0b5ed7;
+    }
+    
+    .pagination-sm .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .pagination-sm .page-item.disabled .page-link {
+        opacity: 0.35;
+        cursor: not-allowed;
+        background-color: #f8f9fa;
+    }
+</style>
 @endpush
 @endsection
