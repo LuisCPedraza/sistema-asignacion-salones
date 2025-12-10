@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Modules\Auth\Models\Role;
 use App\Models\Career;
@@ -80,7 +81,7 @@ class MallaHorariaSemestralTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_malla_semestral_page_loads_successfully()
     {
         $response = $this->actingAs($this->coordinador)
@@ -90,7 +91,7 @@ class MallaHorariaSemestralTest extends TestCase
         $response->assertViewIs('visualization.malla-semestral');
     }
 
-    /** @test */
+    #[Test]
     public function test_malla_semestral_shows_careers_in_select()
     {
         $response = $this->actingAs($this->coordinador)
@@ -100,7 +101,7 @@ class MallaHorariaSemestralTest extends TestCase
         $response->assertSee('Tecnología en Desarrollo de Software');
     }
 
-    /** @test */
+    #[Test]
     public function test_malla_semestral_filters_by_career()
     {
         $career = Career::first();
@@ -115,7 +116,7 @@ class MallaHorariaSemestralTest extends TestCase
         $response->assertViewHas('semesters');
     }
 
-    /** @test */
+    #[Test]
     public function test_malla_semestral_filters_by_semester()
     {
         $career = Career::first();
@@ -132,7 +133,7 @@ class MallaHorariaSemestralTest extends TestCase
         $response->assertViewHas('groups');
     }
 
-    /** @test */
+    #[Test]
     public function test_malla_semestral_shows_both_group_types()
     {
         $career = Career::first();
@@ -155,7 +156,7 @@ class MallaHorariaSemestralTest extends TestCase
         $this->assertContains('B', $groupTypes);
     }
 
-    /** @test */
+    #[Test]
     public function test_malla_semestral_filters_day_and_night_time_blocks()
     {
         $career = Career::first();
@@ -177,7 +178,7 @@ class MallaHorariaSemestralTest extends TestCase
         $this->assertNotEmpty($timeBlocks);
     }
 
-    /** @test */
+    #[Test]
     public function test_cascade_filters_work_correctly()
     {
         $career = Career::first();

@@ -60,17 +60,36 @@ class AssignmentAlgorithm
                 continue;
             }
 
+            // Filtrar salones con capacidad suficiente PRIMERO
+            $validClassrooms = $classrooms->filter(function($classroom) use ($group) {
+                return $this->validateCapacity($group, $classroom);
+            });
+
+            // Si no hay salones válidos, intentar con cualquiera pero priorizar
+            if ($validClassrooms->isEmpty()) {
+                $validClassrooms = $classrooms;
+            }
+
             // Intentar múltiples combinaciones antes de rendirse
-            $maxAttempts = 10;
+            $maxAttempts = 15; // Aumentar intentos ya que hay más filtros
             $attemptCount = 0;
             $assigned = false;
 
             while ($attemptCount < $maxAttempts && !$assigned) {
                 $attemptCount++;
 
-                // Seleccionar nuevos profesor, aula y franja aleatoriamente
+                // Seleccionar nuevos profesor, aula y franja
+                // Priorizar salones con capacidad suficiente
+                $firstHalf = ceil($maxAttempts / 2);
+                if ($attemptCount <= $firstHalf && !$validClassrooms->isEmpty()) {
+                    // Primeros intentos: usar solo salones válidos
+                    $newClassroom = $validClassrooms->random();
+                } else {
+                    // Si falla, intentar con cualquier salón
+                    $newClassroom = $classrooms->random();
+                }
+
                 $newTeacher = $teachers->random();
-                $newClassroom = $classrooms->random();
                 
                 // Filtrar franjas por tipo de horario del grupo
                 $filteredSlots = $timeSlots->where('schedule_type', $group->schedule_type ?? 'day');

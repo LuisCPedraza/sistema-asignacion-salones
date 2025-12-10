@@ -6,13 +6,14 @@ use App\Models\User;
 use App\Modules\GestionAcademica\Models\Teacher;
 use App\Modules\GestionAcademica\Models\TeacherAvailability;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TeacherAvailabilityTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function profesor_puede_ver_sus_disponibilidades()
     {
         // Crear usuario profesor con role_id = 7 (profesor)
@@ -50,7 +51,7 @@ class TeacherAvailabilityTest extends TestCase
         $response->assertDontSee('Call to a member function'); // Sin errores
     }
 
-    /** @test */
+    #[Test]
     public function formatted_start_time_retorna_string_valido()
     {
         // Crear usuario y profesor manualmente
@@ -78,7 +79,7 @@ class TeacherAvailabilityTest extends TestCase
         $this->assertEquals($availability->formatted_end_time, '18:00');
     }
 
-    /** @test */
+    #[Test]
     public function formatted_time_maneja_diferentes_formatos_correctamente()
     {
         // Crear usuario y profesor manualmente

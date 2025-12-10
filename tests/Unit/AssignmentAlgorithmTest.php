@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use App\Modules\Asignacion\Services\AssignmentAlgorithm;
 use App\Modules\Asignacion\Models\Assignment;
 use App\Modules\GestionAcademica\Models\StudentGroup;
@@ -62,7 +63,7 @@ class AssignmentAlgorithmTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_algorithm_reorganizes_existing_assignments_without_creating_new_ones()
     {
         // Crear asignaciones iniciales
@@ -101,7 +102,7 @@ class AssignmentAlgorithmTest extends TestCase
         $this->assertNotNull($updated);
     }
 
-    /** @test */
+    #[Test]
     public function test_algorithm_respects_schedule_type_for_groups()
     {
         // Crear grupo NOCTURNO
@@ -141,7 +142,7 @@ class AssignmentAlgorithmTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_algorithm_handles_empty_assignments_gracefully()
     {
         // No hay asignaciones
@@ -154,7 +155,7 @@ class AssignmentAlgorithmTest extends TestCase
         $this->assertEmpty($result, 'Debe retornar array vacío si no hay asignaciones');
     }
 
-    /** @test */
+    #[Test]
     public function test_algorithm_updates_assignment_notes_with_timestamp()
     {
         $group = StudentGroup::first();
@@ -183,7 +184,7 @@ class AssignmentAlgorithmTest extends TestCase
         $this->assertStringContainsString('Reorganizado automáticamente', $updated->notes);
     }
 
-    /** @test */
+    #[Test]
     public function test_algorithm_marks_assignments_as_assigned_by_algorithm()
     {
         $group = StudentGroup::first();
@@ -213,7 +214,7 @@ class AssignmentAlgorithmTest extends TestCase
         $this->assertTrue($updated->is_confirmed);
     }
 
-    /** @test */
+    #[Test]
     public function test_algorithm_validates_classroom_capacity()
     {
         // Crear grupo grande
@@ -270,7 +271,7 @@ class AssignmentAlgorithmTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function test_algorithm_detects_teacher_conflicts()
     {
         $group1 = StudentGroup::first();
@@ -325,7 +326,7 @@ class AssignmentAlgorithmTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_algorithm_detects_classroom_conflicts()
     {
         $group1 = StudentGroup::first();
@@ -380,7 +381,7 @@ class AssignmentAlgorithmTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_algorithm_detects_student_group_conflicts()
     {
         $group = StudentGroup::first();

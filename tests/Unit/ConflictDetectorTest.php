@@ -4,20 +4,21 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use App\Modules\Asignacion\Services\ConflictDetector;
 
 class ConflictDetectorTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_instantiates_successfully()
     {
         $detector = new ConflictDetector();
         $this->assertInstanceOf(ConflictDetector::class, $detector);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_conflict_report_with_required_keys()
     {
         $detector = new ConflictDetector();
@@ -31,7 +32,7 @@ class ConflictDetectorTest extends TestCase
         $this->assertArrayHasKey('conflicts', $report);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_array_from_detect_all_conflicts()
     {
         $detector = new ConflictDetector();
@@ -40,7 +41,7 @@ class ConflictDetectorTest extends TestCase
         $this->assertIsArray($conflicts);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_detect_conflicts_for_assignment()
     {
         $detector = new ConflictDetector();
