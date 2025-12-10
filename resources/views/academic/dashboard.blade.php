@@ -291,7 +291,7 @@
                 <li><a href="{{ route('gestion-academica.teachers.index') }}">👨‍🏫 Gestión de Profesores</a></li>
                 <li><a href="{{ route('asignacion.automatica') }}">🤖 Asignación Inteligente</a></li>
                 <li><a href="{{ route('visualizacion.horario.semestral') }}">📊 Visualización Horarios</a></li>
-                <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
+                <li><a href="{{ route('gestion-academica.reports.index') }}">📈 Reportes Académicos</a></li>
             </ul>
         </nav>
 
@@ -408,10 +408,10 @@
                     </div>
                 </div>
 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>📊 Reportes Académicos</h3>
                     <p>Genera reportes de grupos, profesores y estadísticas del departamento.</p>
-                    <a href="#" class="btn-module">Ver Reportes (Próximamente)</a>
+                    <a href="{{ route('gestion-academica.reports.index') }}" class="btn-module">Ver Reportes</a>
                 </div>
 
             </div>
