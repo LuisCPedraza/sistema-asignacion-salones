@@ -190,7 +190,7 @@
                 <li><a href="{{ route('infraestructura.dashboard') }}" class="active">📊 Dashboard</a></li>
                 <li><a href="{{ route('infraestructura.classrooms.index') }}">🏢 Gestión de Salones</a></li>
                 <li><a href="{{ route('infraestructura.maintenance.index') }}">🔧 Mantenimiento</a></li>
-                <li><a href="#" class="coming-soon">📅 Reservas (Próximamente)</a></li>
+                <li><a href="{{ route('infraestructura.reservations.index') }}">📅 Reservas</a></li>
                 <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
             </ul>
         </nav>
@@ -215,6 +215,14 @@
                     <div class="stat-label">Pendientes</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-number">{{ $reservationsPending ?? 0 }}</div>
+                    <div class="stat-label">Reservas Pendientes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ $reservationsUpcoming ?? 0 }}</div>
+                    <div class="stat-label">Próximas Reservas</div>
+                </div>
+                <div class="stat-card">
                     <div class="stat-number">{{ $totalCapacity ?? 0 }}</div>
                     <div class="stat-label">Capacidad Total</div>
                 </div>
@@ -233,10 +241,10 @@
                     <a href="{{ route('infraestructura.maintenance.index') }}" class="btn-module">Ver Mantenimiento</a>
                 </div>
                 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>📅 Reservas</h3>
                     <p>Gestiona reservas de salones y recursos de infraestructura.</p>
-                    <a href="#" class="btn-module">Ver Reservas (Próximamente)</a>
+                    <a href="{{ route('infraestructura.reservations.index') }}" class="btn-module">Ver Reservas</a>
                 </div>
                 
                 <div class="module-card coming-soon">
