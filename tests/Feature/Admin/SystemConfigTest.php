@@ -38,6 +38,14 @@ class SystemConfigTest extends TestCase
 
         $response = $this->put(route('admin.config.update'), [
             'institution_name' => 'Universidad de Prueba',
+            'institution_code' => 'UNIV-TEST',
+            'work_start_time' => '08:00',
+            'work_end_time' => '17:00',
+            'lunch_start_time' => '12:00',
+            'lunch_end_time' => '13:00',
+            'min_score_threshold' => '0.6',
+            'max_attempts' => '15',
+            'audit_retention_days' => '90',
         ]);
 
         $response->assertRedirect();
