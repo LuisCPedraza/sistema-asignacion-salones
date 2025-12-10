@@ -365,7 +365,7 @@
 
         <div class="date-selector">
             <label for="fecha">📅 Fecha de Asistencia</label>
-            <input type="date" id="fecha" name="fecha" value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}">
+            <input type="date" id="fecha" name="fecha" value="{{ $fecha }}" max="{{ date('Y-m-d') }}">
         </div>
 
         @if($errors->any())
@@ -381,7 +381,7 @@
 
         <form method="POST" action="{{ route('profesor.asistencias.guardar', $assignment->id) }}" class="attendance-form">
             @csrf
-            <input type="hidden" name="fecha" id="fecha-hidden" value="{{ date('Y-m-d') }}">
+            <input type="hidden" name="fecha" id="fecha-hidden" value="{{ $fecha }}">
             
             <div class="form-header">
                 <h2>📋 Lista de Estudiantes</h2>
@@ -394,6 +394,9 @@
 
             <div class="students-list">
                 @foreach($estudiantes as $index => $estudiante)
+                    @php
+                        $estadoPrevio = $asistenciasPrevias[$estudiante['id']] ?? null;
+                    @endphp
                     <div class="student-row">
                         <div class="student-info">
                             <div class="student-number">{{ $index + 1 }}</div>
@@ -403,20 +406,20 @@
                             </div>
                         </div>
                         <div class="attendance-options">
-                            <label class="attendance-btn presente" data-student="{{ $estudiante['id'] }}" data-status="presente">
-                                <input type="radio" name="asistencias[{{ $estudiante['id'] }}]" value="presente" required>
+                            <label class="attendance-btn presente {{ $estadoPrevio === 'presente' ? 'active' : '' }}" data-student="{{ $estudiante['id'] }}" data-status="presente">
+                                <input type="radio" name="asistencias[{{ $estudiante['id'] }}]" value="presente" required @checked($estadoPrevio === 'presente')>
                                 ✅ Presente
                             </label>
-                            <label class="attendance-btn ausente" data-student="{{ $estudiante['id'] }}" data-status="ausente">
-                                <input type="radio" name="asistencias[{{ $estudiante['id'] }}]" value="ausente">
+                            <label class="attendance-btn ausente {{ $estadoPrevio === 'ausente' ? 'active' : '' }}" data-student="{{ $estudiante['id'] }}" data-status="ausente">
+                                <input type="radio" name="asistencias[{{ $estudiante['id'] }}]" value="ausente" @checked($estadoPrevio === 'ausente')>
                                 ❌ Ausente
                             </label>
-                            <label class="attendance-btn tardanza" data-student="{{ $estudiante['id'] }}" data-status="tardanza">
-                                <input type="radio" name="asistencias[{{ $estudiante['id'] }}]" value="tardanza">
+                            <label class="attendance-btn tardanza {{ $estadoPrevio === 'tardanza' ? 'active' : '' }}" data-student="{{ $estudiante['id'] }}" data-status="tardanza">
+                                <input type="radio" name="asistencias[{{ $estudiante['id'] }}]" value="tardanza" @checked($estadoPrevio === 'tardanza')>
                                 ⏰ Tardanza
                             </label>
-                            <label class="attendance-btn justificado" data-student="{{ $estudiante['id'] }}" data-status="justificado">
-                                <input type="radio" name="asistencias[{{ $estudiante['id'] }}]" value="justificado">
+                            <label class="attendance-btn justificado {{ $estadoPrevio === 'justificado' ? 'active' : '' }}" data-student="{{ $estudiante['id'] }}" data-status="justificado">
+                                <input type="radio" name="asistencias[{{ $estudiante['id'] }}]" value="justificado" @checked($estadoPrevio === 'justificado')>
                                 📝 Justificado
                             </label>
                         </div>

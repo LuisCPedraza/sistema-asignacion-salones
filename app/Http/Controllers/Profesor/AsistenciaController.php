@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Profesor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
 use App\Models\Student;
 use App\Modules\Asignacion\Models\Assignment;
 use App\Modules\GestionAcademica\Models\Teacher;
@@ -87,6 +88,12 @@ class AsistenciaController extends Controller
             ])
             ->firstOrFail();
 
+        $fecha = request('fecha', now()->format('Y-m-d'));
+
+        $asistenciasPrevias = Attendance::where('assignment_id', $assignmentId)
+            ->whereDate('fecha', $fecha)
+            ->pluck('status', 'student_id');
+
         // Obtener estudiantes reales del grupo
         $estudiantes = $assignment->group->students->map(function($student) {
             return [
@@ -100,7 +107,8 @@ class AsistenciaController extends Controller
             'assignment' => $assignment,
             'estudiantes' => $estudiantes,
             'teacher' => $teacher,
-            'fecha' => now()->format('Y-m-d'),
+            'fecha' => $fecha,
+            'asistenciasPrevias' => $asistenciasPrevias,
         ]);
     }
 
@@ -109,10 +117,10 @@ class AsistenciaController extends Controller
      */
     public function guardarAsistencia(Request $request, $assignmentId)
     {
-        $request->validate([
-            'fecha' => 'required|date',
-            'asistencias' => 'required|array',
-            'asistencias.*' => 'in:presente,ausente,tardanza,justificado',
+        $validated = $request->validate([
+            'fecha' => 'required|date|before_or_equal:today',
+            'asistencias' => 'required|array|min:1',
+            'asistencias.*' => 'required|in:presente,ausente,tardanza,justificado',
         ]);
 
         $teacher = Teacher::where('user_id', auth()->id())->first();
@@ -126,12 +134,41 @@ class AsistenciaController extends Controller
             ->where('teacher_id', $teacher->id)
             ->firstOrFail();
 
-        // Aquí guardarías en la base de datos real
-        // Por ahora, solo simulamos el guardado
-        $totalEstudiantes = count($request->asistencias);
-        $presentes = collect($request->asistencias)->filter(fn($a) => $a === 'presente')->count();
-        $ausentes = collect($request->asistencias)->filter(fn($a) => $a === 'ausente')->count();
-        $tardanzas = collect($request->asistencias)->filter(fn($a) => $a === 'tardanza')->count();
+        $studentIds = array_keys($validated['asistencias']);
+
+        // Verificar que los estudiantes pertenezcan al grupo del assignment
+        $validStudentIds = Student::whereIn('id', $studentIds)
+            ->where('group_id', $assignment->student_group_id)
+            ->pluck('id')
+            ->toArray();
+
+        if (count($validStudentIds) !== count($studentIds)) {
+            return redirect()->route('profesor.asistencias.tomar', $assignmentId)
+                ->with('error', 'Hay estudiantes no válidos para este grupo.');
+        }
+
+        $fechaNormalizada = Carbon::parse($validated['fecha'])->startOfDay()->toDateTimeString();
+
+        DB::transaction(function () use ($validated, $assignmentId, $fechaNormalizada) {
+            foreach ($validated['asistencias'] as $studentId => $status) {
+                Attendance::updateOrCreate(
+                    [
+                        'assignment_id' => $assignmentId,
+                        'student_id' => $studentId,
+                        'fecha' => $fechaNormalizada,
+                    ],
+                    [
+                        'status' => $status,
+                        'taken_by' => auth()->id(),
+                    ]
+                );
+            }
+        });
+
+        $totalEstudiantes = count($validated['asistencias']);
+        $presentes = collect($validated['asistencias'])->filter(fn($a) => $a === 'presente')->count();
+        $ausentes = collect($validated['asistencias'])->filter(fn($a) => $a === 'ausente')->count();
+        $tardanzas = collect($validated['asistencias'])->filter(fn($a) => $a === 'tardanza')->count();
 
         return redirect()->route('profesor.asistencias.index')
             ->with('success', "Asistencia registrada exitosamente. Presentes: {$presentes}, Ausentes: {$ausentes}, Tardanzas: {$tardanzas}");
@@ -158,57 +195,48 @@ class AsistenciaController extends Controller
             ])
             ->firstOrFail();
 
-        // Generar datos de ejemplo para el historial
-        $historial = $this->generarHistorialEjemplo($assignment);
+        $attendanceByDay = Attendance::where('assignment_id', $assignmentId)
+            ->orderBy('fecha', 'desc')
+            ->get()
+            ->groupBy(fn ($a) => $a->fecha->format('Y-m-d'))
+            ->sortKeysDesc();
+
+        $totalGrupo = $assignment->group->students()->count();
+
+        $historial = $attendanceByDay->map(function ($registros, $fecha) use ($totalGrupo) {
+            $presentes = $registros->where('status', 'presente')->count();
+            $ausentes = $registros->where('status', 'ausente')->count();
+            $tardanzas = $registros->where('status', 'tardanza')->count();
+            $justificados = $registros->where('status', 'justificado')->count();
+
+            $total = $totalGrupo > 0 ? $totalGrupo : max($registros->count(), 1);
+            $porcentaje = round((($presentes + $tardanzas + $justificados) / $total) * 100, 1);
+
+            return [
+                'fecha' => $fecha,
+                'presentes' => $presentes,
+                'ausentes' => $ausentes,
+                'tardanzas' => $tardanzas,
+                'justificados' => $justificados,
+                'porcentaje_asistencia' => min($porcentaje, 100),
+            ];
+        })->take(10);
+
+        $promedioAsistencia = $historial->avg('porcentaje_asistencia') ? round($historial->avg('porcentaje_asistencia'), 1) : 0;
+        $promedioPresentes = $historial->avg('presentes') ? round($historial->avg('presentes'), 1) : 0;
+        $promedioAusentes = $historial->avg('ausentes') ? round($historial->avg('ausentes'), 1) : 0;
+        $promedioTardanzas = $historial->avg('tardanzas') ? round($historial->avg('tardanzas'), 1) : 0;
+
+        $historial = $historial->values()->all();
 
         return view('profesor.asistencias.historial', [
             'assignment' => $assignment,
             'historial' => $historial,
             'teacher' => $teacher,
+            'promedioAsistencia' => $promedioAsistencia,
+            'promedioPresentes' => $promedioPresentes,
+            'promedioAusentes' => $promedioAusentes,
+            'promedioTardanzas' => $promedioTardanzas,
         ]);
-    }
-
-    /**
-     * Generar lista de estudiantes simulada
-     */
-    private function generarListaEstudiantes($cantidad)
-    {
-        $estudiantes = [];
-        for ($i = 1; $i <= $cantidad; $i++) {
-            $estudiantes[] = [
-                'id' => $i,
-                'nombre' => "Estudiante {$i}",
-                'codigo' => sprintf("EST%04d", $i),
-            ];
-        }
-        return $estudiantes;
-    }
-
-    /**
-     * Generar historial de ejemplo
-     */
-    private function generarHistorialEjemplo($assignment)
-    {
-        $historial = [];
-        $studentCount = $assignment->group->student_count ?? 20;
-        
-        // Generar registros de las últimas 2 semanas
-        for ($i = 0; $i < 10; $i++) {
-            $fecha = now()->subDays($i);
-            $presentes = rand(15, $studentCount);
-            $ausentes = $studentCount - $presentes;
-            
-            $historial[] = [
-                'fecha' => $fecha->format('Y-m-d'),
-                'fecha_texto' => $fecha->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY'),
-                'total_estudiantes' => $studentCount,
-                'presentes' => $presentes,
-                'ausentes' => $ausentes,
-                'tardanzas' => rand(0, 3),
-                'porcentaje_asistencia' => round(($presentes / $studentCount) * 100, 1),
-            ];
-        }
-
-        return $historial;
     }
 }

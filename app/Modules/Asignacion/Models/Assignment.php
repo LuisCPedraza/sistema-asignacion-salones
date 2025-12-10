@@ -8,6 +8,7 @@ use App\Modules\GestionAcademica\Models\StudentGroup;
 use App\Models\Teacher;
 use App\Modules\Infraestructura\Models\Classroom;
 use App\Models\TimeSlot;
+use App\Models\Activity;
 
 class Assignment extends Model
 {
@@ -57,6 +58,11 @@ class Assignment extends Model
     public function subject()
     {
         return $this->belongsTo(\App\Models\Subject::class);
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
     }
 
     public function timeSlot()

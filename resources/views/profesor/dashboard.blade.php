@@ -405,6 +405,7 @@
                 <li><a href="{{ route('profesor.mis-cursos') }}">📚 Mis Cursos</a></li>
                 <li><a href="{{ route('gestion-academica.teachers.availabilities.my') }}">⏰ Disponibilidad</a></li>
                 <li><a href="{{ route('profesor.asistencias.index') }}">✅ Asistencias</a></li>
+                <li><a href="{{ route('profesor.actividades.index') }}">📝 Actividades</a></li>
                 <li><a href="{{ route('profesor.estudiantes.index') }}">🎓 Mis Estudiantes</a></li>
                 <li><a href="#" class="coming-soon">📈 Reportes</a></li>
             </ul>
@@ -478,10 +479,10 @@
                 </div>
 
                 <div class="module-card">
-                    <span class="module-icon">🎓</span>
-                    <h3>Mis Estudiantes</h3>
-                    <p>Administra y consulta la información de los estudiantes de todos tus grupos.</p>
-                    <a href="{{ route('profesor.estudiantes.index') }}" class="btn-module">Ver Estudiantes</a>
+                    <span class="module-icon">📝</span>
+                    <h3>Actividades y Notas</h3>
+                    <p>Crea actividades, registra calificaciones y brinda retroalimentacion a tus estudiantes.</p>
+                    <a href="{{ route('profesor.actividades.index') }}" class="btn-module">Gestionar Actividades</a>
                 </div>
 
                 <div class="module-card coming-soon">

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Profesor\ProfesorController;
 use App\Http\Controllers\Profesor\AsistenciaController;
 use App\Http\Controllers\Profesor\EstudianteController;
+use App\Http\Controllers\Profesor\ActividadController;
 use App\Modules\Auth\Models\Role;
 use App\Http\Middleware\AdminMiddleware;
 use App\Modules\Visualization\Controllers\HorarioController;
@@ -61,6 +62,15 @@ Route::middleware('auth')->group(function () {
             Route::get('/editar/{id}', [EstudianteController::class, 'edit'])->name('edit');
             Route::put('/actualizar/{id}', [EstudianteController::class, 'update'])->name('update');
             Route::delete('/eliminar/{id}', [EstudianteController::class, 'destroy'])->name('destroy');
+        });
+
+        // Rutas de Actividades y Calificaciones
+        Route::prefix('actividades')->name('actividades.')->group(function () {
+            Route::get('/', [ActividadController::class, 'index'])->name('index');
+            Route::get('/crear', [ActividadController::class, 'create'])->name('create');
+            Route::post('/guardar', [ActividadController::class, 'store'])->name('store');
+            Route::get('/{id}/calificaciones', [ActividadController::class, 'calificar'])->name('calificar');
+            Route::post('/{id}/calificaciones', [ActividadController::class, 'guardarCalificaciones'])->name('guardar-calificaciones');
         });
     });
 
