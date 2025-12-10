@@ -3,9 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Infraestructura\Controllers\ClassroomController;
 use App\Modules\Infraestructura\Controllers\ClassroomAvailabilityController;
+use App\Modules\Infraestructura\Controllers\MaintenanceController;
 
 // Grupo para Gestión de Infraestructura (Temporal: 'auth' solo)
 Route::middleware(['auth'])->prefix('infraestructura')->name('infraestructura.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('infraestructura.dashboard');
+    })->name('dashboard');
+
     // CRUD de Salones
     Route::resource('classrooms', ClassroomController::class);
     
@@ -24,4 +30,11 @@ Route::middleware(['auth'])->prefix('infraestructura')->name('infraestructura.')
         Route::delete('/availabilities/{availability}', [ClassroomAvailabilityController::class, 'destroy'])
             ->name('classrooms.availabilities.destroy');
     });
+
+    // CRUD de Mantenimiento (HU20)
+    Route::resource('maintenance', MaintenanceController::class);
+    Route::post('/maintenance/{maintenance}/mark-in-progress', [MaintenanceController::class, 'markInProgress'])
+        ->name('maintenance.mark-in-progress');
+    Route::post('/maintenance/{maintenance}/mark-completed', [MaintenanceController::class, 'markCompleted'])
+        ->name('maintenance.mark-completed');
 });
