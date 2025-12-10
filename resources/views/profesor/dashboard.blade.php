@@ -407,7 +407,7 @@
                 <li><a href="{{ route('profesor.asistencias.index') }}">✅ Asistencias</a></li>
                 <li><a href="{{ route('profesor.actividades.index') }}">📝 Actividades</a></li>
                 <li><a href="{{ route('profesor.estudiantes.index') }}">🎓 Mis Estudiantes</a></li>
-                <li><a href="#" class="coming-soon">📈 Reportes</a></li>
+                <li><a href="{{ route('profesor.reportes.index') }}">📈 Reportes</a></li>
             </ul>
         </nav>
 
@@ -492,12 +492,6 @@
                     <a href="{{ route('profesor.reportes.index') }}" class="btn-module">Ver Reportes</a>
                 </div>
 
-                <div class="module-card coming-soon">
-                    <span class="module-icon">📝</span>
-                    <h3>Evaluaciones</h3>
-                    <p>Administra calificaciones, exámenes y evaluaciones de tus estudiantes.</p>
-                    <a href="#" class="btn-module">Próximamente</a>
-                </div>
             </div>
         </main>
     </div>

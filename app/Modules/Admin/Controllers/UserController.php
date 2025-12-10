@@ -64,13 +64,28 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role_id' => 'required|exists:roles,id',
             'is_active' => 'boolean',
+            'access_expires_at' => 'nullable|date_format:Y-m-d\TH:i|after_or_equal:now',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['is_active'] = $request->has('is_active');
         $validated['email_verified_at'] = now();
 
-        User::create($validated);
+        $user = User::create($validated);
+
+        // Si es profesor invitado, crear registro en tabla teachers
+        $role = Role::find($validated['role_id']);
+        if ($role->slug === Role::PROFESOR_INVITADO) {
+            \App\Modules\GestionAcademica\Models\Teacher::create([
+                'user_id' => $user->id,
+                'first_name' => explode(' ', $validated['name'])[0],
+                'last_name' => implode(' ', array_slice(explode(' ', $validated['name']), 1)),
+                'email' => $validated['email'],
+                'is_guest' => true,
+                'access_expires_at' => $validated['access_expires_at'] ?? null,
+                'is_active' => $validated['is_active'],
+            ]);
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Usuario creado exitosamente (HU1).');
@@ -94,6 +109,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'role_id' => 'required|exists:roles,id',
             'is_active' => 'boolean',
+            'access_expires_at' => 'nullable|date_format:Y-m-d\TH:i|after_or_equal:now',
         ]);
 
         // Solo actualizar password si se proporciona
@@ -107,6 +123,15 @@ class UserController extends Controller
         $validated['is_active'] = $request->has('is_active');
 
         $user->update($validated);
+
+        // Actualizar campos de profesor invitado si corresponde
+        $role = Role::find($validated['role_id']);
+        if ($role->slug === Role::PROFESOR_INVITADO && $user->teacher) {
+            $user->teacher->update([
+                'is_guest' => true,
+                'access_expires_at' => $validated['access_expires_at'] ?? null,
+            ]);
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Usuario actualizado (HU1).');
