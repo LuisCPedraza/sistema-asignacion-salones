@@ -6,6 +6,7 @@ use App\Http\Controllers\Profesor\ProfesorController;
 use App\Http\Controllers\Profesor\AsistenciaController;
 use App\Http\Controllers\Profesor\EstudianteController;
 use App\Http\Controllers\Profesor\ActividadController;
+use App\Http\Controllers\Profesor\ReporteController;
 use App\Modules\Auth\Models\Role;
 use App\Http\Middleware\AdminMiddleware;
 use App\Modules\Visualization\Controllers\HorarioController;
@@ -71,6 +72,15 @@ Route::middleware('auth')->group(function () {
             Route::post('/guardar', [ActividadController::class, 'store'])->name('store');
             Route::get('/{id}/calificaciones', [ActividadController::class, 'calificar'])->name('calificar');
             Route::post('/{id}/calificaciones', [ActividadController::class, 'guardarCalificaciones'])->name('guardar-calificaciones');
+        });
+
+        // Rutas de Reportes Académicos
+        Route::prefix('reportes')->name('reportes.')->group(function () {
+            Route::get('/', [ReporteController::class, 'index'])->name('index');
+            Route::get('/asistencias/{assignmentId}', [ReporteController::class, 'asistencias'])->name('asistencias');
+            Route::get('/asistencias/{assignmentId}/pdf', [ReporteController::class, 'exportAsistenciasPdf'])->name('asistencias.pdf');
+            Route::get('/actividades/{assignmentId}', [ReporteController::class, 'actividades'])->name('actividades');
+            Route::get('/actividades/{assignmentId}/pdf', [ReporteController::class, 'exportActividadesPdf'])->name('actividades.pdf');
         });
     });
 

@@ -1,0 +1,339 @@
+@extends('layouts.app')
+
+@section('content')
+<style>
+    .reportes-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        color: #2563eb;
+        text-decoration: none;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        transition: color 0.3s;
+    }
+
+    .back-link:hover {
+        color: #1d4ed8;
+    }
+
+    .back-link svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: 0.5rem;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #111827;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.875rem;
+        font-weight: bold;
+        color: #111827;
+    }
+
+    .stat-value.blue {
+        color: #2563eb;
+    }
+
+    .stat-value.green {
+        color: #22c55e;
+    }
+
+    .stat-value.red {
+        color: #dc2626;
+    }
+
+    .action-bar {
+        margin-bottom: 2rem;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        background: #dc2626;
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: background 0.3s;
+    }
+
+    .btn-primary:hover {
+        background: #991b1b;
+    }
+
+    .btn-primary svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: 0.5rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 1rem;
+        margin-top: 2rem;
+    }
+
+    .activities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .activity-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        transition: all 0.3s;
+    }
+
+    .activity-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #d1d5db;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-description {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .activity-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .empty-activities {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+
+    .table-container table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-container thead {
+        background: #f3f4f6;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .table-container th {
+        padding: 1rem;
+        text-align: left;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .table-container tbody tr {
+        border-bottom: 1px solid #e5e7eb;
+        transition: background 0.2s;
+    }
+
+    .table-container tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .table-container td {
+        padding: 1rem;
+        font-size: 0.875rem;
+        color: #374151;
+    }
+
+    .progress-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .progress-track {
+        flex: 1;
+        height: 0.5rem;
+        background: #e5e7eb;
+        border-radius: 9999px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #22c55e;
+        transition: width 0.3s;
+    }
+
+    .progress-fill.warning {
+        background: #f59e0b;
+    }
+
+    .progress-fill.danger {
+        background: #dc2626;
+    }
+
+    .percentage {
+        min-width: 3.5rem;
+        text-align: right;
+        font-weight: 600;
+    }
+</style>
+
+<div class="reportes-container">
+    <!-- Back Link -->
+    <a href="{{ route('profesor.reportes.index') }}" class="back-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Volver a Reportes
+    </a>
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1>Reporte de Calificaciones</h1>
+        <p>{{ $assignment->subject->nombre }} - {{ $assignment->group->nombre }}</p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Actividades</div>
+            <div class="stat-value">{{ $estadisticas['totalActividades'] }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Promedio General</div>
+            <div class="stat-value blue">{{ round($estadisticas['promedioGeneral'], 2) }}%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Mejor Calificación</div>
+            <div class="stat-value green">{{ round($estadisticas['mejorCalificacion'], 2) }}%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Peor Calificación</div>
+            <div class="stat-value red">{{ round($estadisticas['peorCalificacion'], 2) }}%</div>
+        </div>
+    </div>
+
+    <!-- Exportar PDF -->
+    <div class="action-bar">
+        <a href="{{ route('profesor.reportes.actividades.pdf', $assignment->id) }}" class="btn-primary">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Descargar PDF
+        </a>
+    </div>
+
+    <!-- Actividades -->
+    <h2 class="section-title">Actividades Registradas</h2>
+    <div class="activities-grid">
+        @forelse($activities as $activity)
+            <div class="activity-card">
+                <div class="activity-title">{{ $activity->title }}</div>
+                <div class="activity-description">{{ $activity->description ?? 'Sin descripción' }}</div>
+                <div class="activity-meta">
+                    <span>Max: {{ $activity->max_score }} pts</span>
+                    <span>Vence: {{ $activity->due_date->format('d/m/Y') }}</span>
+                </div>
+            </div>
+        @empty
+            <div class="empty-activities">
+                <p>No hay actividades registradas aún.</p>
+            </div>
+        @endforelse
+    </div>
+
+    <!-- Tabla de Calificaciones por Estudiante -->
+    <h2 class="section-title">Calificaciones por Estudiante</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Estudiante</th>
+                    <th>Total Obtenido</th>
+                    <th>Total Posible</th>
+                    <th>Promedio</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($calificacionesPorEstudiante as $calificacion)
+                    <tr>
+                        <td>{{ $calificacion['estudiante']->nombre_completo }}</td>
+                        <td>{{ $calificacion['totalObtenido'] }}</td>
+                        <td>{{ $calificacion['totalPosible'] }}</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-track">
+                                    <div class="progress-fill {{ $calificacion['promedio'] < 50 ? 'danger' : ($calificacion['promedio'] < 70 ? 'warning' : '') }}" 
+                                         style="width: {{ $calificacion['promedio'] }}%"></div>
+                                </div>
+                                <div class="percentage">{{ $calificacion['promedio'] }}%</div>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endsection

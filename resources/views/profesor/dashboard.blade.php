@@ -485,11 +485,11 @@
                     <a href="{{ route('profesor.actividades.index') }}" class="btn-module">Gestionar Actividades</a>
                 </div>
 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <span class="module-icon">📊</span>
                     <h3>Reportes Académicos</h3>
                     <p>Genera reportes detallados sobre tus cursos, asistencias y desempeño académico.</p>
-                    <a href="#" class="btn-module">Próximamente</a>
+                    <a href="{{ route('profesor.reportes.index') }}" class="btn-module">Ver Reportes</a>
                 </div>
 
                 <div class="module-card coming-soon">
