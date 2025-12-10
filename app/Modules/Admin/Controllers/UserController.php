@@ -65,6 +65,7 @@ class UserController extends Controller
             'role_id' => 'required|exists:roles,id',
             'is_active' => 'boolean',
             'access_expires_at' => 'nullable|date_format:Y-m-d\TH:i|after_or_equal:now',
+            'ip_address_allowed' => 'nullable|string|max:500', // Ej: "192.168.1.*,10.0.0.*"
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -83,6 +84,7 @@ class UserController extends Controller
                 'email' => $validated['email'],
                 'is_guest' => true,
                 'access_expires_at' => $validated['access_expires_at'] ?? null,
+                'ip_address_allowed' => $validated['ip_address_allowed'] ?? null,
                 'is_active' => $validated['is_active'],
             ]);
         }
@@ -110,6 +112,7 @@ class UserController extends Controller
             'role_id' => 'required|exists:roles,id',
             'is_active' => 'boolean',
             'access_expires_at' => 'nullable|date_format:Y-m-d\TH:i|after_or_equal:now',
+            'ip_address_allowed' => 'nullable|string|max:500', // Ej: "192.168.1.*,10.0.0.*"
         ]);
 
         // Solo actualizar password si se proporciona
@@ -130,6 +133,7 @@ class UserController extends Controller
             $user->teacher->update([
                 'is_guest' => true,
                 'access_expires_at' => $validated['access_expires_at'] ?? null,
+                'ip_address_allowed' => $validated['ip_address_allowed'] ?? null,
             ]);
         }
 

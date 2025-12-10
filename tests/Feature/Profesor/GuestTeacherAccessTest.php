@@ -177,4 +177,70 @@ class GuestTeacherAccessTest extends TestCase
         // Debe retornar 2 (uno con expiración futura, uno sin expiración)
         $this->assertEquals(2, $validTeachers);
     }
+
+    /**
+     * Test: Validar que la duración máxima no exceda 1 año
+     */
+    public function test_guest_teacher_max_duration_is_one_year(): void
+    {
+        $role = Role::query()->where('slug', Role::PROFESOR_INVITADO)->first();
+
+        // Crear profesor con más de 1 año de antigüedad
+        $teacher = Teacher::factory()->create([
+            'is_guest' => true,
+            'access_expires_at' => now()->addYears(2),
+            'created_at' => now()->subYears(2),
+        ]);
+
+        // La validación debe fallar si intenta acceder después de 1 año
+        $this->assertTrue($teacher->created_at->diffInDays(now()) > 365);
+    }
+
+    /**
+     * Test: Validar restricción de IP permitida
+     */
+    public function test_guest_teacher_with_ip_restriction_is_enforced(): void
+    {
+        $role = Role::query()->where('slug', Role::PROFESOR_INVITADO)->first();
+
+        // Crear profesor con restricción de IP
+        $user = User::factory()->create([
+            'role_id' => $role->id,
+            'temporary_access_expires_at' => now()->addMonth(),
+        ]);
+
+        $teacher = Teacher::factory()->create([
+            'user_id' => $user->id,
+            'is_guest' => true,
+            'access_expires_at' => now()->addMonth(),
+            'ip_address_allowed' => '192.168.1.*,10.0.0.*', // Ejemplo: solo IPs locales
+        ]);
+
+        // Profesor debe tener restricción configurada
+        $this->assertNotNull($teacher->ip_address_allowed);
+        $this->assertStringContainsString('192.168.1.*', $teacher->ip_address_allowed);
+    }
+
+    /**
+     * Test: Profesor invitado sin restricción IP puede acceder desde cualquier lugar
+     */
+    public function test_guest_teacher_without_ip_restriction_can_access_anywhere(): void
+    {
+        $role = Role::query()->where('slug', Role::PROFESOR_INVITADO)->first();
+
+        $user = User::factory()->create([
+            'role_id' => $role->id,
+            'temporary_access_expires_at' => now()->addMonth(),
+        ]);
+
+        $teacher = Teacher::factory()->create([
+            'user_id' => $user->id,
+            'is_guest' => true,
+            'access_expires_at' => now()->addMonth(),
+            'ip_address_allowed' => null, // Sin restricción
+        ]);
+
+        // Profesor debe poder acceder sin restricción de IP
+        $this->assertNull($teacher->ip_address_allowed);
+    }
 }

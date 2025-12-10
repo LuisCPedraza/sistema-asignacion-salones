@@ -25,7 +25,8 @@ class Teacher extends Model
         'special_assignments',
         'user_id',
         'is_guest',
-        'access_expires_at'
+        'access_expires_at',
+        'ip_address_allowed'
     ];
 
     protected $casts = [

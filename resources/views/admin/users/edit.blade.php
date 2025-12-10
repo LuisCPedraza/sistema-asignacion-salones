@@ -105,6 +105,23 @@
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label">🔒 Restricción de IP (Opcional):</label>
+                        <input type="text" name="ip_address_allowed" id="ip_address_allowed" 
+                               class="form-control @error('ip_address_allowed') is-invalid @enderror" 
+                               placeholder="Ej: 192.168.1.*, 10.0.0.5, 172.16.*"
+                               value="{{ old('ip_address_allowed', $user->teacher?->ip_address_allowed) }}">
+                        @error('ip_address_allowed') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <small class="form-text text-muted">
+                            Deja en blanco para permitir acceso desde cualquier IP. 
+                            Soporta: IPs exactas (192.168.1.5), rangos (192.168.1.*) y múltiples separadas por coma.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
             @if($user->teacher && $user->teacher->is_guest)
                 <div class="alert alert-info mb-0">
                     <strong>Estado actual:</strong> 
