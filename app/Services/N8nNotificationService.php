@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\Teacher;
+use App\Modules\GestionAcademica\Models\Teacher;
 use App\Modules\Asignacion\Models\Assignment;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -76,24 +76,40 @@ class N8nNotificationService
         $conflicts = [];
 
         foreach ($assignments as $assignment) {
-            // Verificar conflicto de profesor
-            $teacherConflict = $assignments->where('teacher_id', $assignment->teacher_id)
-                ->where('id', '!=', $assignment->id)
-                ->where('day', $assignment->day)
-                ->where(function ($q) use ($assignment) {
-                    $q->whereBetween('start_time', [$assignment->start_time, $assignment->end_time])
-                      ->orWhereBetween('end_time', [$assignment->start_time, $assignment->end_time]);
-                })
-                ->first();
-
-            if ($teacherConflict) {
-                $conflicts[] = [
-                    'type' => 'teacher',
-                    'description' => "Profesor {$assignment->teacher?->full_name} solapado",
-                    'group1' => $assignment->group?->name,
-                    'group2' => $teacherConflict->group?->name,
-                    'day' => $assignment->day,
-                ];
+            // Verificar conflicto de profesor (dos asignaciones solapadas)
+            foreach ($assignments as $other) {
+                if ($other->id === $assignment->id) {
+                    continue;
+                }
+                
+                if ($other->teacher_id !== $assignment->teacher_id) {
+                    continue;
+                }
+                
+                if ($other->day !== $assignment->day) {
+                    continue;
+                }
+                
+                // Verificar solapamiento de horarios
+                $startTime1 = Carbon::parse($assignment->start_time);
+                $endTime1 = Carbon::parse($assignment->end_time);
+                $startTime2 = Carbon::parse($other->start_time);
+                $endTime2 = Carbon::parse($other->end_time);
+                
+                $overlaps = ($startTime1 < $endTime2) && ($startTime2 < $endTime1);
+                
+                if ($overlaps) {
+                    // Evitar duplicados (solo agregar si este assignment tiene menor ID)
+                    if ($assignment->id < $other->id) {
+                        $conflicts[] = [
+                            'type' => 'teacher',
+                            'description' => "Profesor {$assignment->teacher?->full_name} solapado",
+                            'group1' => $assignment->group?->name,
+                            'group2' => $other->group?->name,
+                            'day' => $assignment->day,
+                        ];
+                    }
+                }
             }
         }
 
