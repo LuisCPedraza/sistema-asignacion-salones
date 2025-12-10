@@ -243,7 +243,7 @@
             <ul class="sidebar-nav">
                 <li><a href="{{ route('profesor.dashboard') }}" class="active">Dashboard</a></li>
                 <li><a href="{{ route('visualizacion.horario.personal') }}">Mi Horario Personal</a></li>
-                <li><a href="#" class="coming-soon">Mis Cursos (Próximamente)</a></li>
+                <li><a href="{{ route('profesor.mis-cursos') }}">Mis Cursos</a></li>
                 <li><a href="#" class="coming-soon">Asistencias (Próximamente)</a></li>
                 <li><a href="#" class="coming-soon">Reportes (Próximamente)</a></li>
             </ul>
@@ -290,10 +290,10 @@
                 </div>
 
                 <!-- Los demás módulos "coming soon" quedan igual -->
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>Mis Cursos</h3>
                     <p>Revisa la información de los cursos que tienes asignados.</p>
-                    <a href="#" class="btn-module">Ver Cursos (Próximamente)</a>
+                    <a href="{{ route('profesor.mis-cursos') }}" class="btn-module">Ver Mis Cursos</a>
                 </div>
                 <!-- ... resto igual ... -->
             </div>

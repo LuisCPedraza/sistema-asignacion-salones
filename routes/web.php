@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Profesor\ProfesorController;
 use App\Modules\Auth\Models\Role;
 use App\Http\Middleware\AdminMiddleware;
 use App\Modules\Visualization\Controllers\HorarioController;
@@ -36,6 +37,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/academic/dashboard', fn() => view('academic.dashboard', ['user' => auth()->user()]))->name('academic.dashboard');
     Route::get('/infraestructura/dashboard', fn() => view('infraestructura.dashboard', ['user' => auth()->user()]))->name('infraestructura.dashboard');
     Route::get('/profesor/dashboard', fn() => view('profesor.dashboard', ['user' => auth()->user()]))->name('profesor.dashboard');
+
+    // Rutas del módulo de profesor
+    Route::prefix('profesor')->name('profesor.')->middleware(['auth', 'role:profesor,profesor_invitado'])->group(function () {
+        Route::get('/mis-cursos', [ProfesorController::class, 'misCursos'])->name('mis-cursos');
+        Route::get('/curso/{assignmentId}', [ProfesorController::class, 'detalleCurso'])->name('detalle-curso');
+    });
 
     // Fallback dashboard
     Route::get('/dashboard', function () {
