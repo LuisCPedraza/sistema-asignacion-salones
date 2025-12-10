@@ -6,6 +6,7 @@ use App\Modules\Infraestructura\Controllers\ClassroomAvailabilityController;
 use App\Modules\Infraestructura\Controllers\MaintenanceController;
 use App\Modules\Infraestructura\Controllers\ReservationController;
 use App\Modules\Infraestructura\Controllers\DashboardController;
+use App\Modules\Infraestructura\Controllers\ReportsController;
 
 // Grupo para Gestión de Infraestructura (Temporal: 'auth' solo)
 Route::middleware(['auth'])->prefix('infraestructura')->name('infraestructura.')->group(function () {
@@ -46,4 +47,7 @@ Route::middleware(['auth'])->prefix('infraestructura')->name('infraestructura.')
         ->name('reservations.reject');
     Route::post('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])
         ->name('reservations.cancel');
+
+    // Reportes (HU22)
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
 });

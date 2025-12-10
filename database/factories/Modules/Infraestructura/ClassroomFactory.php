@@ -19,7 +19,7 @@ class ClassroomFactory extends Factory
             'location' => $this->faker->word(),
             'special_features' => $this->faker->sentence(),
             'is_active' => true,
-            'type' => $this->faker->randomElement(['Teoría', 'Laboratorio', 'Taller']),
+            'type' => $this->faker->randomElement(['aula', 'laboratorio', 'taller']),
             'floor' => $this->faker->numberBetween(1, 5),
             'wing' => $this->faker->randomElement(['A', 'B', 'C', 'D']),
         ];

@@ -191,7 +191,7 @@
                 <li><a href="{{ route('infraestructura.classrooms.index') }}">🏢 Gestión de Salones</a></li>
                 <li><a href="{{ route('infraestructura.maintenance.index') }}">🔧 Mantenimiento</a></li>
                 <li><a href="{{ route('infraestructura.reservations.index') }}">📅 Reservas</a></li>
-                <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
+                <li><a href="{{ route('infraestructura.reports.index') }}">📈 Reportes</a></li>
             </ul>
         </nav>
 
@@ -247,10 +247,10 @@
                     <a href="{{ route('infraestructura.reservations.index') }}" class="btn-module">Ver Reservas</a>
                 </div>
                 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>📈 Reportes</h3>
                     <p>Genera reportes de uso y estado de la infraestructura.</p>
-                    <a href="#" class="btn-module">Ver Reportes (Próximamente)</a>
+                    <a href="{{ route('infraestructura.reports.index') }}" class="btn-module">Ver Reportes</a>
                 </div>
             </div>
         </main>
