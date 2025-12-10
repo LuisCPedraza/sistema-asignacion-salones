@@ -61,8 +61,8 @@ class ReportServiceTest extends TestCase
             'student_count' => 30
         ]);
 
-        $classroom = Classroom::factory()->create(['capacity' => 40]);
-        $teacher = Teacher::factory()->create();
+        $classroom = Classroom::factory()->create(['capacity' => 40, 'is_active' => true]);
+        $teacher = Teacher::factory()->create(['is_active' => true]);
 
         Assignment::factory(3)->create([
             'student_group_id' => $group->id,
