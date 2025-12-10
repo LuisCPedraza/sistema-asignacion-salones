@@ -15,6 +15,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Gestión de usuarios (HU1)
     Route::resource('users', UserController::class);
+    Route::post('/users/{user}/revoke-guest-access', [UserController::class, 'revokeGuestAccess'])->name('users.revoke-guest-access');
     
     // Reportes (HU15)
     Route::prefix('reports')->name('reports.')->group(function () {

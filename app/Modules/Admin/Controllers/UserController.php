@@ -183,4 +183,50 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')
             ->with('success', 'Usuario desactivado (HU1).');
     }
+
+    /**
+     * Revocar acceso de profesor invitado
+     */
+    public function revokeGuestAccess(User $user)
+    {
+        // Verificar que sea profesor invitado
+        $role = $user->role;
+        if ($role->slug !== Role::PROFESOR_INVITADO) {
+            return redirect()->route('admin.users.edit', $user)
+                ->with('error', 'Solo se puede revocar acceso a profesores invitados.');
+        }
+
+        if (!$user->teacher) {
+            return redirect()->route('admin.users.edit', $user)
+                ->with('error', 'No hay registro de profesor para este usuario.');
+        }
+
+        $oldData = [
+            'access_expires_at' => $user->teacher->access_expires_at,
+            'is_guest' => $user->teacher->is_guest,
+        ];
+
+        // Revocar acceso
+        $user->teacher->update([
+            'is_guest' => false,
+            'access_expires_at' => null,
+        ]);
+
+        $newData = [
+            'access_expires_at' => null,
+            'is_guest' => false,
+        ];
+
+        // Disparar evento de auditoría
+        GuestTeacherAccessChanged::dispatch(
+            $user,
+            GuestTeacherAccessChanged::ACTION_REVOKED,
+            $oldData,
+            $newData,
+            auth()->user()
+        );
+
+        return redirect()->route('admin.users.edit', $user)
+            ->with('success', 'Acceso de profesor invitado revocado exitosamente.');
+    }
 }

@@ -123,13 +123,24 @@
             </div>
 
             @if($user->teacher && $user->teacher->is_guest)
-                <div class="alert alert-info mb-0">
+                <div class="alert alert-info">
                     <strong>Estado actual:</strong> 
                     @if($user->teacher->isAccessValid())
                         ✅ Acceso válido hasta {{ $user->teacher->access_expires_at?->format('d/m/Y H:i') ?? 'Sin expiración' }}
                     @else
                         ❌ Acceso expirado desde {{ $user->teacher->access_expires_at?->format('d/m/Y H:i') }}
                     @endif
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Revocar acceso:</strong>
+                    <p class="mb-2">Si revocar el acceso, el profesor invitado será convertido a profesor regular y perderá su estado de acceso temporal.</p>
+                    <form action="{{ route('admin.users.revoke-guest-access', $user) }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="button" class="btn btn-danger btn-sm" onclick="if(confirm('¿Estás seguro de que deseas revocar el acceso a este profesor invitado?')) { this.closest('form').submit(); }">
+                            🔒 Revocar acceso inmediatamente
+                        </button>
+                    </form>
                 </div>
             @endif
         </div>
