@@ -2,6 +2,7 @@
 
 namespace App\Modules\Admin\Controllers;
 
+use App\Events\GuestTeacherAccessChanged;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Auth\Models\Role;
@@ -77,7 +78,7 @@ class UserController extends Controller
         // Si es profesor invitado, crear registro en tabla teachers
         $role = Role::find($validated['role_id']);
         if ($role->slug === Role::PROFESOR_INVITADO) {
-            \App\Modules\GestionAcademica\Models\Teacher::create([
+            $teacher = \App\Modules\GestionAcademica\Models\Teacher::create([
                 'user_id' => $user->id,
                 'first_name' => explode(' ', $validated['name'])[0],
                 'last_name' => implode(' ', array_slice(explode(' ', $validated['name']), 1)),
@@ -87,6 +88,18 @@ class UserController extends Controller
                 'ip_address_allowed' => $validated['ip_address_allowed'] ?? null,
                 'is_active' => $validated['is_active'],
             ]);
+
+            // Disparar evento de auditoría
+            GuestTeacherAccessChanged::dispatch(
+                $user,
+                GuestTeacherAccessChanged::ACTION_CREATED,
+                null,
+                [
+                    'access_expires_at' => $teacher->access_expires_at,
+                    'ip_address_allowed' => $teacher->ip_address_allowed,
+                ],
+                auth()->user()
+            );
         }
 
         return redirect()->route('admin.users.index')
@@ -130,11 +143,32 @@ class UserController extends Controller
         // Actualizar campos de profesor invitado si corresponde
         $role = Role::find($validated['role_id']);
         if ($role->slug === Role::PROFESOR_INVITADO && $user->teacher) {
+            $oldData = [
+                'access_expires_at' => $user->teacher->getOriginal('access_expires_at'),
+                'ip_address_allowed' => $user->teacher->getOriginal('ip_address_allowed'),
+            ];
+
             $user->teacher->update([
                 'is_guest' => true,
                 'access_expires_at' => $validated['access_expires_at'] ?? null,
                 'ip_address_allowed' => $validated['ip_address_allowed'] ?? null,
             ]);
+
+            $newData = [
+                'access_expires_at' => $user->teacher->access_expires_at,
+                'ip_address_allowed' => $user->teacher->ip_address_allowed,
+            ];
+
+            // Disparar evento de auditoría si hay cambios
+            if ($oldData !== $newData) {
+                GuestTeacherAccessChanged::dispatch(
+                    $user,
+                    GuestTeacherAccessChanged::ACTION_UPDATED,
+                    $oldData,
+                    $newData,
+                    auth()->user()
+                );
+            }
         }
 
         return redirect()->route('admin.users.index')
