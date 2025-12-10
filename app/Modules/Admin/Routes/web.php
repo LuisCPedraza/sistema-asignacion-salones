@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Modules\Admin\Controllers\UserController;
+use App\Modules\Admin\Controllers\GuestTeachersController;
 use App\Modules\Admin\Controllers\ReportController;
 use App\Modules\Admin\Controllers\AuditController;
 use App\Modules\Admin\Controllers\SystemConfigController;
@@ -16,6 +17,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Gestión de usuarios (HU1)
     Route::resource('users', UserController::class);
     Route::post('/users/{user}/revoke-guest-access', [UserController::class, 'revokeGuestAccess'])->name('users.revoke-guest-access');
+    
+    // Profesores Invitados (HU8/HU14)
+    Route::get('/guest-teachers', [GuestTeachersController::class, 'index'])->name('guest-teachers.index');
+    Route::get('/guest-teachers/{teacher}', [GuestTeachersController::class, 'show'])->name('guest-teachers.show');
     
     // Reportes (HU15)
     Route::prefix('reports')->name('reports.')->group(function () {
