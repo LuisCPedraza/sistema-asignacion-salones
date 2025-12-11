@@ -3,6 +3,7 @@
 namespace App\Modules\Asignacion\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\WebhookController;
 use App\Modules\Asignacion\Services\AssignmentAlgorithm;
 
 // Modelos correctos del sistema modular
@@ -214,6 +215,9 @@ class AssignmentController extends Controller
             'notes' => 'Asignación manual por ' . auth()->user()->name,
         ]);
 
+        // 🔔 Disparar webhook a n8n
+        WebhookController::notifyAssignmentCreated($assignment);
+
         return response()->json([
             'success' => true,
             'message' => 'Asignación creada exitosamente',
@@ -223,6 +227,10 @@ class AssignmentController extends Controller
 
     public function updateManual(Request $request, Assignment $assignment)
     {
+        // Guardar estado anterior para comparar
+        $oldAssignment = $assignment->replicate();
+        $oldAssignment->load(['teacher', 'classroom', 'group', 'subject']);
+
         $validated = $request->validate([
             'day' => 'sometimes|in:monday,tuesday,wednesday,thursday,friday,saturday',
             'start_time' => 'sometimes',
@@ -234,6 +242,12 @@ class AssignmentController extends Controller
             ...$validated,
             'notes' => 'Actualizado manualmente por ' . auth()->user()->name . ' - ' . now()->format('Y-m-d H:i'),
         ]);
+
+        // Recargar relaciones para el nuevo estado
+        $assignment->load(['teacher', 'classroom', 'group', 'subject']);
+
+        // 🔔 Disparar webhook a n8n
+        WebhookController::notifyAssignmentUpdated($oldAssignment, $assignment);
 
         return response()->json([
             'success' => true,

@@ -12,17 +12,23 @@ class AuditLog extends Model
     protected $table = 'audit_logs';
     protected $fillable = [
         'user_id',
+        'event',
+        'entity_id',
+        'entity_type',
         'model',
         'model_id',
         'action',
+        'changes',
         'old_values',
         'new_values',
         'description',
         'ip_address',
         'user_agent',
+        'source',
     ];
 
     protected $casts = [
+        'changes' => 'array',
         'old_values' => 'array',
         'new_values' => 'array',
         'created_at' => 'datetime',
@@ -55,16 +61,32 @@ class AuditLog extends Model
             return new self();
         }
 
+        $entityType = class_basename($model);
+        $changes = null;
+
+        // Solo registrar changes si hay diferencias claras
+        if ($oldValues !== null || $newValues !== null) {
+            $changes = [
+                'old' => $oldValues,
+                'new' => $newValues,
+            ];
+        }
+
         return self::create([
             'user_id' => $userId,
-            'model' => class_basename($model),
+            'event' => $action, // evento genérico basado en la acción
+            'entity_id' => $modelId,
+            'entity_type' => $entityType,
+            'model' => $entityType,
             'model_id' => $modelId,
             'action' => $action,
+            'changes' => $changes,
             'old_values' => $oldValues,
             'new_values' => $newValues,
             'description' => $description,
             'ip_address' => Request::ip(),
             'user_agent' => Request::userAgent(),
+            'source' => 'system',
         ]);
     }
 
