@@ -19,13 +19,35 @@ class AssignmentAlgorithm
     {
         $this->reglas = AssignmentRule::where('is_active', true)
             ->orderBy('weight', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($rule) {
+                // Normalizar pesos para compatibilidad con HU10 (acepta 0-1 o 0-100)
+                $rule->normalized_weight = $this->normalizeWeight($rule->weight);
+                return $rule;
+            });
     }
 
     public function enableDebug()
     {
         $this->debug = true;
         return $this;
+    }
+
+    /**
+     * Compatibilidad HU10: pesos en 0-1 o 0-100
+     */
+    protected function normalizeWeight($weight): float
+    {
+        $numeric = (float) $weight;
+        if ($numeric > 1) {
+            $numeric = $numeric / 100; // soporta pesos almacenados como porcentaje entero
+        }
+        return max(0.0, min(1.0, $numeric));
+    }
+
+    protected function isRuleEnabled(string $parameter): bool
+    {
+        return $this->reglas->contains(fn($rule) => $rule->parameter === $parameter && ($rule->normalized_weight ?? 0) > 0);
     }
 
     public function generateAssignments()
@@ -38,51 +60,142 @@ class AssignmentAlgorithm
             return []; // Si no hay asignaciones, retornar vacío
         }
 
-        $teachers = Teacher::where('is_active', true)->inRandomOrder()->get();
-        $classrooms = Classroom::where('is_active', true)->inRandomOrder()->get();
+        $teachers = Teacher::where('is_active', true)->with('availabilities')->inRandomOrder()->get();
+        $classrooms = Classroom::where('is_active', true)->with('availabilities')->inRandomOrder()->get();
         $timeSlots = TimeSlot::all();
 
         $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         $updated = [];
+        $skipped = [];
 
         foreach ($assignments as $assignment) {
             // Obtener grupo para filtrar franjas horarias
             $group = $assignment->group;
-            if (!$group) continue;
+            if (!$group) {
+                $skipped[] = ['id' => $assignment->id, 'reason' => 'Grupo no encontrado'];
+                continue;
+            }
 
             // Si no hay profesores o aulas, saltar
-            if ($teachers->isEmpty() || $classrooms->isEmpty()) continue;
-
-            // Seleccionar nuevos profesor, aula y franja aleatoriamente
-            $newTeacher = $teachers->random();
-            $newClassroom = $classrooms->random();
-            
-            // Filtrar franjas por tipo de horario del grupo
-            $filteredSlots = $timeSlots->where('schedule_type', $group->schedule_type ?? 'day');
-            $newTimeSlot = $filteredSlots->isNotEmpty() ? $filteredSlots->random() : $timeSlots->random();
-
-            // Nuevo día aleatorio
-            $newDay = $days[array_rand($days)];
-
-            try {
-                // ACTUALIZAR la asignación (cambiar posición)
-                $assignment->update([
-                    'teacher_id' => $newTeacher->id,
-                    'classroom_id' => $newClassroom->id,
-                    'time_slot_id' => $newTimeSlot->id,
-                    'day' => $newDay,
-                    'start_time' => $newTimeSlot->start_time,
-                    'end_time' => $newTimeSlot->end_time,
-                    'score' => app()->environment('testing') ? 0.95 : $this->calcularScore($group, $newClassroom, $newTimeSlot),
-                    'assigned_by_algorithm' => true,
-                    'is_confirmed' => true,
-                    'notes' => 'Reorganizado automáticamente - ' . now()->format('Y-m-d H:i')
-                ]);
-
-                $updated[] = $assignment->id;
-            } catch (\Exception $e) {
-                // Ignorar errores individuales
+            if ($teachers->isEmpty() || $classrooms->isEmpty()) {
+                $skipped[] = ['id' => $assignment->id, 'reason' => 'Sin profesores o aulas disponibles'];
                 continue;
+            }
+
+            // Filtrar salones con capacidad suficiente PRIMERO
+            $validClassrooms = $classrooms->filter(function($classroom) use ($group) {
+                return $this->validateCapacity($group, $classroom);
+            });
+
+            // Si no hay salones válidos, intentar con cualquiera pero priorizar
+            if ($validClassrooms->isEmpty()) {
+                $validClassrooms = $classrooms;
+            }
+
+            // Intentar múltiples combinaciones antes de rendirse
+            $maxAttempts = 15; // Aumentar intentos ya que hay más filtros
+            $attemptCount = 0;
+            $assigned = false;
+
+            while ($attemptCount < $maxAttempts && !$assigned) {
+                $attemptCount++;
+
+                // Seleccionar nuevos profesor, aula y franja
+                // Priorizar salones con capacidad suficiente
+                $firstHalf = ceil($maxAttempts / 2);
+                if ($attemptCount <= $firstHalf && !$validClassrooms->isEmpty()) {
+                    // Primeros intentos: usar solo salones válidos
+                    $newClassroom = $validClassrooms->random();
+                } else {
+                    // Si falla, intentar con cualquier salón
+                    $newClassroom = $classrooms->random();
+                }
+
+                $newTeacher = $teachers->random();
+                
+                // Filtrar franjas por tipo de horario del grupo
+                $filteredSlots = $timeSlots->where('schedule_type', $group->schedule_type ?? 'day');
+                $newTimeSlot = $filteredSlots->isNotEmpty() ? $filteredSlots->random() : $timeSlots->random();
+
+                // Nuevo día aleatorio
+                $newDay = $days[array_rand($days)];
+
+                // VALIDACIÓN 1: Verificar capacidad del salón
+                if (!$this->validateCapacity($group, $newClassroom)) {
+                    if ($this->debug) {
+                        Log::info("Intento {$attemptCount}: Capacidad insuficiente. Salón: {$newClassroom->capacity}, Estudiantes: {$group->number_of_students}");
+                    }
+                    continue;
+                }
+
+                // VALIDACIÓN 2: Requerimientos de recursos (solo si la regla está activa)
+                if ($this->isRuleEnabled('resources') && !$this->validateResources($group, $newClassroom)) {
+                    if ($this->debug) {
+                        Log::info("Intento {$attemptCount}: Salón no cumple requerimientos del grupo");
+                    }
+                    continue;
+                }
+
+                // VALIDACIÓN 3: Verificar disponibilidad del profesor
+                if (!$this->validateTeacherAvailability($newTeacher, $newDay, $newTimeSlot)) {
+                    if ($this->debug) {
+                        Log::info("Intento {$attemptCount}: Profesor no disponible en {$newDay} {$newTimeSlot->start_time}-{$newTimeSlot->end_time}");
+                    }
+                    continue;
+                }
+
+                // VALIDACIÓN 4: Verificar disponibilidad del salón
+                if (!$this->validateClassroomAvailability($newClassroom, $newDay, $newTimeSlot)) {
+                    if ($this->debug) {
+                        Log::info("Intento {$attemptCount}: Salón no disponible en {$newDay} {$newTimeSlot->start_time}-{$newTimeSlot->end_time}");
+                    }
+                    continue;
+                }
+
+                // VALIDACIÓN 5: Verificar conflictos de horario
+                $conflict = $this->detectConflicts($assignment->id, $newTeacher->id, $newClassroom->id, $group->id, $newDay, $newTimeSlot);
+                if ($conflict) {
+                    if ($this->debug) {
+                        Log::info("Intento {$attemptCount}: Conflicto detectado - {$conflict}");
+                    }
+                    continue;
+                }
+
+                // Si pasó todas las validaciones, asignar
+                try {
+                    $assignment->update([
+                        'teacher_id' => $newTeacher->id,
+                        'classroom_id' => $newClassroom->id,
+                        'time_slot_id' => $newTimeSlot->id,
+                        'day' => $newDay,
+                        'start_time' => $newTimeSlot->start_time,
+                        'end_time' => $newTimeSlot->end_time,
+                        'score' => app()->environment('testing') ? 0.95 : $this->calcularScore($group, $newClassroom, $newTimeSlot),
+                        'assigned_by_algorithm' => true,
+                        'is_confirmed' => true,
+                        'notes' => 'Reorganizado automáticamente - ' . now()->format('Y-m-d H:i')
+                    ]);
+
+                    $updated[] = $assignment->id;
+                    $assigned = true;
+                } catch (\Exception $e) {
+                    Log::error("Error al actualizar asignación {$assignment->id}: {$e->getMessage()}");
+                    $skipped[] = ['id' => $assignment->id, 'reason' => 'Error al guardar: ' . $e->getMessage()];
+                    break; // Salir del while para este assignment
+                }
+            }
+
+            // Si no se pudo asignar después de todos los intentos
+            if (!$assigned) {
+                $skipped[] = ['id' => $assignment->id, 'reason' => "No se encontró combinación válida después de {$maxAttempts} intentos"];
+            }
+        }
+
+        // Registrar resumen si está en debug
+        if ($this->debug && !empty($skipped)) {
+            Log::info("Asignaciones omitidas: " . count($skipped));
+            foreach ($skipped as $skip) {
+                Log::info("ID {$skip['id']}: {$skip['reason']}");
             }
         }
 
@@ -96,11 +209,18 @@ class AssignmentAlgorithm
 
         foreach ($this->reglas as $regla) {
             $metodo = 'regla_' . $regla->parameter;
-            if (method_exists($this, $metodo)) {
-                $puntaje = $this->$metodo($grupo, $salon, $franja);
-                $scoreTotal += $puntaje * $regla->weight;
-                $pesoTotal += $regla->weight;
+            if (!method_exists($this, $metodo)) {
+                continue;
             }
+
+            $peso = $regla->normalized_weight ?? $this->normalizeWeight($regla->weight);
+            if ($peso <= 0) {
+                continue;
+            }
+
+            $puntaje = $this->$metodo($grupo, $salon, $franja);
+            $scoreTotal += $puntaje * $peso;
+            $pesoTotal += $peso;
         }
 
         // Si no hay reglas, retornar 0.5 (calidad media)
@@ -209,5 +329,162 @@ class AssignmentAlgorithm
                    $avail->start_time->format('H:i:s') <= $fInicio &&
                    $avail->end_time->format('H:i:s') >= $fFin;
         });
+    }
+
+    /**
+     * Valida que el salón tenga capacidad suficiente para el grupo
+     */
+    protected function validateCapacity($group, $classroom)
+    {
+        if (!$group->number_of_students || !$classroom->capacity) {
+            return true; // Si no hay datos, permitir (backward compatibility)
+        }
+
+        return $classroom->capacity >= $group->number_of_students;
+    }
+
+    /**
+     * Valida que el salón cumpla los requerimientos especiales del grupo
+     */
+    protected function validateResources($group, $classroom)
+    {
+        if (!$group->special_requirements) {
+            return true;
+        }
+
+        $reqs = json_decode($group->special_requirements, true) ?? [];
+        if (empty($reqs)) {
+            return true;
+        }
+
+        $resources = strtolower($classroom->resources ?? '');
+        foreach ($reqs as $req) {
+            if (!str_contains($resources, strtolower($req))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Valida que el profesor esté disponible en el día y horario especificado
+     */
+    protected function validateTeacherAvailability($teacher, $day, $timeSlot)
+    {
+        // Si el profesor no tiene availabilities cargadas, asumimos que está disponible
+        if (!$teacher->relationLoaded('availabilities') || $teacher->availabilities->isEmpty()) {
+            return true;
+        }
+
+        // Buscar si hay alguna disponibilidad que cubra este horario
+        return $teacher->availabilities->contains(function ($availability) use ($day, $timeSlot) {
+            if ($availability->day !== $day) {
+                return false;
+            }
+
+            if (!$availability->is_available) {
+                return false;
+            }
+
+            // Verificar que el rango de tiempo esté dentro de la disponibilidad
+            $availStart = $availability->start_time instanceof \DateTime 
+                ? $availability->start_time->format('H:i:s') 
+                : $availability->start_time;
+            $availEnd = $availability->end_time instanceof \DateTime 
+                ? $availability->end_time->format('H:i:s') 
+                : $availability->end_time;
+
+            $slotStart = substr($timeSlot->start_time ?? '08:00:00', 0, 8);
+            $slotEnd = substr($timeSlot->end_time ?? '10:00:00', 0, 8);
+
+            return $availStart <= $slotStart && $availEnd >= $slotEnd;
+        });
+    }
+
+    /**
+     * Valida que el salón esté disponible en el día y horario especificado
+     */
+    protected function validateClassroomAvailability($classroom, $day, $timeSlot)
+    {
+        // Si el salón no tiene availabilities cargadas, asumimos que está disponible
+        if (!$classroom->relationLoaded('availabilities') || $classroom->availabilities->isEmpty()) {
+            return true;
+        }
+
+        // Buscar si hay alguna disponibilidad que cubra este horario
+        return $classroom->availabilities->contains(function ($availability) use ($day, $timeSlot) {
+            if ($availability->day !== $day) {
+                return false;
+            }
+
+            if (!$availability->is_available) {
+                return false;
+            }
+
+            // Verificar que el rango de tiempo esté dentro de la disponibilidad
+            $availStart = $availability->start_time instanceof \DateTime 
+                ? $availability->start_time->format('H:i:s') 
+                : $availability->start_time;
+            $availEnd = $availability->end_time instanceof \DateTime 
+                ? $availability->end_time->format('H:i:s') 
+                : $availability->end_time;
+
+            $slotStart = substr($timeSlot->start_time ?? '08:00:00', 0, 8);
+            $slotEnd = substr($timeSlot->end_time ?? '10:00:00', 0, 8);
+
+            return $availStart <= $slotStart && $availEnd >= $slotEnd;
+        });
+    }
+
+    /**
+     * Detecta conflictos de horario para una asignación propuesta
+     * 
+     * @return string|null Descripción del conflicto o null si no hay conflicto
+     */
+    protected function detectConflicts($currentAssignmentId, $teacherId, $classroomId, $groupId, $day, $timeSlot)
+    {
+        $startTime = substr($timeSlot->start_time ?? '08:00:00', 0, 8);
+        $endTime = substr($timeSlot->end_time ?? '10:00:00', 0, 8);
+
+        // Buscar asignaciones que se solapen en el mismo día
+        $conflicts = Assignment::where('id', '!=', $currentAssignmentId)
+            ->where('day', $day)
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->where(function ($q) use ($startTime, $endTime) {
+                    // Caso 1: La nueva asignación empieza durante una existente
+                    $q->where('start_time', '<=', $startTime)
+                      ->where('end_time', '>', $startTime);
+                })->orWhere(function ($q) use ($startTime, $endTime) {
+                    // Caso 2: La nueva asignación termina durante una existente
+                    $q->where('start_time', '<', $endTime)
+                      ->where('end_time', '>=', $endTime);
+                })->orWhere(function ($q) use ($startTime, $endTime) {
+                    // Caso 3: La nueva asignación contiene completamente a una existente
+                    $q->where('start_time', '>=', $startTime)
+                      ->where('end_time', '<=', $endTime);
+                });
+            })
+            ->get();
+
+        // Verificar conflicto de profesor
+        $teacherConflict = $conflicts->where('teacher_id', $teacherId)->first();
+        if ($teacherConflict) {
+            return "Profesor ya asignado en {$teacherConflict->start_time}-{$teacherConflict->end_time}";
+        }
+
+        // Verificar conflicto de salón
+        $classroomConflict = $conflicts->where('classroom_id', $classroomId)->first();
+        if ($classroomConflict) {
+            return "Salón ya ocupado en {$classroomConflict->start_time}-{$classroomConflict->end_time}";
+        }
+
+        // Verificar conflicto de grupo de estudiantes
+        $groupConflict = $conflicts->where('student_group_id', $groupId)->first();
+        if ($groupConflict) {
+            return "Grupo de estudiantes ya asignado en {$groupConflict->start_time}-{$groupConflict->end_time}";
+        }
+
+        return null; // No hay conflicto
     }
 }

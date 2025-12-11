@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Infraestructura - Sistema de Asignación</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -46,7 +47,7 @@
         .btn-logout:hover {
             background: rgba(255,255,255,0.3);
         }
-        .container {
+        .container-main {
             display: flex;
             min-height: calc(100vh - 80px);
         }
@@ -78,22 +79,17 @@
             border-left-color: #8b5cf6;
         }
         .sidebar-nav a.active {
-            background: #8b5cf6;
-            color: white;
-            border-left-color: #7c3aed;
+            background: #f1f5f9;
+            color: #8b5cf6;
+            border-left-color: #8b5cf6;
         }
         .main-content {
             flex: 1;
             padding: 2rem;
-            background: #f8fafc;
+            overflow-y: auto;
         }
         .welcome-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
-            border-left: 4px solid #8b5cf6;
         }
         .welcome-section h1 {
             color: #1e293b;
@@ -171,7 +167,7 @@
             font-size: 0.9rem;
         }
         .coming-soon {
-            opacity: 0.7;
+            opacity: 0.5;
             pointer-events: none;
         }
     </style>
@@ -181,21 +177,21 @@
         <div class="logo">🏫 Sistema de Asignación de Salones</div>
         <div class="user-info">
             <span>👤 {{ auth()->user()->name ?? auth()->user()->email }} ({{ auth()->user()->role->name ?? 'Sin rol' }})</span>
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                 @csrf
                 <button type="submit" class="btn-logout">🚪 Cerrar Sesión</button>
             </form>
         </div>
     </div>
 
-    <div class="container">
+    <div class="container-main">
         <nav class="sidebar">
             <ul class="sidebar-nav">
                 <li><a href="{{ route('infraestructura.dashboard') }}" class="active">📊 Dashboard</a></li>
                 <li><a href="{{ route('infraestructura.classrooms.index') }}">🏢 Gestión de Salones</a></li>
-                <li><a href="#" class="coming-soon">🔧 Mantenimiento (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">📅 Reservas (Próximamente)</a></li>
-                <li><a href="#" class="coming-soon">📈 Reportes (Próximamente)</a></li>
+                <li><a href="{{ route('infraestructura.maintenance.index') }}">🔧 Mantenimiento</a></li>
+                <li><a href="{{ route('infraestructura.reservations.index') }}">📅 Reservas</a></li>
+                <li><a href="{{ route('infraestructura.reports.index') }}">📈 Reportes</a></li>
             </ul>
         </nav>
 
@@ -207,19 +203,27 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ $activeClassroomsCount ?? 0 }}</div>
                     <div class="stat-label">Salones Disponibles</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ $maintenanceInProgressCount ?? 0 }}</div>
                     <div class="stat-label">En Mantenimiento</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
-                    <div class="stat-label">Reservas Hoy</div>
+                    <div class="stat-number">{{ $maintenancePendingCount ?? 0 }}</div>
+                    <div class="stat-label">Pendientes</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ $reservationsPending ?? 0 }}</div>
+                    <div class="stat-label">Reservas Pendientes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ $reservationsUpcoming ?? 0 }}</div>
+                    <div class="stat-label">Próximas Reservas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ $totalCapacity ?? 0 }}</div>
                     <div class="stat-label">Capacidad Total</div>
                 </div>
             </div>
@@ -231,25 +235,27 @@
                     <a href="{{ route('infraestructura.classrooms.index') }}" class="btn-module">Gestionar Salones</a>
                 </div>
                 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>🔧 Mantenimiento</h3>
                     <p>Programa y gestiona mantenimiento preventivo y correctivo.</p>
-                    <a href="#" class="btn-module">Ver Mantenimiento (Próximamente)</a>
+                    <a href="{{ route('infraestructura.maintenance.index') }}" class="btn-module">Ver Mantenimiento</a>
                 </div>
                 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>📅 Reservas</h3>
                     <p>Gestiona reservas de salones y recursos de infraestructura.</p>
-                    <a href="#" class="btn-module">Ver Reservas (Próximamente)</a>
+                    <a href="{{ route('infraestructura.reservations.index') }}" class="btn-module">Ver Reservas</a>
                 </div>
                 
-                <div class="module-card coming-soon">
+                <div class="module-card">
                     <h3>📈 Reportes</h3>
                     <p>Genera reportes de uso y estado de la infraestructura.</p>
-                    <a href="#" class="btn-module">Ver Reportes (Próximamente)</a>
+                    <a href="{{ route('infraestructura.reports.index') }}" class="btn-module">Ver Reportes</a>
                 </div>
             </div>
         </main>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

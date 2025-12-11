@@ -5,8 +5,8 @@ use App\Modules\Visualization\Controllers\HorarioController;
 
 // Agrupar las rutas de horario
 Route::prefix('horario')->name('horario.')->group(function () {
-    // HU14: Horario personal (Profesores)
-    Route::middleware(['auth', 'role:profesor,profesor_invitado'])->group(function () {
+    // HU14: Horario personal (Profesores y Coordinadores)
+    Route::middleware(['auth', 'role:profesor,profesor_invitado,coordinador,secretaria_coordinacion'])->group(function () {
         Route::get('/personal', [HorarioController::class, 'personal'])
             ->name('personal');
 

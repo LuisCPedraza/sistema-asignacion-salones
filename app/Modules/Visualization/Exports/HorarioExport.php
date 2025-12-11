@@ -4,6 +4,7 @@ namespace App\Modules\Visualization\Exports;
 
 use App\Modules\Asignacion\Models\Assignment;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class HorarioExport
 {
@@ -189,5 +190,18 @@ class HorarioExport
         }
 
         return "horario_semestral_{$timestamp}.pdf";
+    }
+
+    public function toPdf(): string
+    {
+        $html = $this->toHTML();
+        $pdf = Pdf::loadHTML($html)
+            ->setPaper('a4', 'landscape')
+            ->setOption('margin-top', 10)
+            ->setOption('margin-bottom', 10)
+            ->setOption('margin-left', 10)
+            ->setOption('margin-right', 10);
+        
+        return $pdf->output();
     }
 }

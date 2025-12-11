@@ -12,31 +12,41 @@
         }
         
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #1e293b;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
+        /* Header */
         .header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(10px);
+            padding: 1.2rem 2.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #4a5568;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: white;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
         }
 
         .auth-buttons {
@@ -45,230 +55,301 @@
         }
 
         .btn-logout {
-            background: #e53e3e;
+            background: rgba(239, 68, 68, 0.9);
             color: white;
-            padding: 0.5rem 1.5rem;
+            padding: 0.7rem 1.5rem;
             text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
 
         .btn-logout:hover {
-            background: #c53030;
+            background: rgba(220, 38, 38, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
         }
 
+        /* Main Container */
         .main-container {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 3rem 2rem;
         }
 
-        .welcome-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 600px;
+        .content-wrapper {
+            max-width: 1200px;
             width: 100%;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .university-icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            color: #4a5568;
-        }
-
-        .welcome-title {
-            font-size: 2.5rem;
-            color: #2d3748;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-
-        .welcome-subtitle {
-            font-size: 1.2rem;
-            color: #718096;
-            margin-bottom: 2.5rem;
-            line-height: 1.6;
-        }
-
-        .features {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        /* Left side - Hero text */
+        .hero-content {
+            color: white;
+        }
+
+        .hero-pretitle {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #60a5fa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            letter-spacing: -1px;
+        }
+
+        .hero-title-gradient {
+            background: linear-gradient(135deg, #60a5fa 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: #cbd5e1;
             margin-bottom: 2.5rem;
         }
 
-        .feature {
-            background: #f7fafc;
-            padding: 1.5rem 1rem;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
+        .features-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+            margin-bottom: 3rem;
         }
 
-        .feature:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-color: #48bb78;
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
         }
 
         .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            color: #48bb78;
+            font-size: 1.8rem;
+            flex-shrink: 0;
         }
 
         .feature-text {
-            font-size: 0.9rem;
-            color: #4a5568;
-            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-desc {
+            color: #cbd5e1;
+            font-size: 0.95rem;
         }
 
         .auth-section {
-            margin-top: 2rem;
+            margin-top: 2.5rem;
         }
 
         .auth-buttons-container {
             display: flex;
             gap: 1rem;
-            justify-content: center;
             flex-wrap: wrap;
         }
 
-        .btn-login {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-            padding: 1rem 2.5rem;
+        .btn {
+            padding: 1.1rem 2.2rem;
             text-decoration: none;
-            border-radius: 50px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
             border: none;
             cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
         }
 
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(72, 187, 120, 0.4);
-            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
         }
 
         .btn-register {
-            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            padding: 1rem 2.5rem;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(237, 137, 54, 0.3);
-            border: none;
-            cursor: pointer;
         }
 
         .btn-register:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(237, 137, 54, 0.4);
-            background: linear-gradient(135deg, #dd6b20 0%, #c05621 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
         }
 
         .btn-dashboard {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
             color: white;
-            padding: 1rem 2.5rem;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
 
         .btn-dashboard:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-        }
-
-        .footer {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 1.5rem 2rem;
-            text-align: center;
-            color: #718096;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .user-greeting {
-            background: #edf2f7;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            border-left: 4px solid #48bb78;
-        }
-
-        .user-greeting p {
-            margin: 0;
-            color: #4a5568;
-            font-weight: 500;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+            background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
         }
 
         .register-note {
             margin-top: 1.5rem;
-            padding: 1rem;
-            background: #fffaf0;
-            border-radius: 8px;
-            border-left: 4px solid #ed8936;
+            padding: 1.2rem 1.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        /* Right side - Cards showcase */
+        .card-showcase {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(30, 41, 59, 0.6);
+            border-color: rgba(148, 163, 184, 0.4);
+            transform: translateY(-8px);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-desc {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .user-greeting {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 197, 94, 0.1) 100%);
+            padding: 1.5rem 1.8rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #cbd5e1;
+        }
+
+        .user-greeting p {
+            margin: 0;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .footer {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            color: #94a3b8;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
             font-size: 0.9rem;
-            color: #744210;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+
+            .card-showcase {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: 2.8rem;
+            }
         }
 
         @media (max-width: 768px) {
-            .welcome-card {
-                padding: 2rem;
-                margin: 1rem;
+            .main-container {
+                padding: 2rem 1.5rem;
             }
-            
-            .welcome-title {
+
+            .hero-title {
                 font-size: 2rem;
             }
-            
-            .features {
-                grid-template-columns: 1fr;
+
+            .hero-description {
+                font-size: 1.05rem;
             }
-            
+
             .header {
-                flex-direction: column;
-                gap: 1rem;
+                padding: 1rem 1.5rem;
             }
-            
+
+            .logo {
+                font-size: 1.3rem;
+            }
+
             .auth-buttons-container {
                 flex-direction: column;
-                align-items: center;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card-showcase {
+                margin-top: 2rem;
             }
         }
     </style>
 </head>
 <body>
+    
     <header class="header">
         <div class="logo">
             <span class="logo-icon">🏫</span>
@@ -285,45 +366,112 @@
     </header>
 
     <div class="main-container">
-        <div class="welcome-card">
-            <div class="university-icon">🎓</div>
+        <div class="content-wrapper">
             
-            <h1 class="welcome-title">Bienvenido al Sistema</h1>
-            <p class="welcome-subtitle">
-                Plataforma integral de gestión académica para la asignación eficiente 
-                de salones, horarios y recursos universitarios.
-            </p>
+            <!-- Left Side -->
+            <div class="hero-content">
+                <div class="hero-pretitle">Bienvenido a</div>
+                <h1 class="hero-title">
+                    Sistema de 
+                    <span class="hero-title-gradient">Asignación Inteligente</span>
+                </h1>
+                
+                <p class="hero-description">
+                    Gestiona grupos de estudiantes, asignaciones de salones y horarios académicos de forma eficiente y automatizada.
+                </p>
 
-            @auth
-                <div class="user-greeting">
-                    <p>👋 ¡Hola de nuevo, {{ auth()->user()->name ?? auth()->user()->email }}! Ya estás autenticado en el sistema.</p>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-text">
+                            <div class="feature-title">Asignaciones Inteligentes</div>
+                            <div class="feature-desc">Algoritmos avanzados que optimizan la distribución de recursos</div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-text">
+                            <div class="feature-title">Reportes Detallados</div>
+                            <div class="feature-desc">Analiza métricas y genera informes completos en PDF</div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-text">
+                            <div class="feature-title">Rápido y Eficiente</div>
+                            <div class="feature-desc">Procesa miles de asignaciones en segundos</div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-text">
+                            <div class="feature-title">Seguridad Garantizada</div>
+                            <div class="feature-desc">Protección de datos con encriptación de nivel empresarial</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="auth-section">
-                    <a href="{{ route('dashboard') }}" class="btn-dashboard">
-                        🚀 Ir al Dashboard
-                    </a>
-                </div>
-            @else
-                <div class="auth-section">
-                    <div class="auth-buttons-container">
-                        <a href="{{ route('login') }}" class="btn-login">
-                            🔑 Iniciar Sesión
-                        </a>
-                        <a href="{{ route('register') }}" class="btn-register">
-                            📝 Solicitar Acceso
+
+                @auth
+                    <div class="user-greeting">
+                        <p>👋 ¡Hola de nuevo, {{ auth()->user()->name ?? auth()->user()->email }}! Accede al panel de control.</p>
+                    </div>
+                    <div class="auth-section">
+                        <a href="{{ route('dashboard') }}" class="btn btn-dashboard">
+                            🚀 Ir al Dashboard
                         </a>
                     </div>
-                    <div class="register-note">
-                        <strong>¿Primera vez en el sistema?</strong> Solicita acceso y un administrador te asignará el rol apropiado.
+                @else
+                    <div class="auth-section">
+                        <div class="auth-buttons-container">
+                            <a href="{{ route('login') }}" class="btn btn-login">
+                                🔑 Iniciar Sesión
+                            </a>
+                            <a href="{{ route('register') }}" class="btn btn-register">
+                                📝 Solicitar Acceso
+                            </a>
+                        </div>
+                        <div class="register-note">
+                            <strong>¿Primera vez aquí?</strong> Solicita acceso y un administrador te asignará el rol apropiado para acceder a todas las funcionalidades del sistema.
+                        </div>
                     </div>
+                @endauth
+            </div>
+
+            <!-- Right Side -->
+            <div class="card-showcase">
+                <div class="card">
+                    <div class="card-icon">🎓</div>
+                    <div class="card-title">Gestión de Grupos</div>
+                    <div class="card-desc">Administra grupos de estudiantes, niveles y periodos académicos de forma centralizada.</div>
                 </div>
-            @endauth
+
+                <div class="card">
+                    <div class="card-icon">👨‍🏫</div>
+                    <div class="card-title">Gestión de Profesores</div>
+                    <div class="card-desc">Registra profesores, especialidades y disponibilidades horarias.</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🤖</div>
+                    <div class="card-title">Asignaciones Automáticas</div>
+                    <div class="card-desc">Optimiza asignaciones con algoritmos inteligentes y detección de conflictos.</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">📅</div>
+                    <div class="card-title">Visualización de Horarios</div>
+                    <div class="card-desc">Consulta horarios completos y personalizados en tiempo real.</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <footer class="footer">
         <p>&copy; 2024 Sistema de Asignación de Salones - Universidad. Todos los derechos reservados.</p>
     </footer>
+
 </body>
 </html>
-<h1 style='color: red; text-align: center; margin-top: 50px;'>¡HOLA MUNDO DESDE GITHUB ACTIONS! 🚀</h1>

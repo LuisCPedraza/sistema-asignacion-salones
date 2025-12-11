@@ -44,7 +44,7 @@ Route::middleware([
     Route::post('/reglas/actualizar', [AssignmentRuleController::class, 'actualizar'])
         ->name('reglas.actualizar');
 
-    Route::post('/reglas/{id}/toggle', [AssignmentRuleController::class, 'toggle'])
+    Route::post('/reglas/{rule}/toggle', [AssignmentRuleController::class, 'toggle'])
         ->name('reglas.toggle');
 });
 

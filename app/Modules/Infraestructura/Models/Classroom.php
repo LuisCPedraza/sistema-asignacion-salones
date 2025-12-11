@@ -29,6 +29,11 @@ class Classroom extends Model
         'is_active' => 'boolean'
     ];
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\Modules\Infraestructura\ClassroomFactory::new();
+    }
+
     // Relación con edificio
     public function building()
     {

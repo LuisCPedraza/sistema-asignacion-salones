@@ -82,7 +82,7 @@
                 @endphp
                 @forelse($days as $key => $day)
                     @php
-                        $dayAvailabilities = $availabilities->where('day', $key)->where('is_available', true); // Fix: 'day'
+                        $dayAvailabilities = $availabilities->where('day', $key)->where('is_available', true);
                     @endphp
                     <div class="col-md-4 mb-3">
                         <strong>{{ $day }}:</strong>
@@ -90,7 +90,7 @@
                             <div class="mt-1">
                                 @foreach($dayAvailabilities as $avail)
                                     <span class="badge bg-info me-1 mb-1">
-                                        {{ $avail->start_time->format('H:i') }}-{{ $avail->end_time->format('H:i') }}
+                                        {{ $avail->formatted_start_time }}-{{ $avail->formatted_end_time }}
                                     </span>
                                 @endforeach
                             </div>

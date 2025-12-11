@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\GestionAcademica\Controllers\StudentGroupController;
 use App\Modules\GestionAcademica\Controllers\TeacherController;
 use App\Modules\GestionAcademica\Controllers\TeacherAvailabilityController;
+use App\Modules\GestionAcademica\Controllers\ReportsController;
 
 // === RUTAS PARA COORDINADORES (CRUD completo) ===
 Route::middleware(['auth', 'role:coordinador,secretaria_coordinacion'])
@@ -13,8 +14,18 @@ Route::middleware(['auth', 'role:coordinador,secretaria_coordinacion'])
 
         Route::resource('student-groups', StudentGroupController::class);
         Route::resource('teachers', TeacherController::class);
+        
+        // Reportes Académicos
+        Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
+    });
 
-        // Disponibilidades de profesores (CRUD por coordinador)
+// === DISPONIBILIDADES DE PROFESORES (Coordinadores + Profesores) ===
+Route::middleware(['auth', 'role:coordinador,secretaria_coordinacion,profesor,profesor_invitado'])
+    ->prefix('gestion-academica')
+    ->name('gestion-academica.')
+    ->group(function () {
+        // Disponibilidades de profesores (CRUD)
         Route::prefix('teachers/{teacher}')->group(function () {
             Route::get('/availabilities', [TeacherAvailabilityController::class, 'index'])
                 ->name('teachers.availabilities.index');

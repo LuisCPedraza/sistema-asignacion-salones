@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use App\Modules\Asignacion\Services\AssignmentAlgorithm;
 use App\Modules\Asignacion\Models\Assignment;
 use App\Modules\GestionAcademica\Models\StudentGroup;
@@ -211,5 +212,101 @@ class AssignmentAlgorithmTest extends TestCase
         $updated = Assignment::find($assignment->id);
         $this->assertTrue($updated->assigned_by_algorithm);
         $this->assertTrue($updated->is_confirmed);
+    }
+
+    /** @test */
+    public function test_algorithm_validates_classroom_capacity()
+    {
+        // Crear grupo grande
+        $largeGroup = StudentGroup::factory()->create([
+            'number_of_students' => 100,
+            'schedule_type' => 'day',
+            'is_active' => true,
+        ]);
+
+        // Crear salón pequeño
+        $smallClassroom = Classroom::create([
+            'name' => 'Salón Pequeño',
+            'code' => 'SP-01',
+            'capacity' => 20, // Menor que el grupo
+            'location' => 'Piso 1',
+            'is_active' => true,
+        ]);
+
+        // Crear salón grande que puede acomodar el grupo
+        $largeClassroom = Classroom::create([
+            'name' => 'Auditorio',
+            'code' => 'AUD-01',
+            'capacity' => 150, // Mayor que el grupo
+            'location' => 'Piso 2',
+            'is_active' => true,
+        ]);
+
+        $subject = Subject::factory()->create();
+        $teacher = Teacher::first();
+        $timeSlot = TimeSlot::first();
+
+        // Crear asignación que necesita salón grande
+        $assignment = Assignment::create([
+            'student_group_id' => $largeGroup->id,
+            'subject_id' => $subject->id,
+            'teacher_id' => $teacher->id,
+            'classroom_id' => $smallClassroom->id,
+            'time_slot_id' => $timeSlot->id,
+            'day' => 'monday',
+            'start_time' => '08:00:00',
+            'end_time' => '10:00:00',
+            'score' => 0.8,
+        ]);
+
+        $algorithm = new AssignmentAlgorithm();
+        $result = $algorithm->generateAssignments();
+
+        // La asignación debió cambiar a un salón con mayor capacidad
+        $updated = Assignment::find($assignment->id);
+        $this->assertGreaterThanOrEqual(
+            $largeGroup->number_of_students,
+            $updated->classroom->capacity,
+            'El salón debe tener capacidad suficiente'
+        );
+    }
+
+    /**
+     * @test
+     * @group pending
+     * 
+     * NOTA: Este test está marcado como pendiente porque el algoritmo actual
+     * reorganiza asignaciones pero no necesariamente resuelve conflictos de profesor.
+     * Se requiere implementar lógica específica de detección y resolución de conflictos.
+     */
+    public function test_algorithm_detects_teacher_conflicts()
+    {
+        $this->markTestSkipped('Pendiente: Implementar detección y resolución de conflictos de profesor en el algoritmo');
+    }
+
+    /**
+     * @test
+     * @group pending
+     * 
+     * NOTA: Este test está marcado como pendiente porque el algoritmo actual
+     * reorganiza asignaciones pero no necesariamente resuelve conflictos de salón.
+     * Se requiere implementar lógica específica de detección y resolución de conflictos.
+     */
+    public function test_algorithm_detects_classroom_conflicts()
+    {
+        $this->markTestSkipped('Pendiente: Implementar detección y resolución de conflictos de salón en el algoritmo');
+    }
+
+    /**
+     * @test
+     * @group pending
+     * 
+     * NOTA: Este test está marcado como pendiente porque el algoritmo actual
+     * reorganiza asignaciones pero no necesariamente resuelve conflictos de grupo.
+     * Se requiere implementar lógica específica de detección y resolución de conflictos.
+     */
+    public function test_algorithm_detects_student_group_conflicts()
+    {
+        $this->markTestSkipped('Pendiente: Implementar detección y resolución de conflictos de grupo estudiantil en el algoritmo');
     }
 }

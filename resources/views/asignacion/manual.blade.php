@@ -148,10 +148,29 @@
     </div>
 
     <!-- Calendario con Drag & Drop -->
-    <div class="card">
+    <div class="card shadow-sm">
+        <div class="card-header bg-gradient">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-check text-primary"></i> 
+                    Calendario de Asignaciones
+                </h5>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" id="calView-dayGrid">
+                        <i class="fas fa-th"></i> Mes
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="calView-timeGrid">
+                        <i class="fas fa-bars"></i> Semana
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="calView-list">
+                        <i class="fas fa-list"></i> Lista
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             <div id="calendar-status" class="alert alert-info mb-3">
-                Cargando calendario...
+                <i class="fas fa-spinner fa-spin"></i> Cargando calendario...
             </div>
             <div id="calendar"></div>
         </div>
@@ -266,31 +285,121 @@
 <!-- FullCalendar CSS -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
 <style>
+    /* Mejoras de Calendario */
+    .card-header.bg-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+    .card-header.bg-gradient h5 {
+        color: white;
+    }
+
+    .card-header.bg-gradient .btn-outline-secondary {
+        color: white;
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .card-header.bg-gradient .btn-outline-secondary:hover,
+    .card-header.bg-gradient .btn-outline-secondary.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-color: white;
+        color: white;
+    }
+
     .card-body {
         display: flex;
         flex-direction: column;
     }
+
     #calendar {
-        height: 800px;
+        height: 700px;
         background: white;
         flex: 1;
+        border-radius: 0.375rem;
     }
+
+    /* FullCalendar Customization */
     .fc {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     }
+
+    .fc-button-primary {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .fc-button-primary:hover {
+        background-color: #5568d3;
+        border-color: #5568d3;
+    }
+
+    .fc-button-primary.fc-button-active {
+        background-color: #764ba2;
+        border-color: #764ba2;
+    }
+
     .fc-event {
         cursor: move;
+        border-radius: 0.25rem;
+        transition: all 0.2s ease;
     }
+
     .fc-event:hover {
-        opacity: 0.9;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        opacity: 0.95;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px);
     }
+
+    .fc-event-title {
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
     .fc-col-header-cell {
-        padding: 10px 0;
+        padding: 12px 0;
+        font-weight: 600;
+        background-color: #f8f9fa;
     }
+
     .fc-daygrid-day,
     .fc-timegrid-slot {
-        border-color: #dee2e6;
+        border-color: #e9ecef;
+    }
+
+    .fc-daygrid-day:hover {
+        background-color: rgba(102, 126, 234, 0.05);
+    }
+
+    .fc-daygrid-day.fc-day-other {
+        background-color: #fafbfc;
+    }
+
+    .fc-daygrid-day-number {
+        padding: 8px 4px;
+        font-weight: 500;
+    }
+
+    .fc-daygrid-day-frame {
+        min-height: 100px;
+    }
+
+    /* Vista de Lista */
+    .fc-list-event:hover {
+        background-color: rgba(102, 126, 234, 0.08);
+    }
+
+    .fc-list-event-graphic {
+        width: 8px;
+        background-color: #667eea;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        #calendar {
+            height: 500px;
+        }
     }
 </style>
 @endpush
@@ -747,6 +856,41 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             alert.remove();
         }, 3000);
+    }
+
+    // Botones para cambiar vista del calendario
+    document.getElementById('calView-dayGrid')?.addEventListener('click', function() {
+        if (calendar) {
+            calendar.changeView('dayGridMonth');
+            updateViewButtons(this);
+        }
+    });
+
+    document.getElementById('calView-timeGrid')?.addEventListener('click', function() {
+        if (calendar) {
+            calendar.changeView('timeGridWeek');
+            updateViewButtons(this);
+        }
+    });
+
+    document.getElementById('calView-list')?.addEventListener('click', function() {
+        if (calendar) {
+            calendar.changeView('listWeek');
+            updateViewButtons(this);
+        }
+    });
+
+    function updateViewButtons(activeButton) {
+        document.querySelectorAll('[id^="calView-"]').forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.backgroundColor = 'transparent';
+            btn.style.color = 'white';
+        });
+        if (activeButton) {
+            activeButton.classList.add('active');
+            activeButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            activeButton.style.borderColor = 'white';
+        }
     }
 });
 </script>

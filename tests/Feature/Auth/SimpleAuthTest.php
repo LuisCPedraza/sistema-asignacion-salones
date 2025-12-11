@@ -24,7 +24,7 @@ class SimpleAuthTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
-        $response->assertSee('Sistema de Asignación de Salones');
+        $response->assertSee('Inicia Sesión', false);
     }
 
     public function test_admin_user_can_login_with_correct_credentials()

@@ -23,6 +23,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\CheckGuestTeacherAccess::class,
         ],
         'api' => [
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
@@ -45,5 +46,6 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'coordinator' => \App\Http\Middleware\CoordinatorMiddleware::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'check.guest.teacher' => \App\Http\Middleware\CheckGuestTeacherAccess::class,
     ];
 }

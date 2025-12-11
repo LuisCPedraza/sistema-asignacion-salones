@@ -211,15 +211,30 @@ class HorarioController extends Controller
     }
 
     /**
-     * HU14: Horario personal (Profesores)
+     * HU14: Horario personal (Profesores y Coordinadores)
      */
-    public function personal()
+    public function personal(Request $request)
     {
         $user = Auth::user();
-        $teacher = $user->teacher;
+        
+        // Si es coordinador, puede seleccionar qué profesor ver
+        if ($user->hasRole('coordinador') || $user->hasRole('secretaria_coordinacion')) {
+            $teacherId = $request->input('teacher_id');
+            
+            if ($teacherId) {
+                $teacher = Teacher::findOrFail($teacherId);
+            } else {
+                // Si no hay teacher_id, mostrar lista de profesores para seleccionar
+                $teachers = Teacher::with('user')->where('is_active', true)->get();
+                return view('visualization.horario-personal-select', compact('teachers'));
+            }
+        } else {
+            // Si es profesor, mostrar solo su horario
+            $teacher = $user->teacher;
 
-        if (!$teacher) {
-            abort(404, 'No perfil de profesor asociado.');
+            if (!$teacher) {
+                abort(404, 'No perfil de profesor asociado.');
+            }
         }
 
         $assignments = Assignment::where('teacher_id', $teacher->id)
@@ -232,20 +247,29 @@ class HorarioController extends Controller
     }
 
     /**
-     * HU14: Export horario personal
+     * HU14: Export horario personal a PDF
      */
-    public function exportPersonal()
+    public function exportPersonal(Request $request)
     {
-        $export = new HorarioExport('personal', auth()->id());
-        $csv = $export->toCSV();
-        $fileName = $export->getFileName();
+        $teacherId = $request->input('teacher_id');
+        
+        // Si es coordinador y especifica teacher_id, usar ese; si no, usar el del usuario autenticado
+        if ($teacherId && (auth()->user()->hasRole('coordinador') || auth()->user()->hasRole('secretaria_coordinacion'))) {
+            $userId = Teacher::findOrFail($teacherId)->user_id;
+        } else {
+            $userId = auth()->id();
+        }
+        
+        $export = new HorarioExport('personal', $userId);
+        $pdf = $export->toPdf();
+        $fileName = $export->getPdfFileName();
         
         return response()->streamDownload(
-            function () use ($csv) {
-                echo $csv;
+            function () use ($pdf) {
+                echo $pdf;
             },
             $fileName,
-            ['Content-Type' => 'text/csv; charset=utf-8']
+            ['Content-Type' => 'application/pdf']
         );
     }
 }

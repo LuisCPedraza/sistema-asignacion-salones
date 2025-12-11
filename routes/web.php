@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Profesor\ProfesorController;
+use App\Http\Controllers\Profesor\AsistenciaController;
+use App\Http\Controllers\Profesor\EstudianteController;
+use App\Http\Controllers\Profesor\ActividadController;
+use App\Http\Controllers\Profesor\ReporteController;
 use App\Modules\Auth\Models\Role;
 use App\Http\Middleware\AdminMiddleware;
 use App\Modules\Visualization\Controllers\HorarioController;
@@ -36,6 +41,48 @@ Route::middleware('auth')->group(function () {
     Route::get('/academic/dashboard', fn() => view('academic.dashboard', ['user' => auth()->user()]))->name('academic.dashboard');
     Route::get('/infraestructura/dashboard', fn() => view('infraestructura.dashboard', ['user' => auth()->user()]))->name('infraestructura.dashboard');
     Route::get('/profesor/dashboard', fn() => view('profesor.dashboard', ['user' => auth()->user()]))->name('profesor.dashboard');
+
+    // Rutas del módulo de profesor
+    Route::prefix('profesor')->name('profesor.')->middleware(['auth', 'role:profesor,profesor_invitado'])->group(function () {
+        Route::get('/mis-cursos', [ProfesorController::class, 'misCursos'])->name('mis-cursos');
+        Route::get('/curso/{assignmentId}', [ProfesorController::class, 'detalleCurso'])->name('detalle-curso');
+        
+        // Rutas de Control de Asistencias
+        Route::prefix('asistencias')->name('asistencias.')->group(function () {
+            Route::get('/', [AsistenciaController::class, 'index'])->name('index');
+            Route::get('/tomar/{assignmentId}', [AsistenciaController::class, 'tomarAsistencia'])->name('tomar');
+            Route::post('/guardar/{assignmentId}', [AsistenciaController::class, 'guardarAsistencia'])->name('guardar');
+            Route::get('/historial/{assignmentId}', [AsistenciaController::class, 'historial'])->name('historial');
+        });
+        
+        // Rutas de Gestión de Estudiantes
+        Route::prefix('estudiantes')->name('estudiantes.')->group(function () {
+            Route::get('/', [EstudianteController::class, 'index'])->name('index');
+            Route::get('/crear', [EstudianteController::class, 'create'])->name('create');
+            Route::post('/guardar', [EstudianteController::class, 'store'])->name('store');
+            Route::get('/editar/{id}', [EstudianteController::class, 'edit'])->name('edit');
+            Route::put('/actualizar/{id}', [EstudianteController::class, 'update'])->name('update');
+            Route::delete('/eliminar/{id}', [EstudianteController::class, 'destroy'])->name('destroy');
+        });
+
+        // Rutas de Actividades y Calificaciones
+        Route::prefix('actividades')->name('actividades.')->group(function () {
+            Route::get('/', [ActividadController::class, 'index'])->name('index');
+            Route::get('/crear', [ActividadController::class, 'create'])->name('create');
+            Route::post('/guardar', [ActividadController::class, 'store'])->name('store');
+            Route::get('/{id}/calificaciones', [ActividadController::class, 'calificar'])->name('calificar');
+            Route::post('/{id}/calificaciones', [ActividadController::class, 'guardarCalificaciones'])->name('guardar-calificaciones');
+        });
+
+        // Rutas de Reportes Académicos
+        Route::prefix('reportes')->name('reportes.')->group(function () {
+            Route::get('/', [ReporteController::class, 'index'])->name('index');
+            Route::get('/asistencias/{assignmentId}', [ReporteController::class, 'asistencias'])->name('asistencias');
+            Route::get('/asistencias/{assignmentId}/pdf', [ReporteController::class, 'exportAsistenciasPdf'])->name('asistencias.pdf');
+            Route::get('/actividades/{assignmentId}', [ReporteController::class, 'actividades'])->name('actividades');
+            Route::get('/actividades/{assignmentId}/pdf', [ReporteController::class, 'exportActividadesPdf'])->name('actividades.pdf');
+        });
+    });
 
     // Fallback dashboard
     Route::get('/dashboard', function () {

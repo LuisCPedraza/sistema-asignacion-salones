@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Modules\Asignacion\Services\AssignmentAlgorithm;
+use App\Modules\Asignacion\Models\Assignment;
 use App\Modules\GestionAcademica\Models\StudentGroup;
 use App\Modules\GestionAcademica\Models\Teacher;
 use App\Modules\Infraestructura\Models\Classroom;
@@ -38,14 +39,22 @@ class TestAssignmentAlgorithm extends Command
         
         if (count($results) > 0) {
             $this->info("\n✅ ASIGNACIONES ENCONTRADAS:");
-            foreach ($results as $index => $assignment) {
+            foreach ($results as $index => $item) {
+                // generateAssignments devuelve IDs; si viene un array usa los datos tal cual
+                $assignment = is_int($item) ? Assignment::with(['group','teacher','classroom'])->find($item) : (object) $item;
+                if (!$assignment) {
+                    $this->warn("--- Asignación " . ($index + 1) . " no encontrada");
+                    continue;
+                }
+
                 $this->info("--- Asignación " . ($index + 1) . " ---");
-                $this->info("Grupo ID: " . $assignment['student_group_id']);
-                $this->info("Profesor ID: " . $assignment['teacher_id']);
-                $this->info("Salón ID: " . $assignment['classroom_id']);
-                $this->info("Día: " . $assignment['day']);
-                $this->info("Horario: " . $assignment['start_time'] . " - " . $assignment['end_time']);
-                $this->info("Score: " . round($assignment['score'] * 100, 2) . "%");
+                $this->info("Grupo: " . ($assignment->group->name ?? $assignment->student_group_id));
+                $this->info("Profesor: " . ($assignment->teacher->full_name ?? $assignment->teacher_id));
+                $this->info("Salón: " . ($assignment->classroom->name ?? $assignment->classroom_id));
+                $this->info("Día: " . ($assignment->day ?? 'N/A'));
+                $this->info("Horario: " . (($assignment->start_time ?? '') . " - " . ($assignment->end_time ?? '')));
+                $score = property_exists($assignment, 'score') ? $assignment->score : ($assignment->score ?? 0);
+                $this->info("Score: " . round($score * 100, 2) . "%");
             }
         } else {
             $this->warn("\n❌ NO SE ENCONTRARON ASIGNACIONES");

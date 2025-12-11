@@ -23,14 +23,19 @@ class Teacher extends Model
         'availability_notes',
         'weekly_availability',
         'special_assignments',
-        'user_id'
+        'user_id',
+        'is_guest',
+        'access_expires_at',
+        'ip_address_allowed'
     ];
 
     protected $casts = [
         'specialties' => 'array',
         'weekly_availability' => 'array',
         'is_active' => 'boolean',
-        'years_experience' => 'integer'
+        'years_experience' => 'integer',
+        'is_guest' => 'boolean',
+        'access_expires_at' => 'datetime'
     ];
 
     public function user()
@@ -48,9 +53,33 @@ class Teacher extends Model
         return $query->where('is_active', true);
     }
 
+    public function scopeGuest($query)
+    {
+        return $query->where('is_guest', true);
+    }
+
+    public function scopeWithValidAccess($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('access_expires_at')
+              ->orWhere('access_expires_at', '>', now());
+        });
+    }
+
+    public function scopeExpiredGuest($query)
+    {
+        return $query->where('is_guest', true)
+                     ->where('access_expires_at', '<=', now());
+    }
+
     public function getSpecialtiesListAttribute()
     {
         return $this->specialties ? implode(', ', $this->specialties) : 'Ninguna';
+    }
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\TeacherFactory::new();
     }
 
     // Relación con disponibilidades
@@ -93,5 +122,18 @@ class Teacher extends Model
                 ]);
             }
         }
+    }
+
+    public function isAccessValid(): bool
+    {
+        if (!$this->is_guest) {
+            return true;
+        }
+
+        if (!$this->access_expires_at) {
+            return true;
+        }
+
+        return now() <= $this->access_expires_at;
     }
 }

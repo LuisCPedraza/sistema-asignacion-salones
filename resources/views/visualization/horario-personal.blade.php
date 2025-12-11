@@ -4,7 +4,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>📅 Mi Horario Personal</h1>
         <div>
-            <a href="{{ route('visualizacion.horario.personal.export') }}" class="btn btn-success me-2">📥 Exportar Excel</a>
+            <a href="{{ route('visualizacion.horario.personal.export', ['teacher_id' => request('teacher_id')]) }}" class="btn btn-danger me-2">📄 Exportar PDF</a>
             <a href="{{ route('profesor.dashboard') }}" class="btn btn-secondary">← Dashboard</a>
         </div>
     </div>

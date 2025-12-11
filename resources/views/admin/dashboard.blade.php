@@ -193,6 +193,7 @@
             <ul class="sidebar-nav">
                 <li><a href="{{ route('admin.dashboard') }}" class="active">📊 Dashboard</a></li>
                 <li><a href="{{ route('admin.users.index') }}">👥 Gestión de Usuarios</a></li>
+                <li><a href="{{ route('admin.guest-teachers.index') }}">🎓 Profesores Invitados</a></li>
                 <li><a href="{{ route('admin.reports.index') }}">📈 Reportes</a></li>
                 <li><a href="{{ route('admin.audit.index') }}">📋 Auditoría</a></li>
                 <li><a href="{{ route('admin.config.index') }}">⚙️ Configuración</a></li>
@@ -219,8 +220,12 @@
                     <div class="stat-label">Salones Disponibles</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ \App\Modules\GestionAcademica\Models\Teacher::where('estado', 'activo')->count() }}</div>
                     <div class="stat-label">Profesores Activos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ \App\Modules\GestionAcademica\Models\Teacher::where('is_guest', true)->whereNotNull('access_expires_at')->where('access_expires_at', '>', now())->count() }}</div>
+                    <div class="stat-label">Profesores Invitados</div>
                 </div>
             </div>
 
@@ -229,6 +234,12 @@
                     <h3>👥 Gestión de Usuarios</h3>
                     <p>Administra usuarios, roles y permisos del sistema.</p>
                     <a href="{{ route('admin.users.index') }}" class="btn-module">Gestionar Usuarios</a>
+                </div>
+                
+                <div class="module-card">
+                    <h3>🎓 Profesores Invitados</h3>
+                    <p>Gestiona accesos temporales y profesores invitados.</p>
+                    <a href="{{ route('admin.guest-teachers.index') }}" class="btn-module">Ver Profesores Invitados</a>
                 </div>
                 
                 <div class="module-card">
