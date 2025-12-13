@@ -13,22 +13,16 @@ return new class extends Migration
     {
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             
-            // Campos compatibles con n8n
-            $table->string('event')->comment('Evento disparado (ej: assignment.created, assignment.updated)');
-            $table->unsignedBigInteger('entity_id')->nullable()->comment('ID del registro afectado');
-            $table->string('entity_type')->comment('Tipo de entidad (ej: Assignment, Teacher)');
-            
-            // Identificación del modelo (legacy, mantener compatibilidad)
-            $table->string('model')->nullable()->comment('Nombre del modelo (ej: User, StudentGroup)');
+            // Identificación del modelo
+            $table->string('model')->comment('Nombre del modelo (ej: User, StudentGroup)');
             $table->unsignedBigInteger('model_id')->nullable()->comment('ID del registro afectado');
             
             // Tipo de acción
-            $table->enum('action', ['create', 'update', 'delete', 'restore', 'export'])->nullable()->comment('Tipo de operación');
+            $table->enum('action', ['create', 'update', 'delete', 'restore', 'export'])->comment('Tipo de operación');
             
-            // Cambios realizados (JSONB para PostgreSQL, TEXT para SQLite)
-            $table->json('changes')->nullable()->comment('Cambios realizados en formato JSON');
+            // Cambios realizados
             $table->longText('old_values')->nullable()->comment('Valores anteriores en JSON');
             $table->longText('new_values')->nullable()->comment('Valores nuevos en JSON');
             
@@ -36,7 +30,6 @@ return new class extends Migration
             $table->string('description')->nullable()->comment('Descripción amigable del cambio');
             $table->string('ip_address')->nullable()->comment('IP del usuario');
             $table->string('user_agent')->nullable()->comment('User agent del navegador');
-            $table->string('source')->default('system')->comment('Origen del evento: system, n8n, webhook');
             
             // Auditoría de auditoría
             $table->timestamps();
@@ -44,8 +37,6 @@ return new class extends Migration
             // Índices
             $table->index('user_id');
             $table->index(['model', 'model_id']);
-            $table->index(['entity_type', 'entity_id']);
-            $table->index('event');
             $table->index('action');
             $table->index('created_at');
         });
