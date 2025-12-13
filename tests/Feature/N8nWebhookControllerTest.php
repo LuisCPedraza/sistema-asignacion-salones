@@ -37,11 +37,19 @@ class N8nWebhookControllerTest extends TestCase
     }
 
     /**
+     * Helper para agregar header de autenticación n8n
+     */
+    protected function withN8nToken()
+    {
+        return $this->withHeader('X-API-Token', config('app.n8n_api_token'));
+    }
+
+    /**
      * Test: Webhook notify con tipo 'daily_teacher_assignments'
      */
     public function test_notify_daily_teacher_assignments_succeeds(): void
     {
-        $response = $this->postJson('/api/webhooks/n8n/notify', [
+        $response = $this->withN8nToken()->postJson('/api/webhooks/n8n/notify', [
             'type' => 'daily_teacher_assignments',
         ]);
 
@@ -57,7 +65,7 @@ class N8nWebhookControllerTest extends TestCase
      */
     public function test_notify_conflict_summary_succeeds(): void
     {
-        $response = $this->postJson('/api/webhooks/n8n/notify', [
+        $response = $this->withN8nToken()->postJson('/api/webhooks/n8n/notify', [
             'type' => 'conflict_summary',
         ]);
 
@@ -81,7 +89,7 @@ class N8nWebhookControllerTest extends TestCase
             'access_expires_at' => now()->addDays(5),
         ]);
 
-        $response = $this->postJson('/api/webhooks/n8n/notify', [
+        $response = $this->withN8nToken()->postJson('/api/webhooks/n8n/notify', [
             'type' => 'guest_expiration_warning',
         ]);
 
@@ -97,7 +105,7 @@ class N8nWebhookControllerTest extends TestCase
      */
     public function test_notify_unknown_type_succeeds_with_warning(): void
     {
-        $response = $this->postJson('/api/webhooks/n8n/notify', [
+        $response = $this->withN8nToken()->postJson('/api/webhooks/n8n/notify', [
             'type' => 'unknown_type',
         ]);
 
@@ -113,7 +121,7 @@ class N8nWebhookControllerTest extends TestCase
      */
     public function test_notify_without_type_succeeds(): void
     {
-        $response = $this->postJson('/api/webhooks/n8n/notify', []);
+        $response = $this->withN8nToken()->postJson('/api/webhooks/n8n/notify', []);
 
         $response->assertStatus(200)
             ->assertJson([
@@ -142,7 +150,7 @@ class N8nWebhookControllerTest extends TestCase
             'end_time' => $tomorrow->setTime(12, 0),
         ]);
 
-        $response = $this->getJson("/api/webhooks/n8n/next-day-assignments?teacher_id={$this->teacher->id}");
+        $response = $this->withN8nToken()->getJson("/api/webhooks/n8n/next-day-assignments?teacher_id={$this->teacher->id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -172,7 +180,7 @@ class N8nWebhookControllerTest extends TestCase
      */
     public function test_get_next_day_assignments_with_invalid_teacher(): void
     {
-        $response = $this->getJson('/api/webhooks/n8n/next-day-assignments?teacher_id=99999');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/next-day-assignments?teacher_id=99999');
 
         $response->assertStatus(404)
             ->assertJson([
@@ -185,7 +193,7 @@ class N8nWebhookControllerTest extends TestCase
      */
     public function test_get_next_day_assignments_without_teacher_id(): void
     {
-        $response = $this->getJson('/api/webhooks/n8n/next-day-assignments');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/next-day-assignments');
 
         $response->assertStatus(404)
             ->assertJson([
@@ -198,7 +206,7 @@ class N8nWebhookControllerTest extends TestCase
      */
     public function test_get_next_day_assignments_returns_empty_when_no_assignments(): void
     {
-        $response = $this->getJson("/api/webhooks/n8n/next-day-assignments?teacher_id={$this->teacher->id}");
+        $response = $this->withN8nToken()->getJson("/api/webhooks/n8n/next-day-assignments?teacher_id={$this->teacher->id}");
 
         $response->assertStatus(200)
             ->assertJson([
@@ -214,7 +222,7 @@ class N8nWebhookControllerTest extends TestCase
      */
     public function test_get_conflicts_returns_correct_structure(): void
     {
-        $response = $this->getJson('/api/webhooks/n8n/conflicts');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/conflicts');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -265,7 +273,7 @@ class N8nWebhookControllerTest extends TestCase
             'end_time' => $tomorrow->setTime(13, 0),
         ]);
 
-        $response = $this->getJson('/api/webhooks/n8n/conflicts');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/conflicts');
 
         $response->assertStatus(200);
         $this->assertGreaterThan(0, $response->json('data.total_conflicts'));
@@ -276,7 +284,7 @@ class N8nWebhookControllerTest extends TestCase
      */
     public function test_get_conflicts_returns_zero_when_no_conflicts(): void
     {
-        $response = $this->getJson('/api/webhooks/n8n/conflicts');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/conflicts');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -293,7 +301,7 @@ class N8nWebhookControllerTest extends TestCase
      */
     public function test_get_expiring_guests_returns_correct_structure(): void
     {
-        $response = $this->getJson('/api/webhooks/n8n/expiring-guests');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/expiring-guests');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -326,7 +334,7 @@ class N8nWebhookControllerTest extends TestCase
             'access_expires_at' => now()->addDays(5),
         ]);
 
-        $response = $this->getJson('/api/webhooks/n8n/expiring-guests');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/expiring-guests');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -354,7 +362,7 @@ class N8nWebhookControllerTest extends TestCase
             'access_expires_at' => now()->subDays(1),
         ]);
 
-        $response = $this->getJson('/api/webhooks/n8n/expiring-guests');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/expiring-guests');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -377,7 +385,7 @@ class N8nWebhookControllerTest extends TestCase
             'access_expires_at' => now()->addDays(10),
         ]);
 
-        $response = $this->getJson('/api/webhooks/n8n/expiring-guests');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/expiring-guests');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -400,7 +408,7 @@ class N8nWebhookControllerTest extends TestCase
             'access_expires_at' => null,
         ]);
 
-        $response = $this->getJson('/api/webhooks/n8n/expiring-guests');
+        $response = $this->withN8nToken()->getJson('/api/webhooks/n8n/expiring-guests');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -425,7 +433,7 @@ class N8nWebhookControllerTest extends TestCase
             ]);
         }
 
-        $response = $this->postJson('/api/webhooks/n8n/notify', [
+        $response = $this->withN8nToken()->postJson('/api/webhooks/n8n/notify', [
             'type' => 'daily_teacher_assignments',
         ]);
 
@@ -448,7 +456,7 @@ class N8nWebhookControllerTest extends TestCase
             'is_guest' => false,
         ]);
 
-        $response = $this->postJson('/api/webhooks/n8n/notify', [
+        $response = $this->withN8nToken()->postJson('/api/webhooks/n8n/notify', [
             'type' => 'daily_teacher_assignments',
         ]);
 
@@ -471,7 +479,7 @@ class N8nWebhookControllerTest extends TestCase
             'is_guest' => true,
         ]);
 
-        $response = $this->postJson('/api/webhooks/n8n/notify', [
+        $response = $this->withN8nToken()->postJson('/api/webhooks/n8n/notify', [
             'type' => 'daily_teacher_assignments',
         ]);
 

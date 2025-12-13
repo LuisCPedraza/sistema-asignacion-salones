@@ -16,6 +16,14 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Chatbot público: embebido del chat Hosted de n8n
+Route::get('/chatbot', function () {
+    // Opción A: Vista embebida
+    return view('chatbot_hosted');
+    // Opción B (alternativa): redirección directa al Hosted
+    // return redirect()->away(env('N8N_WEBHOOK_CHATBOT'));
+})->name('chatbot');
+
 // Autenticación
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');

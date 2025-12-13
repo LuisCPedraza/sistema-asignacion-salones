@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'validate.n8n.token' => \App\Http\Middleware\ValidateN8nToken::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
