@@ -373,7 +373,7 @@
                 <div class="hero-pretitle">Bienvenido a</div>
                 <h1 class="hero-title">
                     Sistema de 
-                    <span class="hero-title-gradient">Asignación Inteligente</span>
+                    <span class="hero-title-gradient">Asignación de Salones para Institutos Educativos</span>
                 </h1>
                 
                 <p class="hero-description">
@@ -422,6 +422,9 @@
                         <a href="{{ route('dashboard') }}" class="btn btn-dashboard">
                             🚀 Ir al Dashboard
                         </a>
+                        <a href="{{ route('chatbot') }}" class="btn btn-register" style="margin-left:.75rem;background:linear-gradient(135deg,#10b981 0%,#22c55e 100%);box-shadow:0 12px 30px rgba(34,197,94,.35)">
+                            ✨ Pregunta al Asistente
+                        </a>
                     </div>
                 @else
                     <div class="auth-section">
@@ -431,6 +434,9 @@
                             </a>
                             <a href="{{ route('register') }}" class="btn btn-register">
                                 📝 Solicitar Acceso
+                            </a>
+                            <a href="{{ route('chatbot') }}" class="btn btn-register" style="background:linear-gradient(135deg,#10b981 0%,#22c55e 100%);box-shadow:0 12px 30px rgba(34,197,94,.35)">
+                                ✨ Pregunta al Asistente
                             </a>
                         </div>
                         <div class="register-note">
