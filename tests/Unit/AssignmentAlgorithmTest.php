@@ -273,40 +273,195 @@ class AssignmentAlgorithmTest extends TestCase
 
     /**
      * @test
-     * @group pending
      * 
-     * NOTA: Este test está marcado como pendiente porque el algoritmo actual
-     * reorganiza asignaciones pero no necesariamente resuelve conflictos de profesor.
-     * Se requiere implementar lógica específica de detección y resolución de conflictos.
+     * Verifica que el algoritmo detecte y evite conflictos de profesor
+     * (mismo profesor asignado a dos materias en el mismo horario)
      */
     public function test_algorithm_detects_teacher_conflicts()
     {
-        $this->markTestSkipped('Pendiente: Implementar detección y resolución de conflictos de profesor en el algoritmo');
+        $teacher = Teacher::first();
+        $timeSlot = TimeSlot::first();
+        $classroom1 = Classroom::first();
+        $classroom2 = Classroom::skip(1)->first();
+        
+        $group1 = StudentGroup::first();
+        $group2 = StudentGroup::skip(1)->first();
+        
+        $subject1 = Subject::factory()->create();
+        $subject2 = Subject::factory()->create();
+
+        // Crear primera asignación
+        $assignment1 = Assignment::create([
+            'student_group_id' => $group1->id,
+            'subject_id' => $subject1->id,
+            'teacher_id' => $teacher->id,
+            'classroom_id' => $classroom1->id,
+            'time_slot_id' => $timeSlot->id,
+            'day' => 'monday',
+            'start_time' => '08:00:00',
+            'end_time' => '10:00:00',
+            'score' => 0.8,
+        ]);
+
+        // Crear segunda asignación con el MISMO profesor y horario (conflicto)
+        $assignment2 = Assignment::create([
+            'student_group_id' => $group2->id,
+            'subject_id' => $subject2->id,
+            'teacher_id' => $teacher->id,
+            'classroom_id' => $classroom2->id,
+            'time_slot_id' => $timeSlot->id,
+            'day' => 'monday',
+            'start_time' => '08:00:00',
+            'end_time' => '10:00:00',
+            'score' => 0.8,
+        ]);
+
+        // Ejecutar algoritmo
+        $algorithm = new AssignmentAlgorithm();
+        $result = $algorithm->generateAssignments();
+
+        // Verificar que al menos una asignación fue actualizada
+        $this->assertNotEmpty($result, 'El algoritmo debe reorganizar al menos una asignación');
+
+        // Verificar que no hay conflictos de profesor después del algoritmo
+        $updated1 = Assignment::find($assignment1->id);
+        $updated2 = Assignment::find($assignment2->id);
+
+        $hasConflict = (
+            $updated1->teacher_id === $updated2->teacher_id &&
+            $updated1->day === $updated2->day &&
+            $updated1->start_time === $updated2->start_time
+        );
+
+        $this->assertFalse($hasConflict, 'No debe haber conflicto de profesor en el mismo horario');
     }
 
     /**
      * @test
-     * @group pending
      * 
-     * NOTA: Este test está marcado como pendiente porque el algoritmo actual
-     * reorganiza asignaciones pero no necesariamente resuelve conflictos de salón.
-     * Se requiere implementar lógica específica de detección y resolución de conflictos.
+     * Verifica que el algoritmo detecte y evite conflictos de salón
+     * (mismo salón asignado a dos grupos en el mismo horario)
      */
     public function test_algorithm_detects_classroom_conflicts()
     {
-        $this->markTestSkipped('Pendiente: Implementar detección y resolución de conflictos de salón en el algoritmo');
+        $classroom = Classroom::first();
+        $timeSlot = TimeSlot::first();
+        $teacher1 = Teacher::first();
+        $teacher2 = Teacher::skip(1)->first();
+        
+        $group1 = StudentGroup::first();
+        $group2 = StudentGroup::skip(1)->first();
+        
+        $subject1 = Subject::factory()->create();
+        $subject2 = Subject::factory()->create();
+
+        // Crear primera asignación
+        $assignment1 = Assignment::create([
+            'student_group_id' => $group1->id,
+            'subject_id' => $subject1->id,
+            'teacher_id' => $teacher1->id,
+            'classroom_id' => $classroom->id,
+            'time_slot_id' => $timeSlot->id,
+            'day' => 'tuesday',
+            'start_time' => '10:00:00',
+            'end_time' => '12:00:00',
+            'score' => 0.8,
+        ]);
+
+        // Crear segunda asignación con el MISMO salón y horario (conflicto)
+        $assignment2 = Assignment::create([
+            'student_group_id' => $group2->id,
+            'subject_id' => $subject2->id,
+            'teacher_id' => $teacher2->id,
+            'classroom_id' => $classroom->id,
+            'time_slot_id' => $timeSlot->id,
+            'day' => 'tuesday',
+            'start_time' => '10:00:00',
+            'end_time' => '12:00:00',
+            'score' => 0.8,
+        ]);
+
+        // Ejecutar algoritmo
+        $algorithm = new AssignmentAlgorithm();
+        $result = $algorithm->generateAssignments();
+
+        // Verificar que al menos una asignación fue actualizada
+        $this->assertNotEmpty($result, 'El algoritmo debe reorganizar al menos una asignación');
+
+        // Verificar que no hay conflictos de salón después del algoritmo
+        $updated1 = Assignment::find($assignment1->id);
+        $updated2 = Assignment::find($assignment2->id);
+
+        $hasConflict = (
+            $updated1->classroom_id === $updated2->classroom_id &&
+            $updated1->day === $updated2->day &&
+            $updated1->start_time === $updated2->start_time
+        );
+
+        $this->assertFalse($hasConflict, 'No debe haber conflicto de salón en el mismo horario');
     }
 
     /**
      * @test
-     * @group pending
      * 
-     * NOTA: Este test está marcado como pendiente porque el algoritmo actual
-     * reorganiza asignaciones pero no necesariamente resuelve conflictos de grupo.
-     * Se requiere implementar lógica específica de detección y resolución de conflictos.
+     * Verifica que el algoritmo detecte y evite conflictos de grupo de estudiantes
+     * (mismo grupo asignado a dos materias en el mismo horario)
      */
     public function test_algorithm_detects_student_group_conflicts()
     {
-        $this->markTestSkipped('Pendiente: Implementar detección y resolución de conflictos de grupo estudiantil en el algoritmo');
+        $group = StudentGroup::first();
+        $timeSlot = TimeSlot::first();
+        $teacher1 = Teacher::first();
+        $teacher2 = Teacher::skip(1)->first();
+        $classroom1 = Classroom::first();
+        $classroom2 = Classroom::skip(1)->first();
+        
+        $subject1 = Subject::factory()->create();
+        $subject2 = Subject::factory()->create();
+
+        // Crear primera asignación
+        $assignment1 = Assignment::create([
+            'student_group_id' => $group->id,
+            'subject_id' => $subject1->id,
+            'teacher_id' => $teacher1->id,
+            'classroom_id' => $classroom1->id,
+            'time_slot_id' => $timeSlot->id,
+            'day' => 'wednesday',
+            'start_time' => '14:00:00',
+            'end_time' => '16:00:00',
+            'score' => 0.8,
+        ]);
+
+        // Crear segunda asignación con el MISMO grupo y horario (conflicto)
+        $assignment2 = Assignment::create([
+            'student_group_id' => $group->id,
+            'subject_id' => $subject2->id,
+            'teacher_id' => $teacher2->id,
+            'classroom_id' => $classroom2->id,
+            'time_slot_id' => $timeSlot->id,
+            'day' => 'wednesday',
+            'start_time' => '14:00:00',
+            'end_time' => '16:00:00',
+            'score' => 0.8,
+        ]);
+
+        // Ejecutar algoritmo
+        $algorithm = new AssignmentAlgorithm();
+        $result = $algorithm->generateAssignments();
+
+        // Verificar que al menos una asignación fue actualizada
+        $this->assertNotEmpty($result, 'El algoritmo debe reorganizar al menos una asignación');
+
+        // Verificar que no hay conflictos de grupo después del algoritmo
+        $updated1 = Assignment::find($assignment1->id);
+        $updated2 = Assignment::find($assignment2->id);
+
+        $hasConflict = (
+            $updated1->student_group_id === $updated2->student_group_id &&
+            $updated1->day === $updated2->day &&
+            $updated1->start_time === $updated2->start_time
+        );
+
+        $this->assertFalse($hasConflict, 'No debe haber conflicto de grupo en el mismo horario');
     }
 }

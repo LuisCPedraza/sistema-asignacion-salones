@@ -25,13 +25,14 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .logo {
-            font-size: 1.5rem;
+            font-size: 24px;
             font-weight: bold;
         }
         .user-info {
             display: flex;
             align-items: center;
             gap: 1rem;
+            font-size: 20px;
         }
         .btn-logout {
             background: rgba(255,255,255,0.2);
@@ -42,6 +43,7 @@
             border: 1px solid rgba(255,255,255,0.3);
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 20px;
         }
         .btn-logout:hover {
             background: rgba(255,255,255,0.3);
@@ -71,6 +73,7 @@
             text-decoration: none;
             transition: all 0.3s;
             border-left: 4px solid transparent;
+            font-size: 20px;
         }
         .sidebar-nav a:hover {
             background: #f1f5f9;
@@ -98,10 +101,11 @@
         .welcome-section h1 {
             color: #1e293b;
             margin-bottom: 0.5rem;
+            font-size: 32px;
         }
         .welcome-section p {
             color: #64748b;
-            font-size: 1.1rem;
+            font-size: 20px;
         }
         .modules-grid {
             display: grid;
@@ -124,12 +128,13 @@
         .module-card h3 {
             color: #1e293b;
             margin-bottom: 1rem;
-            font-size: 1.25rem;
+            font-size: 24px;
         }
         .module-card p {
             color: #64748b;
             margin-bottom: 1.5rem;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-size: 20px;
         }
         .btn-module {
             background: #3b82f6;
@@ -142,6 +147,7 @@
             transition: background 0.3s;
             font-weight: 500;
             display: inline-block;
+            font-size: 20px;
         }
         .btn-module:hover {
             background: #1d4ed8;
@@ -161,14 +167,14 @@
             text-align: center;
         }
         .stat-number {
-            font-size: 2rem;
+            font-size: 32px;
             font-weight: bold;
             color: #3b82f6;
             margin-bottom: 0.5rem;
         }
         .stat-label {
             color: #64748b;
-            font-size: 0.9rem;
+            font-size: 20px;
         }
         .coming-soon {
             opacity: 0.7;

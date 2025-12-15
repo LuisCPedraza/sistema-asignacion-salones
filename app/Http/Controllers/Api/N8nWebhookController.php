@@ -158,4 +158,18 @@ class N8nWebhookController
             'count' => count($guests),
         ]);
     }
+
+    /**
+     * Endpoint para obtener estadísticas del sistema
+     * GET /api/webhooks/n8n/stats
+     */
+    public function getStats()
+    {
+        return response()->json([
+            'success' => true,
+            'timestamp' => now()->toIso8601String(),
+            'system_healthy' => true,
+            'message' => 'N8n webhook endpoint is operational',
+        ]);
+    }
 }

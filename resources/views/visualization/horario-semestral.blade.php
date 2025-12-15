@@ -34,6 +34,19 @@
                 </div>
                 <div class="card-body p-4">
                     <form method="GET" action="{{ route('visualizacion.horario.semestral') }}" class="row g-3">
+                        <!-- Filtro: Carrera -->
+                        <div class="col-md-6 col-lg-2">
+                            <label for="career_id" class="form-label fw-semibold">Carrera</label>
+                            <select name="career_id" id="career_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="">-- Todas --</option>
+                                @foreach($careers as $id => $name)
+                                    @if(!empty($id))
+                                        <option value="{{ $id }}" {{ request('career_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+
                         <!-- Filtro: Día -->
                         <div class="col-md-6 col-lg-2">
                             <label for="day" class="form-label fw-semibold">Día de la Semana</label>
@@ -49,7 +62,7 @@
                         </div>
 
                         <!-- Filtro: Grupo -->
-                        <div class="col-md-6 col-lg-3">
+                        <div class="col-md-6 col-lg-2">
                             <label for="group_id" class="form-label fw-semibold">Grupo de Estudiantes</label>
                             <select name="group_id" id="group_id" class="form-select form-select-sm">
                                 <option value="">-- Ninguno --</option>
@@ -62,7 +75,7 @@
                         </div>
 
                         <!-- Filtro: Profesor -->
-                        <div class="col-md-6 col-lg-3">
+                        <div class="col-md-6 col-lg-2">
                             <label for="teacher_id" class="form-label fw-semibold">Profesor</label>
                             <select name="teacher_id" id="teacher_id" class="form-select form-select-sm">
                                 <option value="">-- Ninguno --</option>
@@ -108,8 +121,8 @@
                             <a href="{{ route('visualizacion.horario.semestral') }}" class="btn btn-secondary btn-sm">
                                 <i class="fas fa-times"></i> Limpiar
                             </a>
-                            <a href="{{ route('visualizacion.horario.semestral.export') }}" class="btn btn-success btn-sm float-end">
-                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            <a href="{{ route('visualizacion.horario.semestral.export', request()->query()) }}" class="btn btn-danger btn-sm float-end">
+                                <i class="fas fa-file-pdf"></i> Exportar PDF
                             </a>
                         </div>
                     </form>
@@ -200,10 +213,12 @@
                                                     @php
                                                         $inicio = \Carbon\Carbon::parse($assign->start_time);
                                                         $fin = \Carbon\Carbon::parse($assign->end_time);
+                                                        $horaInicio = str_replace(['AM','PM'], ['a.m.','p.m.'], $inicio->format('g:i A'));
+                                                        $horaFin = str_replace(['AM','PM'], ['a.m.','p.m.'], $fin->format('g:i A'));
                                                     @endphp
                                                     <div class="mb-2 p-2 bg-light rounded border-left border-{{ $colores[$day] }} border-4">
                                                         <small class="d-block fw-bold text-dark">{{ $assign->group->name }}</small>
-                                                        <small class="d-block text-muted">{{ $inicio->format('H:i') }} - {{ $fin->format('H:i') }}</small>
+                                                        <small class="d-block text-muted">{{ $horaInicio }} - {{ $horaFin }}</small>
                                                         <small class="d-block text-muted">Prof: {{ $assign->teacher->first_name ?? 'N/A' }}</small>
                                                         <small class="d-block text-muted">Aula: {{ $assign->classroom->name }}</small>
                                                         @if($assign->score >= 0.8)
@@ -266,6 +281,8 @@
                                         $inicio = \Carbon\Carbon::parse($assignment->start_time);
                                         $fin    = \Carbon\Carbon::parse($assignment->end_time);
                                         $diaEsp = $diasEspanol[$assignment->day] ?? 'Desconocido';
+                                        $horaInicioDet = str_replace(['AM','PM'], ['a.m.','p.m.'], $inicio->format('g:i A'));
+                                        $horaFinDet = str_replace(['AM','PM'], ['a.m.','p.m.'], $fin->format('g:i A'));
                                     @endphp
                                     <tr>
                                         <td>
@@ -290,7 +307,7 @@
                                             <strong class="text-success">{{ $diaEsp }}</strong>
                                         </td>
                                         <td class="text-center font-monospace fw-bold text-dark">
-                                            {{ $inicio->format('h:i A') }} → {{ $fin->format('h:i A') }}
+                                            {{ $horaInicioDet }} → {{ $horaFinDet }}
                                         </td>
                                         <td class="text-center">
                                             @if($assignment->score >= 0.9)

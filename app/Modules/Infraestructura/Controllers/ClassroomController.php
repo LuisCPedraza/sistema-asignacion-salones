@@ -19,10 +19,39 @@ class ClassroomController extends Controller
         });
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $classrooms = Classroom::with('building')->latest()->paginate(10);
-        return view('infraestructura.classrooms.index', compact('classrooms'));
+        $query = Classroom::with('building');
+
+        // Filtros
+        if ($request->filled('building_id')) {
+            $query->where('building_id', $request->integer('building_id'));
+        }
+        if ($request->filled('type')) {
+            $query->where('type', $request->string('type'));
+        }
+        if ($request->filled('is_active')) {
+            $active = $request->string('is_active') === '1';
+            $query->where('is_active', $active);
+        }
+        if ($request->filled('capacity_min')) {
+            $query->where('capacity', '>=', (int)$request->input('capacity_min'));
+        }
+        if ($request->filled('capacity_max')) {
+            $query->where('capacity', '<=', (int)$request->input('capacity_max'));
+        }
+        if ($request->filled('search')) {
+            $s = trim($request->input('search'));
+            $query->where(function($q) use ($s) {
+                $q->where('name', 'like', "%{$s}%")
+                  ->orWhere('code', 'like', "%{$s}%");
+            });
+        }
+
+        $classrooms = $query->latest()->paginate(10)->withQueryString();
+        $buildings = Building::active()->get(['id','name']);
+        
+        return view('infraestructura.classrooms.index', compact('classrooms','buildings'));
     }
 
     public function create()

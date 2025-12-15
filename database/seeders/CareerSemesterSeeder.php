@@ -17,30 +17,43 @@ class CareerSemesterSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear careers
+        // Crear carreras con datos reales proporcionados
         $careers = [
             [
-                'name' => 'Tecnología en Desarrollo de Software',
-                'description' => 'Carrera enfocada en desarrollo de aplicaciones web y móviles',
+                'name' => 'Tecnología en desarrollo de Software',
+                'code' => '2724',
+                'description' => 'Carrera tecnológica enfocada en desarrollo de aplicaciones web, móviles y software empresarial',
                 'duration_semesters' => 7,
                 'is_active' => true,
             ],
             [
-                'name' => 'Administración de Empresas',
-                'description' => 'Carrera enfocada en gestión empresarial y negocios',
+                'name' => 'COMERCIO EXTERIOR',
+                'code' => '3857',
+                'description' => 'Carrera profesional en comercio internacional y gestión de importaciones y exportaciones',
                 'duration_semesters' => 7,
                 'is_active' => true,
             ],
             [
-                'name' => 'Psicología',
-                'description' => 'Carrera enfocada en ciencias del comportamiento humano',
+                'name' => 'CONTADURÍA PÚBLICA',
+                'code' => '3841',
+                'description' => 'Carrera profesional en contabilidad, auditoría y finanzas corporativas',
+                'duration_semesters' => 7,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'ADMINISTRACIÓN DE EMPRESAS',
+                'code' => '3845',
+                'description' => 'Carrera profesional en gestión empresarial, negocios y administración organizacional',
                 'duration_semesters' => 7,
                 'is_active' => true,
             ],
         ];
 
         foreach ($careers as $careerData) {
-            $career = Career::create($careerData);
+            $career = Career::updateOrCreate(
+                ['code' => $careerData['code']],
+                $careerData
+            );
 
             // Crear 7 semestres por carrera
             for ($semesterNum = 1; $semesterNum <= 7; $semesterNum++) {

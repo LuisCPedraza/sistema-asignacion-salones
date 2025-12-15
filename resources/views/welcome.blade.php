@@ -36,7 +36,7 @@
         }
 
         .logo {
-            font-size: 1.6rem;
+            font-size: 24px;
             font-weight: 700;
             color: white;
             display: flex;
@@ -61,7 +61,7 @@
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 20px;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
@@ -98,7 +98,7 @@
         }
 
         .hero-pretitle {
-            font-size: 0.95rem;
+            font-size: 20px;
             font-weight: 600;
             color: #60a5fa;
             text-transform: uppercase;
@@ -107,10 +107,10 @@
         }
 
         .hero-title {
-            font-size: 3.5rem;
+            font-size: 36px;
             font-weight: 800;
             margin-bottom: 1.5rem;
-            line-height: 1.2;
+            line-height: 1.3;
             letter-spacing: -1px;
         }
 
@@ -122,8 +122,8 @@
         }
 
         .hero-description {
-            font-size: 1.25rem;
-            line-height: 1.8;
+            font-size: 20px;
+            line-height: 1.6;
             color: #cbd5e1;
             margin-bottom: 2.5rem;
         }
@@ -155,11 +155,12 @@
             font-weight: 600;
             color: white;
             margin-bottom: 0.25rem;
+            font-size: 24px;
         }
 
         .feature-desc {
             color: #cbd5e1;
-            font-size: 0.95rem;
+            font-size: 20px;
         }
 
         .auth-section {
@@ -177,7 +178,7 @@
             text-decoration: none;
             border-radius: 10px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 20px;
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
@@ -226,7 +227,7 @@
             background: rgba(59, 130, 246, 0.1);
             border: 1px solid rgba(59, 130, 246, 0.3);
             border-radius: 10px;
-            font-size: 0.95rem;
+            font-size: 20px;
             color: #cbd5e1;
             line-height: 1.6;
         }
@@ -259,7 +260,7 @@
         }
 
         .card-title {
-            font-size: 1.2rem;
+            font-size: 24px;
             font-weight: 700;
             color: white;
             margin-bottom: 0.5rem;
@@ -267,7 +268,7 @@
 
         .card-desc {
             color: #cbd5e1;
-            font-size: 0.95rem;
+            font-size: 20px;
             line-height: 1.6;
         }
 
@@ -292,7 +293,7 @@
             text-align: center;
             color: #94a3b8;
             border-top: 1px solid rgba(148, 163, 184, 0.1);
-            font-size: 0.9rem;
+            font-size: 20px;
         }
 
         /* Responsive */

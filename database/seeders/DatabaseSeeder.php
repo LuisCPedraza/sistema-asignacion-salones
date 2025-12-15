@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             BuildingSeeder::class,
             ClassroomSeeder::class,
             AvailabilitySeeder::class,
+            StudentsSeeder::class,
+            ActivitiesSeeder::class,
+            MaintenanceSeeder::class,
         ]);
     }
 }

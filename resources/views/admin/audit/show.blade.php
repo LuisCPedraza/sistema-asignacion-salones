@@ -1,6 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    h1 { font-size: 32px; }
+    h5 { font-size: 20px; }
+    strong, p, small, code, table, th, td { font-size: 20px; }
+    .badge { font-size: 18px; }
+    .text-muted { font-size: 18px; }
+    .btn { font-size: 20px; }
+    code {
+        background-color: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+    }
+</style>
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col">
@@ -108,13 +123,13 @@
                         </div>
                     </div>
 
-                    @if($auditLog->user->role)
+                    @if($auditLog->user && $auditLog->user->role)
                     <div class="row mb-2">
                         <div class="col-5">
                             <strong>Rol:</strong>
                         </div>
                         <div class="col-7">
-                            <span class="badge bg-primary">{{ ucfirst($auditLog->user->role) }}</span>
+                            <span class="badge bg-primary">{{ $auditLog->user->role->name ?? 'Sin rol' }}</span>
                         </div>
                     </div>
                     @endif

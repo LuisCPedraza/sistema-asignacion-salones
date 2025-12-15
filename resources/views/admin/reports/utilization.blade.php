@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    h1 { font-size: 32px; }
+    h5, h3 { font-size: 20px; }
+    p, small, label, .form-label, .form-control, .form-select, .btn, table, th, td { font-size: 20px; }
+    .badge { font-size: 18px; }
+    .text-muted { font-size: 18px; }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+</style>
 <div class="container-fluid py-4">
     <!-- Header -->
     <div class="row mb-4">
@@ -169,36 +179,89 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-light border-0">
                     <h5 class="mb-0"><i class="fas fa-chalkboard-user"></i> Utilización de Profesores</h5>
+                    <small class="text-muted">Análisis de carga académica y rendimiento por profesor</small>
                 </div>
                 <div class="card-body">
                     @if($teacherUtilization->count() > 0)
+                        <!-- Estadísticas de Profesores -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="h4 text-primary mb-1">{{ $teacherUtilization->count() }}</div>
+                                    <small class="text-muted">Profesores Activos</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="h4 text-info mb-1">{{ number_format($teacherUtilization->avg('assignment_count'), 1) }}</div>
+                                    <small class="text-muted">Asignaciones Promedio</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="h4 text-success mb-1">{{ number_format($teacherUtilization->avg('avg_score'), 1) }}%</div>
+                                    <small class="text-muted">Calidad Promedio</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="h4 text-danger mb-1">{{ $teacherUtilization->where('avg_score', '<', 70)->count() }}</div>
+                                    <small class="text-muted">Requieren Atención</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Profesores -->
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Profesor</th>
-                                        <th>Asignaciones</th>
-                                        <th>Calidad Promedio</th>
-                                        <th>Estado</th>
+                                        <th><i class="fas fa-user"></i> Profesor</th>
+                                        <th><i class="fas fa-id-badge"></i> Código</th>
+                                        <th><i class="fas fa-envelope"></i> Email</th>
+                                        <th><i class="fas fa-book"></i> Asignaciones</th>
+                                        <th><i class="fas fa-chart-line"></i> Calidad Promedio</th>
+                                        <th><i class="fas fa-flag"></i> Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($teacherUtilization as $utilization)
                                         <tr>
-                                            <td><strong>{{ $utilization['teacher_name'] }}</strong></td>
-                                            <td>{{ $utilization['assignment_count'] }}</td>
                                             <td>
-                                                <span class="badge {{ $utilization['avg_score'] >= 80 ? 'bg-success' : ($utilization['avg_score'] >= 70 ? 'bg-warning' : 'bg-danger') }}">
-                                                    {{ $utilization['avg_score'] }}%
-                                                </span>
+                                                <strong>{{ $utilization['teacher_name'] }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ $utilization['teacher_code'] }}</span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">{{ $utilization['teacher_email'] }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ $utilization['assignment_count'] }} curso{{ $utilization['assignment_count'] != 1 ? 's' : '' }}</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress" style="height: 20px; width: 100px; margin-right: 10px;">
+                                                        <div class="progress-bar {{ $utilization['avg_score'] >= 80 ? 'bg-success' : ($utilization['avg_score'] >= 70 ? 'bg-warning' : 'bg-danger') }}" 
+                                                             role="progressbar" 
+                                                             style="width: {{ min($utilization['avg_score'], 100) }}%;" 
+                                                             aria-valuenow="{{ $utilization['avg_score'] }}" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge {{ $utilization['avg_score'] >= 80 ? 'bg-success' : ($utilization['avg_score'] >= 70 ? 'bg-warning' : 'bg-danger') }}">
+                                                        {{ $utilization['avg_score'] }}%
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td>
                                                 @if($utilization['avg_score'] >= 80)
-                                                    <span class="badge bg-success">✓ Óptimo</span>
+                                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Óptimo</span>
                                                 @elseif($utilization['avg_score'] >= 70)
-                                                    <span class="badge bg-warning">⚠ Revisar</span>
+                                                    <span class="badge bg-warning"><i class="fas fa-exclamation-triangle"></i> Revisar</span>
                                                 @else
-                                                    <span class="badge bg-danger">✗ Crítico</span>
+                                                    <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Crítico</span>
                                                 @endif
                                             </td>
                                         </tr>

@@ -4,10 +4,27 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>👆 Asignación Manual - Drag & Drop</h1>
-        <div>
+        <div class="d-flex gap-2">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaAsignacionModal">
                 ➕ Nueva Asignación
             </button>
+            <button id="reloadEventsBtn" class="btn btn-outline-primary">
+                ↻ Recargar eventos
+            </button>
+            <form method="GET" action="{{ route('asignacion.manual.pdf') }}" class="d-inline">
+                @if($period)
+                    <input type="hidden" name="period_id" value="{{ $period->id }}">
+                @endif
+                @if($selectedCareer)
+                    <input type="hidden" name="career_id" value="{{ $selectedCareer }}">
+                @endif
+                @if($selectedSemester)
+                    <input type="hidden" name="semester_id" value="{{ $selectedSemester }}">
+                @endif
+                <button type="submit" class="btn btn-outline-success">
+                    ⬇️ Exportar PDF
+                </button>
+            </form>
             <a href="{{ route('academic.dashboard') }}" class="btn btn-secondary">← Volver</a>
         </div>
     </div>
@@ -80,70 +97,94 @@
         </div>
     </div>
 
-    <!-- Filtros (similar a asignación automática) -->
+    <!-- Filtros Jerárquicos: Carrera → Semestre -->
     <div class="card mb-4">
         <div class="card-header bg-light">
-            <h5 class="mb-0"><i class="fas fa-filter"></i> Filtros</h5>
+            <h5 class="mb-0"><i class="fas fa-filter"></i> Filtros por Estructura Académica</h5>
         </div>
         <div class="card-body">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-2">
-                    <label for="filter_day" class="form-label">Día</label>
-                    <select id="filter_day" class="form-select form-select-sm">
-                        <option value="">Todos</option>
-                        <option value="monday">Lunes</option>
-                        <option value="tuesday">Martes</option>
-                        <option value="wednesday">Miércoles</option>
-                        <option value="thursday">Jueves</option>
-                        <option value="friday">Viernes</option>
-                        <option value="saturday">Sábado</option>
-                    </select>
+            <form method="GET" action="{{ route('asignacion.manual') }}" id="filterForm">
+                <!-- Mantener el período académico si existe -->
+                @if($period)
+                    <input type="hidden" name="period_id" value="{{ $period->id }}">
+                @endif
+                
+                <div class="row g-3 align-items-end">
+                    <!-- Filtro de Carrera -->
+                    <div class="col-md-4">
+                        <label for="career_id" class="form-label fw-semibold">
+                            <i class="fas fa-graduation-cap"></i> 1. Seleccionar Carrera
+                        </label>
+                        <select id="career_id" name="career_id" class="form-select">
+                            <option value="">-- Seleccione una carrera --</option>
+                            @foreach($careers as $career)
+                                <option value="{{ $career->id }}" {{ $selectedCareer == $career->id ? 'selected' : '' }}>
+                                    {{ $career->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Primero seleccione la carrera</small>
+                    </div>
+                    
+                    <!-- Filtro de Semestre (dependiente de Carrera) -->
+                    <div class="col-md-4">
+                        <label for="semester_id" class="form-label fw-semibold">
+                            <i class="fas fa-list-ol"></i> 2. Seleccionar Semestre
+                        </label>
+                        <select id="semester_id" name="semester_id" class="form-select" {{ !$selectedCareer ? 'disabled' : '' }}>
+                            <option value="">-- Seleccione un semestre --</option>
+                            @foreach($semesters as $semester)
+                                <option value="{{ $semester->id }}" 
+                                        data-career-id="{{ $semester->career_id }}"
+                                        {{ $selectedSemester == $semester->id ? 'selected' : '' }}>
+                                    Semestre {{ $semester->number }}
+                                    @if($semester->description) - {{ $semester->description }} @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Luego seleccione el semestre</small>
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="col-md-4">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" id="applyHierarchicalFilter">
+                                <i class="fas fa-calendar-week"></i> Ver Horario
+                            </button>
+                            <a href="{{ route('asignacion.manual') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Limpiar
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label for="filter_group" class="form-label">Grupo</label>
-                    <select id="filter_group" class="form-select form-select-sm">
-                        <option value="">Todos</option>
-                        @foreach($groups as $group)
-                            <option value="{{ $group->id }}">{{ $group->semester->career->name ?? '' }} - Sem {{ $group->semester->number ?? '' }} - {{ $group->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="filter_teacher" class="form-label">Profesor</label>
-                    <select id="filter_teacher" class="form-select form-select-sm">
-                        <option value="">Todos</option>
-                        @foreach($teachers as $teacher)
-                            <option value="{{ $teacher->id }}">{{ $teacher->first_name }} {{ $teacher->last_name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="filter_classroom" class="form-label">Salón</label>
-                    <select id="filter_classroom" class="form-select form-select-sm">
-                        <option value="">Todos</option>
-                        @foreach($classrooms as $classroom)
-                            <option value="{{ $classroom->id }}">{{ $classroom->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="filter_subject" class="form-label">Materia</label>
-                    <select id="filter_subject" class="form-select form-select-sm">
-                        <option value="">Todas</option>
-                        @foreach($subjects as $subject)
-                            <option value="{{ $subject->id }}">{{ $subject->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-12 d-flex gap-2">
-                    <button id="applyFilters" type="button" class="btn btn-primary btn-sm">
-                        <i class="fas fa-search"></i> Aplicar filtros
-                    </button>
-                    <button id="clearFilters" type="button" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-times"></i> Limpiar
-                    </button>
-                </div>
-            </div>
+                
+                <!-- Información del filtro activo -->
+                @if($selectedCareer || $selectedSemester)
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Filtro activo:</strong>
+                        @if($selectedCareer)
+                            @php
+                                $career = $careers->firstWhere('id', $selectedCareer);
+                            @endphp
+                            Carrera: <strong>{{ $career?->name }}</strong>
+                        @endif
+                        @if($selectedSemester)
+                            @php
+                                $semester = $semesters->firstWhere('id', $selectedSemester);
+                            @endphp
+                            → Semestre: <strong>{{ $semester?->number }}</strong>
+                        @endif
+                        <br>
+                        <small>Mostrando {{ $groups->count() }} grupo(s) y {{ $assignments->count() }} asignación(es)</small>
+                    </div>
+                @else
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Seleccione una carrera y un semestre</strong> para visualizar y editar el horario semanal.
+                    </div>
+                @endif
+            </form>
         </div>
     </div>
 
@@ -408,6 +449,111 @@
 <!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 
+<!-- Script de Filtrado Jerárquico (ejecutar primero) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ========================================
+    // Filtrado Jerárquico: Carrera → Semestre
+    // ========================================
+    const careerSelect = document.getElementById('career_id');
+    const semesterSelect = document.getElementById('semester_id');
+    
+    console.log('=== FILTRO JERÁRQUICO ===');
+    console.log('Career Select encontrado:', !!careerSelect);
+    console.log('Semester Select encontrado:', !!semesterSelect);
+    
+    if (careerSelect && semesterSelect) {
+        // Guardar todas las opciones de semestre al cargar (excepto la primera que es el placeholder)
+        const allSemesterOptions = [];
+        for (let i = 1; i < semesterSelect.options.length; i++) {
+            const opt = semesterSelect.options[i];
+            allSemesterOptions.push({
+                value: opt.value,
+                text: opt.text,
+                careerId: opt.getAttribute('data-career-id')
+            });
+        }
+        
+        console.log('Total semestres disponibles:', allSemesterOptions.length);
+        console.log('Semestres:', allSemesterOptions);
+        
+        // Función para actualizar semestres según carrera seleccionada
+        function updateSemesters() {
+            const selectedCareerId = careerSelect.value;
+            console.log('Carrera seleccionada ID:', selectedCareerId);
+            
+            // Limpiar selección de semestre
+            semesterSelect.value = '';
+            
+            if (!selectedCareerId) {
+                // Si no hay carrera seleccionada, deshabilitar semestres
+                semesterSelect.disabled = true;
+                // Remover todas las opciones excepto la primera
+                while (semesterSelect.options.length > 1) {
+                    semesterSelect.remove(1);
+                }
+                console.log('✗ Semestres deshabilitados - no hay carrera seleccionada');
+            } else {
+                // Habilitar semestres
+                semesterSelect.disabled = false;
+                
+                // Remover todas las opciones excepto la primera
+                while (semesterSelect.options.length > 1) {
+                    semesterSelect.remove(1);
+                }
+                
+                // Agregar solo los semestres de la carrera seleccionada
+                let semestresAgregados = 0;
+                allSemesterOptions.forEach(optionData => {
+                    console.log(`Comparando: ${optionData.careerId} == ${selectedCareerId}`, optionData.careerId == selectedCareerId);
+                    if (optionData.careerId == selectedCareerId) { // Comparación no estricta
+                        const newOption = document.createElement('option');
+                        newOption.value = optionData.value;
+                        newOption.text = optionData.text;
+                        newOption.setAttribute('data-career-id', optionData.careerId);
+                        semesterSelect.add(newOption);
+                        semestresAgregados++;
+                    }
+                });
+                
+                console.log('✓ Semestres agregados:', semestresAgregados);
+                
+                // Si solo hay un semestre disponible, seleccionarlo automáticamente
+                if (semesterSelect.options.length === 2) {
+                    semesterSelect.selectedIndex = 1;
+                    console.log('✓ Auto-seleccionado único semestre disponible');
+                }
+            }
+        }
+        
+        // Cuando cambia la carrera
+        careerSelect.addEventListener('change', function() {
+            console.log('Evento change disparado en carrera');
+            updateSemesters();
+        });
+        
+        // Inicializar el filtro al cargar la página
+        const initialCareerValue = careerSelect.value;
+        console.log('Carrera inicial:', initialCareerValue);
+        if (initialCareerValue) {
+            console.log('Inicializando con carrera ya seleccionada');
+            updateSemesters();
+            
+            // Restaurar la selección del semestre si existía
+            const selectedSemesterId = '{{ $selectedSemester ?? "" }}';
+            if (selectedSemesterId) {
+                setTimeout(() => {
+                    semesterSelect.value = selectedSemesterId;
+                    console.log('Semestre restaurado:', selectedSemesterId);
+                }, 100);
+            }
+        }
+    } else {
+        console.error('✗ No se encontraron los selectores de carrera o semestre');
+    }
+});
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
@@ -464,7 +610,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'timeGridDay',
+            initialView: 'timeGridWeek',
+            initialDate: new Date(),
+            firstDay: 0,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -481,11 +629,25 @@ document.addEventListener('DOMContentLoaded', function() {
             height: 'auto',
             contentHeight: 800,
             
-            // Eventos desde Laravel - IMPORTANTE: pasar directamente
-            events: baseEvents,
+            // Fuente de eventos: la añadiremos explícitamente tras renderizar
+            events: [],
             
             eventDidMount: function(info) {
                 console.log('✓ Evento renderizado:', info.event.title, 'ID:', info.event.id);
+            },
+
+            // Contenido visible en el bloque del calendario
+            eventContent: function(arg) {
+                const props = arg.event.extendedProps || {};
+                const div = document.createElement('div');
+                div.className = 'fc-event-body';
+                div.innerHTML = `
+                    <div class="fw-semibold">${arg.event.title || 'Sin materia'}</div>
+                    <div class="small text-muted">${props.classroom || 'Sin salón'}</div>
+                    <div class="small">${props.teacher || 'Sin profesor'}</div>
+                    <div class="small">${props.group || 'Sin grupo'}</div>
+                `;
+                return { domNodes: [div] };
             },
 
             // Cuando se hace clic en un evento
@@ -522,8 +684,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         calendar.render();
-        
-        // Verificar eventos después de renderizar
+
+        // Añadir eventos explícitamente y verificar
+        if (Array.isArray(baseEvents)) {
+            console.log('Añadiendo eventos al calendario:', baseEvents.length);
+            calendar.addEventSource(baseEvents);
+            const afterAdd = calendar.getEvents();
+            console.log('Eventos en calendario tras addEventSource:', afterAdd.length);
+        } else {
+            console.warn('baseEvents no es un arreglo válido:', typeof baseEvents);
+        }
+
+        // Botón para recargar eventos explícitamente
+        const reloadBtn = document.getElementById('reloadEventsBtn');
+        if (reloadBtn) {
+            reloadBtn.addEventListener('click', function() {
+                try {
+                    console.log('↻ Recargando eventos...');
+                    // Eliminar todas las fuentes y eventos actuales
+                    calendar.getEventSources().forEach(src => src.remove());
+                    calendar.getEvents().forEach(evt => evt.remove());
+                    // Reagregar baseEvents
+                    calendar.addEventSource(baseEvents);
+                    const count = calendar.getEvents().length;
+                    console.log('✓ Eventos tras recarga:', count);
+                    showAlert(`Eventos recargados: ${count}`, 'info');
+                } catch (e) {
+                    console.error('Error recargando eventos', e);
+                    showAlert('Error recargando eventos', 'danger');
+                }
+            });
+        }
         setTimeout(() => {
             const renderedEvents = calendar.getEvents();
             console.log('Eventos después del render:', renderedEvents.length);
@@ -559,7 +750,8 @@ document.addEventListener('DOMContentLoaded', function() {
         subject: document.getElementById('filter_subject'),
     };
 
-    document.getElementById('applyFilters').addEventListener('click', function() {
+    const applyFiltersBtn = document.getElementById('applyFilters');
+    if (applyFiltersBtn) applyFiltersBtn.addEventListener('click', function() {
         if (!calendar) return;
         
         const btn = this;
@@ -602,7 +794,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300);
     });
 
-    document.getElementById('clearFilters').addEventListener('click', function() {
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', function() {
         if (!calendar) return;
         
         const btn = this;

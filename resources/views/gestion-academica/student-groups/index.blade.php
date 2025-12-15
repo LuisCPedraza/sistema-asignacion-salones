@@ -90,43 +90,46 @@
         <div class="card-body">
             <form method="GET" action="{{ route('gestion-academica.student-groups.index') }}" class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label small text-muted">Buscar</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" name="search" class="form-control border-start-0" 
-                               placeholder="Nombre del grupo..." value="{{ request('search') }}">
-                    </div>
+                    <label class="form-label small text-muted">Carrera</label>
+                    <select name="career_id" class="form-select" onchange="this.form.submit()">
+                        <option value="">Todas las carreras</option>
+                        @foreach($careers as $career)
+                            <option value="{{ $career->id }}" {{ request('career_id') == $career->id ? 'selected' : '' }}>
+                                {{ $career->code }} - {{ $career->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Tipo de Grupo</label>
+                    <select name="group_type" class="form-select" onchange="this.form.submit()">
+                        <option value="">Todos los grupos</option>
+                        <option value="A" {{ request('group_type') == 'A' ? 'selected' : '' }}>Grupo A (Diurno)</option>
+                        <option value="B" {{ request('group_type') == 'B' ? 'selected' : '' }}>Grupo B (Nocturno)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Jornada</label>
+                    <select name="schedule_type" class="form-select" onchange="this.form.submit()">
+                        <option value="">Todas</option>
+                        <option value="day" {{ request('schedule_type') == 'day' ? 'selected' : '' }}>Diurna</option>
+                        <option value="night" {{ request('schedule_type') == 'night' ? 'selected' : '' }}>Nocturna</option>
+                    </select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small text-muted">Estado</label>
-                    <select name="status" class="form-select">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
                         <option value="">Todos</option>
                         <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Activos</option>
                         <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactivos</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label small text-muted">Nivel</label>
-                    <input type="number" name="level" class="form-control" 
-                           placeholder="Ej: 5" value="{{ request('level') }}">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small text-muted">Orden</label>
-                    <select name="sort" class="form-select">
-                        <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Nombre</option>
-                        <option value="level" {{ request('sort') == 'level' ? 'selected' : '' }}>Nivel</option>
-                        <option value="students" {{ request('sort') == 'students' ? 'selected' : '' }}>Estudiantes</option>
-                        <option value="recent" {{ request('sort') == 'recent' ? 'selected' : '' }}>Más recientes</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <label class="form-label small text-muted">&nbsp;</label>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-funnel"></i> Filtrar
-                        </button>
+                    <div class="d-grid">
+                        <a href="{{ route('gestion-academica.student-groups.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" title="Limpiar filtros">
+                            <i class="bi bi-x-circle me-1"></i> Limpiar
+                        </a>
                     </div>
                 </div>
             </form>
@@ -144,6 +147,9 @@
                                 <i class="bi bi-hash text-muted"></i> Grupo
                             </th>
                             <th class="py-3 border-0">
+                                <i class="bi bi-mortarboard text-muted"></i> Carrera
+                            </th>
+                            <th class="py-3 border-0">
                                 <i class="bi bi-bar-chart-steps text-muted"></i> Nivel
                             </th>
                             <th class="py-3 border-0">
@@ -153,7 +159,7 @@
                                 <i class="bi bi-calendar-event text-muted"></i> Semestre
                             </th>
                             <th class="py-3 border-0">
-                                <i class="bi bi-star text-muted"></i> Características
+                                <i class="bi bi-sun text-muted"></i> Jornada
                             </th>
                             <th class="py-3 border-0 text-center">
                                 <i class="bi bi-toggle-on text-muted"></i> Estado
@@ -176,6 +182,18 @@
                                     </div>
                                 </td>
                                 <td>
+                                    @if($group->semester && $group->semester->career)
+                                        <div>
+                                            <strong>{{ $group->semester->career->code }}</strong>
+                                            <div class="small text-muted text-truncate" style="max-width: 200px;">
+                                                {{ $group->semester->career->name }}
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-muted small">Sin carrera</span>
+                                    @endif
+                                </td>
+                                <td>
                                     <span class="badge bg-info">Nivel {{ $group->level }}</span>
                                 </td>
                                 <td>
@@ -194,13 +212,16 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($group->special_features)
-                                        <span class="text-truncate d-inline-block" style="max-width: 200px;" 
-                                              data-bs-toggle="tooltip" title="{{ $group->special_features }}">
-                                            {{ Str::limit($group->special_features, 30) }}
+                                    @if($group->schedule_type === 'day')
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-sun-fill"></i> Diurna
+                                        </span>
+                                    @elseif($group->schedule_type === 'night')
+                                        <span class="badge bg-dark">
+                                            <i class="bi bi-moon-stars-fill"></i> Nocturna
                                         </span>
                                     @else
-                                        <span class="text-muted small">Sin características</span>
+                                        <span class="text-muted small">No definida</span>
                                     @endif
                                 </td>
                                 <td class="text-center">

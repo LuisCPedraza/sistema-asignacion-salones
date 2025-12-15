@@ -4,10 +4,11 @@ namespace App\Modules\GestionAcademica\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\AuditableModel;
 
 class Teacher extends Model
 {
-    use HasFactory;
+    use HasFactory, AuditableModel;
 
     protected $fillable = [
         'first_name',
@@ -46,6 +47,14 @@ class Teacher extends Model
     public function getFullNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    /**
+     * Descripción para auditoría
+     */
+    public function getAuditableDescription(): string
+    {
+        return "Profesor {$this->full_name} ({$this->email})";
     }
 
     public function scopeActive($query)

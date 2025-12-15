@@ -362,7 +362,7 @@
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        font-size: 14px;
+        font-size: 20px;
     }
     
     .table-hover tbody tr:hover {
@@ -398,7 +398,7 @@
     }
     
     .pagination-sm .page-link {
-        font-size: 0.7rem;
+        font-size: 20px;
         padding: 0.25rem 0.4rem;
         line-height: 1;
         border: 1px solid #dee2e6;

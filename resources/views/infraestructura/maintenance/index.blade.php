@@ -195,9 +195,50 @@
             </table>
         </div>
 
-        <!-- Paginación -->
-        <div class="mt-4">
-            {{ $maintenances->links() }}
+        <!-- Paginación numérica sin flechas -->
+        <div class="mt-4 d-flex justify-content-end">
+            <nav aria-label="Paginación de mantenimiento">
+                <ul class="pagination">
+                    @php
+                        $totalPages = $maintenances->lastPage();
+                        $current = $maintenances->currentPage();
+                        $range = 2; // Número de páginas a mostrar a cada lado de la actual
+                        $start = max(1, $current - $range);
+                        $end = min($totalPages, $current + $range);
+                    @endphp
+                    
+                    {{-- Primera página --}}
+                    @if($start > 1)
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $maintenances->url(1) }}">1</a>
+                        </li>
+                        @if($start > 2)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        @endif
+                    @endif
+                    
+                    {{-- Rango de páginas --}}
+                    @for ($i = $start; $i <= $end; $i++)
+                        <li class="page-item {{ $i === $current ? 'active' : '' }}">
+                            <a class="page-link" href="{{ $maintenances->url($i) }}">{{ $i }}</a>
+                        </li>
+                    @endfor
+                    
+                    {{-- Última página --}}
+                    @if($end < $totalPages)
+                        @if($end < $totalPages - 1)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        @endif
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $maintenances->url($totalPages) }}">{{ $totalPages }}</a>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
         </div>
     @else
         <div class="alert alert-info text-center" role="alert">

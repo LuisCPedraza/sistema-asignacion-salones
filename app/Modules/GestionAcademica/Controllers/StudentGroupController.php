@@ -21,11 +21,18 @@ class StudentGroupController extends Controller
 
     public function index(Request $request)
     {
-        $query = StudentGroup::with('semester');
+        $query = StudentGroup::with(['semester.career']);
 
-        // Búsqueda por nombre
-        if ($search = $request->get('search')) {
-            $query->where('name', 'like', "%{$search}%");
+        // Filtro por carrera (a través del semestre)
+        if ($careerId = $request->get('career_id')) {
+            $query->whereHas('semester', function($q) use ($careerId) {
+                $q->where('career_id', $careerId);
+            });
+        }
+
+        // Filtro por tipo de grupo (A o B)
+        if ($groupType = $request->get('group_type')) {
+            $query->where('name', 'like', "%Grupo {$groupType}%");
         }
 
         // Filtro de estado
@@ -35,9 +42,9 @@ class StudentGroupController extends Controller
             $query->where('is_active', false);
         }
 
-        // Filtro de nivel
-        if ($level = $request->get('level')) {
-            $query->where('level', $level);
+        // Filtro de jornada (schedule_type)
+        if ($scheduleType = $request->get('schedule_type')) {
+            $query->where('schedule_type', $scheduleType);
         }
 
         // Ordenamiento
@@ -65,7 +72,10 @@ class StudentGroupController extends Controller
             'avg' => round(StudentGroup::avg('student_count'), 1),
         ];
 
-        return view('gestion-academica.student-groups.index', compact('groups', 'stats'));
+        // Obtener lista de carreras para el filtro
+        $careers = \App\Models\Career::orderBy('name')->get(['id', 'code', 'name']);
+
+        return view('gestion-academica.student-groups.index', compact('groups', 'stats', 'careers'));
     }
 
     public function create()

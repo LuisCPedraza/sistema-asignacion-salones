@@ -19,7 +19,16 @@ class HorarioController extends Controller
      */
     public function semestral(Request $request)
     {
-        $query = Assignment::with(['group', 'teacher', 'classroom', 'timeSlot']);
+        $query = Assignment::with(['group', 'teacher', 'classroom', 'timeSlot', 'subject']);
+
+        // Filtro por carrera (a través del grupo de estudiantes)
+        if ($request->filled('career_id')) {
+            $query->whereHas('group', function ($q) use ($request) {
+                $q->whereHas('semester', function ($subQ) use ($request) {
+                    $subQ->where('career_id', $request->career_id);
+                });
+            });
+        }
 
         // Filtro por día
         if ($request->filled('day')) {
@@ -41,9 +50,9 @@ class HorarioController extends Controller
             $query->where('classroom_id', $request->classroom_id);
         }
 
-        // Filtro por ubicación (localización del salón)
+        // Filtro por ubicación (localización del edificio del salón)
         if ($request->filled('location')) {
-            $query->whereHas('classroom', function ($q) use ($request) {
+            $query->whereHas('classroom.building', function ($q) use ($request) {
                 $q->where('location', 'like', '%' . $request->location . '%');
             });
         }
@@ -54,23 +63,92 @@ class HorarioController extends Controller
             ->get();
 
         // Obtener datos para los dropdowns
-        $groups = \App\Modules\GestionAcademica\Models\StudentGroup::where('is_active', true)
+        $careers = \App\Models\Career::where('is_active', true)
+            ->orderBy('name')
             ->pluck('name', 'id');
 
-        $teachers = \App\Models\Teacher::where('is_active', true)
-            ->get()
+        // Filtrar grupos según la carrera seleccionada
+        $groups = \App\Modules\GestionAcademica\Models\StudentGroup::where('is_active', true);
+        if ($request->filled('career_id')) {
+            $groups = $groups->whereHas('semester', function ($q) use ($request) {
+                $q->where('career_id', $request->career_id);
+            });
+        }
+        $groups = $groups->pluck('name', 'id');
+
+        // Filtrar profesores según asignaciones de la carrera/grupo seleccionados
+        $teachers = \App\Models\Teacher::where('is_active', true);
+        if ($request->filled('career_id') || $request->filled('group_id')) {
+            $teachers = $teachers->whereHas('courseSchedules', function ($q) use ($request) {
+                if ($request->filled('group_id')) {
+                    $q->whereHas('semester.studentGroups', function ($subQ) use ($request) {
+                        $subQ->where('student_groups.id', $request->group_id);
+                    });
+                } elseif ($request->filled('career_id')) {
+                    $q->whereHas('semester', function ($subQ) use ($request) {
+                        $subQ->where('career_id', $request->career_id);
+                    });
+                }
+            });
+        }
+        $teachers = $teachers->get()
             ->mapWithKeys(function ($teacher) {
                 return [$teacher->id => $teacher->first_name . ' ' . $teacher->last_name];
             });
 
-        $classrooms = \App\Modules\Infraestructura\Models\Classroom::where('is_active', true)
-            ->pluck('name', 'id');
+        // Filtrar salones según carrera/grupo
+        $classrooms = \App\Modules\Infraestructura\Models\Classroom::where('is_active', true);
+        if ($request->filled('career_id') || $request->filled('group_id')) {
+            $classroomIds = Assignment::query();
+            if ($request->filled('group_id')) {
+                $classroomIds = $classroomIds->where('student_group_id', $request->group_id);
+            } elseif ($request->filled('career_id')) {
+                $classroomIds = $classroomIds->whereHas('group', function ($q) use ($request) {
+                    $q->whereHas('semester', function ($subQ) use ($request) {
+                        $subQ->where('career_id', $request->career_id);
+                    });
+                });
+            }
+            $classroomIds = $classroomIds->distinct()->pluck('classroom_id');
+            $classrooms = $classrooms->whereIn('id', $classroomIds);
+        }
+        $classrooms = $classrooms->pluck('name', 'id');
 
-        $locations = \App\Modules\Infraestructura\Models\Classroom::where('is_active', true)
-            ->distinct()
-            ->pluck('location');
+        // Ubicaciones: obtenerlas de los edificios relacionados con las aulas en las asignaciones
+        $assignmentsWithBuilding = Assignment::with(['classroom.building', 'group'])->orderBy('day')->orderBy('start_time');
+        if ($request->filled('career_id')) {
+            $assignmentsWithBuilding->whereHas('group', function ($q) use ($request) {
+                $q->whereHas('semester', function ($subQ) use ($request) {
+                    $subQ->where('career_id', $request->career_id);
+                });
+            });
+        }
+        if ($request->filled('group_id')) {
+            $assignmentsWithBuilding->where('student_group_id', $request->group_id);
+        }
+        $assignmentsForLocations = $assignmentsWithBuilding->get();
 
-        return view('visualization.horario-semestral', compact('assignments', 'groups', 'teachers', 'classrooms', 'locations'));
+        $locations = $assignmentsForLocations
+            ->map(function ($a) {
+                return optional(optional($a->classroom)->building)->location;
+            })
+            ->filter(function ($loc) { return !empty($loc); })
+            ->unique()
+            ->sort()
+            ->values();
+
+        // Si por algún motivo viene vacío, hacer fallback a todos los edificios activos
+        if ($locations->isEmpty()) {
+            $locations = \App\Modules\Infraestructura\Models\Building::where('is_active', true)
+                ->whereNotNull('location')
+                ->where('location', '!=', '')
+                ->pluck('location')
+                ->unique()
+                ->sort()
+                ->values();
+        }
+
+        return view('visualization.horario-semestral', compact('assignments', 'careers', 'groups', 'teachers', 'classrooms', 'locations'));
     }
 
     /**
@@ -195,19 +273,53 @@ class HorarioController extends Controller
     /**
      * HU13: Export horario semestral
      */
-    public function exportSemestral()
+    public function exportSemestral(Request $request)
     {
-        $export = new HorarioExport('semestral');
-        $csv = $export->toCSV();
-        $fileName = $export->getFileName();
-        
-        return response()->streamDownload(
-            function () use ($csv) {
-                echo $csv;
-            },
-            $fileName,
-            ['Content-Type' => 'text/csv; charset=utf-8']
-        );
+        $query = Assignment::with(['group', 'teacher', 'classroom', 'timeSlot']);
+
+        // Aplicar los mismos filtros que en la vista
+        if ($request->filled('career_id')) {
+            $query->whereHas('group', function ($q) use ($request) {
+                $q->whereHas('semester', function ($subQ) use ($request) {
+                    $subQ->where('career_id', $request->career_id);
+                });
+            });
+        }
+
+        if ($request->filled('day')) {
+            $query->where('day', $request->day);
+        }
+
+        if ($request->filled('group_id')) {
+            $query->where('student_group_id', $request->group_id);
+        }
+
+        if ($request->filled('teacher_id')) {
+            $query->where('teacher_id', $request->teacher_id);
+        }
+
+        if ($request->filled('classroom_id')) {
+            $query->where('classroom_id', $request->classroom_id);
+        }
+
+        if ($request->filled('location')) {
+            $query->whereHas('classroom.building', function ($q) use ($request) {
+                $q->where('location', 'like', '%' . $request->location . '%');
+            });
+        }
+
+        $assignments = $query
+            ->orderBy('day')
+            ->orderBy('start_time')
+            ->get();
+
+        // Generar PDF
+        $pdf = app('dompdf.wrapper')
+            ->loadView('visualization.horario-semestral-pdf', ['assignments' => $assignments])
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('isPhpEnabled', true);
+
+        return $pdf->download('horario-semestral-' . now()->format('Y-m-d_His') . '.pdf');
     }
 
     /**

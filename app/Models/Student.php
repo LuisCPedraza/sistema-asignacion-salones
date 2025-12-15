@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\AuditableModel;
 
 class Student extends Model
 {
-    use HasFactory;
+    use HasFactory, AuditableModel;
 
     protected $fillable = [
         'codigo',
@@ -34,6 +35,14 @@ class Student extends Model
     public function getNombreCompletoAttribute()
     {
         return "{$this->nombre} {$this->apellido}";
+    }
+
+    /**
+     * Descripción para auditoría
+     */
+    public function getAuditableDescription(): string
+    {
+        return "Estudiante {$this->nombre_completo} ({$this->codigo})";
     }
 
     /**

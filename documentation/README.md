@@ -1,8 +1,21 @@
 # 📚 Documentación del Sistema de Asignación de Salones
 
-Bienvenido a la documentación completa del Sistema de Asignación de Salones v2.0.0.
+Bienvenido a la documentación completa del Sistema de Asignación de Salones.
 
 ## 🚀 Inicio Rápido
+
+### Para Usuarios del Sistema
+
+Si eres usuario del sistema y necesitas aprender a usarlo:
+
+1. **Profesores**: [MANUAL_USUARIO_PROFESOR.md](./MANUAL_USUARIO_PROFESOR.md) - Actividades, calificaciones, reportes
+2. **Coordinadores Académicos**: [MANUAL_USUARIO_COORDINADOR_ACADEMICO.md](./MANUAL_USUARIO_COORDINADOR_ACADEMICO.md) - Carreras, semestres, materias, grupos, estudiantes
+3. **Coordinadores Infraestructura**: [MANUAL_USUARIO_INFRAESTRUCTURA.md](./MANUAL_USUARIO_INFRAESTRUCTURA.md) - Salones, mantenimiento, reservas
+4. **Administradores**: [MANUAL_USUARIO_ADMINISTRADOR.md](./MANUAL_USUARIO_ADMINISTRADOR.md) - Usuarios, auditoría, configuración
+
+### Para Ver las Últimas Actualizaciones
+
+[RESUMEN_ACTUALIZACIONES.md](./RESUMEN_ACTUALIZACIONES.md) - Todas las mejoras implementadas en Nov-Dic 2025
 
 ### Para Crear los Pull Requests de Release 2.0.0
 
@@ -19,6 +32,16 @@ Si tu objetivo es crear los Pull Requests para integrar la versión 2.0.0:
 Consulta el [INDICE_DOCUMENTACION.md](./INDICE_DOCUMENTACION.md) para acceder a toda la documentación organizada por tema.
 
 ## 📋 Estructura de Documentación
+
+### 📖 Manuales de Usuario
+
+| Manual | Audiencia | Contenido |
+|--------|-----------|-----------|
+| **MANUAL_USUARIO_PROFESOR.md** | 🎓 Profesores | Actividades, calificaciones, reportes, FAQ |
+| **MANUAL_USUARIO_COORDINADOR_ACADEMICO.md** | 👨‍🎓 Coordinadores Académicos | Carreras, semestres, materias, grupos, estudiantes, reportes |
+| **MANUAL_USUARIO_INFRAESTRUCTURA.md** | 🏢 Coordinadores Infraestructura | Salones, mantenimiento, reservas, reportes |
+| **MANUAL_USUARIO_ADMINISTRADOR.md** | 👨‍💼 Administradores | Usuarios, auditoría, reportes, configuración, backups |
+| **RESUMEN_ACTUALIZACIONES.md** | 👥 Todos | Resumen de mejoras Nov-Dic 2025 |
 
 ### 🎯 Documentación de Release 2.0.0
 
