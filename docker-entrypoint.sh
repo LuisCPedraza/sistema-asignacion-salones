@@ -21,6 +21,12 @@ php artisan storage:link
 
 echo "✅ Aplicación lista!"
 
+# Sustituir PORT en la configuración de Nginx (Render provee $PORT)
+PORT=${PORT:-80}
+echo "🔧 Configurando Nginx para escuchar en puerto ${PORT}..."
+# Reemplaza la directiva 'listen ${PORT};' por el valor real
+sed -i "s/listen \${PORT};/listen ${PORT};/" /etc/nginx/nginx.conf
+
 # Iniciar PHP-FPM y Nginx
 php-fpm -D
 nginx -g 'daemon off;'
