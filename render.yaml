@@ -7,18 +7,9 @@ services:
     plan: free
     autoDeploy: true
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /up
-    buildCommand: |
-      composer install --no-dev --optimize-autoloader
-      npm install
-      npm run build
-    startCommand: |
-      php artisan migrate --force
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
-      php artisan storage:link
-      apache2-foreground
+    healthCheckPath: /
+    # Con env: docker y dockerfilePath, Render usa el Dockerfile.
+    # No se requieren buildCommand/startCommand aquí; el entrypoint del contenedor maneja build/run.
     envVars:
       - key: APP_NAME
         value: Sistema de Asignación de Salones
