@@ -1,0 +1,1 @@
+[Copia de seguridad del documento original de arquitectura ubicada previamente en la raíz. Nota: Se consolidó la versión principal en documentation/informes/ARQUITECTURA_GESTION_ACADEMICA.md.]
