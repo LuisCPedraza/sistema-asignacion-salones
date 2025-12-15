@@ -15,6 +15,7 @@ use App\Modules\Asignacion\Models\AssignmentRule;
 use App\Modules\Asignacion\Models\Assignment;
 use App\Models\AcademicPeriod;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +44,9 @@ class AssignmentController extends Controller
 
     public function ejecutarAutomatica(Request $request)
     {
+        // Allow more time for bulk assignment without hitting the default 30s limit in web context.
+        set_time_limit(120);
+
         $inicio = microtime(true);
 
         try {
@@ -109,18 +113,62 @@ class AssignmentController extends Controller
         // Obtener todos los períodos para el selector
         $periods = AcademicPeriod::orderBy('start_date', 'desc')->get();
         
-        // Obtener todos los datos necesarios para la vista
-        $groups = StudentGroup::with('semester.career')->where('is_active', true)->get();
+        // Obtener carreras activas para filtro jerárquico
+        $careers = \App\Models\Career::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+        
+        // Obtener filtros seleccionados
+        $selectedCareer = $request->get('career_id');
+        $selectedSemester = $request->get('semester_id');
+        
+        // Obtener semestres (filtrados por carrera si está seleccionada)
+        $semestersQuery = \App\Models\Semester::where('is_active', true);
+        if ($selectedCareer) {
+            $semestersQuery->where('career_id', $selectedCareer);
+        }
+        $semesters = $semestersQuery->orderBy('number')->get();
+        
+        // Log para debugging
+        \Log::info('Filtros recibidos', [
+            'selectedCareer' => $selectedCareer,
+            'selectedSemester' => $selectedSemester,
+            'total_semesters' => $semesters->count(),
+            'semesters_sample' => $semesters->take(3)->map(fn($s) => [
+                'id' => $s->id,
+                'number' => $s->number,
+                'career_id' => $s->career_id
+            ])
+        ]);
+        
+        // Obtener todos los datos necesarios para la vista (filtrados por semestre si está seleccionado)
+        $groupsQuery = StudentGroup::with('semester.career')->where('is_active', true);
+        if ($selectedSemester) {
+            $groupsQuery->where('semester_id', $selectedSemester);
+        }
+        $groups = $groupsQuery->get();
+        
         $classrooms = Classroom::where('is_active', true)->get();
         $teachers = Teacher::where('is_active', true)->get();
         $subjects = \App\Models\Subject::where('is_active', true)->get();
         $timeSlots = TimeSlot::all();
         
-        // Obtener asignaciones existentes (filtradas por período si existe)
-        $query = Assignment::with(['group', 'classroom', 'teacher', 'subject']);
-        
-        if ($period) {
-            // Filtrar por período académico a través de la relación con StudentGroup
+        // Obtener asignaciones existentes con prioridad de filtros: semestre > carrera > período
+        $query = Assignment::with(['group.semester.career', 'classroom', 'teacher', 'subject']);
+
+        if ($selectedSemester) {
+            // Priorizar semestre seleccionado
+            $query->whereIn('student_group_id',
+                StudentGroup::where('semester_id', $selectedSemester)->pluck('id')
+            );
+        } elseif ($selectedCareer) {
+            // Si hay carrera seleccionada, filtrar por sus semestres
+            $careerSemesterIds = \App\Models\Semester::where('career_id', $selectedCareer)->pluck('id');
+            $query->whereIn('student_group_id',
+                StudentGroup::whereIn('semester_id', $careerSemesterIds)->pluck('id')
+            );
+        } elseif ($period) {
+            // Si no hay filtros de carrera/semestre, usar período (si existe)
             $query->whereIn('student_group_id', 
                 StudentGroup::where('academic_period_id', $period->id)->pluck('id')
             );
@@ -132,19 +180,19 @@ class AssignmentController extends Controller
         
         $assignments = $rawAssignments
             ->map(function ($assignment) {
-                // Mapear día a fecha (usando lunes como referencia)
+                // Mapear día a fecha (usando semana iniciando en domingo para alinear con el calendario visible)
                 $dayMap = [
-                    'monday' => 0,
-                    'tuesday' => 1,
-                    'wednesday' => 2,
-                    'thursday' => 3,
-                    'friday' => 4,
-                    'saturday' => 5,
-                    'sunday' => 6,
+                    'sunday' => 0,
+                    'monday' => 1,
+                    'tuesday' => 2,
+                    'wednesday' => 3,
+                    'thursday' => 4,
+                    'friday' => 5,
+                    'saturday' => 6,
                 ];
                 
-                $daysFromMonday = $dayMap[strtolower($assignment->day)] ?? 0;
-                $baseDate = now()->startOfWeek()->addDays($daysFromMonday)->format('Y-m-d');
+                $daysFromSunday = $dayMap[strtolower($assignment->day)] ?? 0;
+                $baseDate = now()->startOfWeek(Carbon::SUNDAY)->addDays($daysFromSunday)->format('Y-m-d');
 
                 // Asegurar que las horas no traigan una fecha previa (evita duplicar fecha)
                 $startTime = Carbon::parse($assignment->start_time)->format('H:i:s');
@@ -183,8 +231,56 @@ class AssignmentController extends Controller
             'timeSlots',
             'assignments',
             'periods',
-            'period'
+            'period',
+            'careers',
+            'semesters',
+            'selectedCareer',
+            'selectedSemester'
         ));
+    }
+
+    public function exportManualPdf(Request $request)
+    {
+        $periodId = $request->get('period_id');
+        $selectedCareer = $request->get('career_id');
+        $selectedSemester = $request->get('semester_id');
+
+        // Reutilizar lógica de filtros
+        $period = $periodId 
+            ? AcademicPeriod::find($periodId)
+            : AcademicPeriod::where('is_active', true)
+                ->orderBy('start_date')
+                ->first();
+
+        $query = Assignment::with(['group.semester.career', 'classroom', 'teacher', 'subject']);
+
+        if ($selectedSemester) {
+            $query->whereIn('student_group_id',
+                StudentGroup::where('semester_id', $selectedSemester)->pluck('id')
+            );
+        } elseif ($selectedCareer) {
+            $careerSemesterIds = \App\Models\Semester::where('career_id', $selectedCareer)->pluck('id');
+            $query->whereIn('student_group_id',
+                StudentGroup::whereIn('semester_id', $careerSemesterIds)->pluck('id')
+            );
+        } elseif ($period) {
+            $query->whereIn('student_group_id', 
+                StudentGroup::where('academic_period_id', $period->id)->pluck('id')
+            );
+        }
+
+        $assignments = $query->orderBy('day')->orderBy('start_time')->get();
+
+        $pdf = Pdf::loadView('asignacion.manual-pdf', [
+            'assignments' => $assignments,
+            'period' => $period,
+            'selectedCareer' => $selectedCareer,
+            'selectedSemester' => $selectedSemester,
+            'generated_at' => now()->format('d/m/Y H:i')
+        ])->setPaper('a4', 'portrait');
+
+        $filename = 'asignaciones_manual_' . now()->format('Y-m-d_H-i-s') . '.pdf';
+        return $pdf->download($filename);
     }
 
     private function getColorByScore($score)
