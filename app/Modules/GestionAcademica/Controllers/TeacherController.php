@@ -20,7 +20,7 @@ class TeacherController extends Controller
 
     public function index(Request $request)
     {
-        $query = Teacher::withCount(['courseSchedules', 'availabilities']);
+        $query = Teacher::withCount(['assignments', 'availabilities']);
 
         // Búsqueda por nombre, email o especialidad
         if ($search = $request->get('search')) {
@@ -47,12 +47,12 @@ class TeacherController extends Controller
         // Filtro por carga horaria
         if ($workload = $request->get('workload')) {
             if ($workload === 'overloaded') {
-                $query->has('courseSchedules', '>=', 5);
+                $query->has('assignments', '>=', 5);
             } elseif ($workload === 'normal') {
-                $query->has('courseSchedules', '>=', 1)
-                      ->has('courseSchedules', '<', 5);
+                $query->has('assignments', '>=', 1)
+                      ->has('assignments', '<', 5);
             } elseif ($workload === 'available') {
-                $query->doesntHave('courseSchedules');
+                $query->doesntHave('assignments');
             }
         }
 
@@ -69,7 +69,7 @@ class TeacherController extends Controller
                 $query->orderByDesc('total_hours');
                 break;
             case 'subjects':
-                $query->orderByDesc('course_schedules_count');
+                $query->orderByDesc('assignments_count');
                 break;
             case 'experience':
                 $query->orderByDesc('years_experience');
@@ -87,9 +87,9 @@ class TeacherController extends Controller
         $stats = [
             'total' => Teacher::count(),
             'active' => Teacher::where('is_active', true)->count(),
-            'with_assignments' => Teacher::has('courseSchedules')->count(),
-            'overloaded' => Teacher::has('courseSchedules', '>=', 5)->count(),
-            'avg_subjects' => round(Teacher::withCount('courseSchedules')->avg('course_schedules_count'), 1),
+            'with_assignments' => Teacher::has('assignments')->count(),
+            'overloaded' => Teacher::has('assignments', '>=', 5)->count(),
+            'avg_subjects' => round(Teacher::withCount('assignments')->avg('assignments_count'), 1),
             'with_availability' => Teacher::has('availabilities')->count(),
         ];
 
