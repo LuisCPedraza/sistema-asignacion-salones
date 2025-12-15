@@ -25,6 +25,9 @@ Route::middleware([
     Route::get('/manual', [AssignmentController::class, 'manual'])
         ->name('manual');
 
+    Route::get('/manual/pdf', [AssignmentController::class, 'exportManualPdf'])
+        ->name('manual.pdf');
+
     // Rutas API para asignación manual drag & drop (HU11)
     Route::post('/manual/store', [AssignmentController::class, 'storeManual'])
         ->name('manual.store');

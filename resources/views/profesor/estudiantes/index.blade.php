@@ -344,10 +344,24 @@
                 @foreach($cursos as $curso)
                     <div class="course-card">
                         <div class="course-header">
-                            <h2>{{ $curso['subject']->name }}</h2>
-                            <div class="course-stats">
+                            <h2 style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                                {{ $curso['subject']->name ?? 'Materia sin nombre' }}
+                                @if(!empty($curso['subject']->code))
+                                    <span style="background: rgba(255,255,255,0.15); padding:0.15rem 0.5rem; border-radius:6px; font-size:0.85rem;">Código: {{ $curso['subject']->code }}</span>
+                                @endif
+                            </h2>
+                            <div class="course-stats" style="flex-wrap:wrap;">
                                 <span>📚 {{ count($curso['groups']) }} grupo(s)</span>
                                 <span>👥 {{ $curso['total_students'] }} estudiante(s)</span>
+                                @if(!empty($curso['career']))
+                                    <span>🎯 {{ $curso['career']->name ?? 'Carrera no definida' }}</span>
+                                @endif
+                                @if(!empty($curso['subject']->semester_level))
+                                    <span>📅 Nivel/Semestre: {{ $curso['subject']->semester_level }}</span>
+                                @endif
+                                @if(!empty($curso['subject']->credit_hours))
+                                    <span>⏱️ Créditos: {{ $curso['subject']->credit_hours }}</span>
+                                @endif
                             </div>
                         </div>
                         <div class="course-body">
@@ -355,11 +369,25 @@
                                 @foreach($curso['groups'] as $groupData)
                                     <div class="group-card">
                                         <div class="group-header">
-                                            <div class="group-name">
-                                                {{ $groupData['group']->name ?? 'Grupo sin nombre' }}
-                                                <span style="font-weight: normal; font-size: 0.9rem;">
-                                                    ({{ $groupData['student_count'] }} estudiantes)
-                                                </span>
+                                            <div class="group-name" style="display:flex; flex-direction:column; gap:0.15rem;">
+                                                <div>
+                                                    {{ $groupData['group']->name ?? 'Grupo sin nombre' }}
+                                                    <span style="font-weight: normal; font-size: 0.9rem;">
+                                                        ({{ $groupData['student_count'] }} estudiantes)
+                                                    </span>
+                                                </div>
+                                                <div style="font-weight:500; font-size:0.9rem; opacity:0.95;">
+                                                    @php
+                                                        $semesterName = $groupData['semester']->name ?? null;
+                                                        $careerName = $groupData['semester']->career->name ?? $curso['career']->name ?? null;
+                                                        $turno = $groupData['group']->group_type === 'B' ? 'Nocturno' : 'Diurno';
+                                                    @endphp
+                                                    {{ $semesterName ? "Semestre: $semesterName" : 'Semestre no definido' }}
+                                                    @if($careerName)
+                                                        · {{ $careerName }}
+                                                    @endif
+                                                    · {{ $turno }}
+                                                </div>
                                             </div>
                                             <a href="{{ route('profesor.estudiantes.create', ['assignment_id' => $groupData['assignment_id']]) }}" 
                                                class="btn-add-student">

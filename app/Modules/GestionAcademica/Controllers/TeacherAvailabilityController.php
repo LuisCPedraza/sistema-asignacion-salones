@@ -42,10 +42,15 @@ class TeacherAvailabilityController extends Controller
     public function myAvailabilities()
     {
         $user = Auth::user();
-        $teacher = $user->teacher;
+        
+        // Buscar el profesor asociado por teacher_id o user_id
+        $teacher = $user->teacher_id 
+            ? Teacher::find($user->teacher_id) 
+            : Teacher::where('user_id', $user->id)->first();
 
         if (!$teacher) {
-            abort(404, 'No profesor asociado a tu usuario.');
+            return redirect()->route('profesor.dashboard')
+                ->with('error', 'No se encontró información del profesor asociado a tu usuario.');
         }
 
         $availabilities = TeacherAvailability::where('teacher_id', $teacher->id)

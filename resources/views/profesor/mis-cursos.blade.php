@@ -319,7 +319,7 @@
                 @foreach($cursos as $curso)
                     <div class="course-card">
                         <div class="course-header">
-                            <h2>{{ $curso['subject']->name }}</h2>
+                            <h2>{{ $curso['subject']->name ?? 'Materia sin nombre' }}</h2>
                             <div class="subject-code">Código: {{ $curso['subject']->code ?? 'N/A' }}</div>
                         </div>
                         <div class="course-body">

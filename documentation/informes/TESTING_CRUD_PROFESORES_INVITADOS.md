@@ -201,10 +201,10 @@ docker exec sas-app php artisan tinker --execute="
     ->orderBy('created_at', 'desc')
     ->get(['event', 'old_data', 'new_data', 'created_at'])
     ->each(function(\$log) {
-        echo \"\\n=== Evento: {\$log->event} ===\\n\";
-        echo \"Fecha: {\$log->created_at}\\n\";
-        if (\$log->old_data) echo \"Old Data: \" . json_encode(\$log->old_data) . \"\\n\";
-        if (\$log->new_data) echo \"New Data: \" . json_encode(\$log->new_data) . \"\\n\";
+        echo "\n=== Evento: {\$log->event} ===\n";
+        echo "Fecha: {\$log->created_at}\n";
+        if (\$log->old_data) echo "Old Data: " . json_encode(\$log->old_data) . "\n";
+        if (\$log->new_data) echo "New Data: " . json_encode(\$log->new_data) . "\n";
     });
 "
 ```

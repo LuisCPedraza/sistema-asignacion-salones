@@ -9,13 +9,24 @@ use Illuminate\Http\Request;
 
 class ProfesorController extends Controller
 {
+    private function currentTeacher()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return null;
+        }
+        return $user->teacher_id
+            ? Teacher::find($user->teacher_id)
+            : Teacher::where('user_id', $user->id)->first();
+    }
+
     /**
      * Mostrar los cursos asignados al profesor autenticado
      */
     public function misCursos()
     {
         // Obtener el profesor basado en el usuario autenticado
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
@@ -67,7 +78,7 @@ class ProfesorController extends Controller
      */
     public function detalleCurso($assignmentId)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')

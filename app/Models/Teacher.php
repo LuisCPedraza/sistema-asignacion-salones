@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\CourseSchedule;
+use App\Modules\Asignacion\Models\Assignment;
 
 class Teacher extends Model
 {
@@ -45,6 +47,16 @@ class Teacher extends Model
     public function availabilities()
     {
         return $this->hasMany(\App\Modules\GestionAcademica\Models\TeacherAvailability::class);
+    }
+
+    public function courseSchedules()
+    {
+        return $this->hasMany(CourseSchedule::class);
+    }
+
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class);
     }
 
     public function getFullNameAttribute()

@@ -6,10 +6,12 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.x-4169E1?logo=postgresql&logoColor=white)](https://postgresql.org)
 [![Vite](https://img.shields.io/badge/Vite-7.0.7-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0.0-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
-[![Tests](https://img.shields.io/badge/Tests-83_passing-success?logo=github-actions&logoColor=white)]()
+[![Tests](https://img.shields.io/badge/Tests-245_passing-success?logo=github-actions&logoColor=white)]()
 [![Render](https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render&logoColor=white)](https://sistema-asignacion-salones.onrender.com)
 
 ¡Hola! Bienvenidos a nuestro sistema web para simplificar la vida en las escuelas. Imagina coordinar grupos, salones y profesores sin el caos de las agendas manuales: eso es lo que hemos construido aquí, una herramienta que automatiza la programación semestral, ya sea de forma automática o manual, para que los equipos educativos se enfoquen en lo que realmente importa.
+
+> Estado actual del proyecto: Tests pasando (245) y documentación consolidada.
 
 Este proyecto surgió de la necesidad real de hacer más eficiente la gestión académica, y lo hemos desarrollado con un enfoque natural: usando metodologías ágiles como Scrum con toques de Kanban, DevOps para un flujo continuo y TDD para que todo funcione sin sorpresas. El resultado es un sistema modular, fácil de mantener y escalable, listo para crecer con el centro educativo.
 
@@ -39,7 +41,7 @@ Sistema web para la gestión integral de recursos educativos (grupos, salones, p
 - **⚠️ Detección de Conflictos:** Validación en tiempo real de solapamientos y restricciones
 - **📊 Reportes y Visualización:** Horarios por profesor, grupo y salón
 - **📱 Diseño Responsivo:** Interfaz adaptable a dispositivos móviles y escritorio
-- **🧪 Alta Cobertura de Tests:** 83 tests automatizados (Pest + PHPUnit)
+- **🧪 Alta Cobertura de Tests:** 245 tests automatizados (Pest + PHPUnit)
 - **🚀 CI/CD Completo:** Despliegue automático con GitHub Actions + Render
 - **📦 Arquitectura Modular:** Separación por módulos funcionales (`app/Modules`)
 
@@ -63,13 +65,13 @@ Para llevar a cabo este ambicioso proyecto, hemos seleccionado un conjunto de te
 - **Lenguaje:** PHP ^8.2
 - **Base de Datos:** PostgreSQL 15.x (Supabase - Producción) / SQLite 3.x (Desarrollo)
 - **ORM:** Eloquent (Laravel)
-- **Testing:** Pest ^3.8 + PHPUnit ^11.5.3 (83 tests pasando)
+- **Testing:** Pest ^3.8 + PHPUnit ^11.5.3 (245 tests pasando)
 - **Code Quality:** Laravel Pint ^1.24, Laravel Pail ^1.2.2
 
 ### Frontend
-- **Build Tool:** Vite 7.0.7 (hot module replacement)
-- **CSS Framework:** Tailwind CSS 4.0.0 (utility-first)
-- **HTTP Client:** Axios 1.11.0
+- **Build Tool:** Vite 7.x (hot module replacement)
+- **UI:** Bootstrap 5 + FontAwesome 6 (diseño responsive y accesible)
+- **Calendario:** FullCalendar 6.x (semanal con enriquecimiento de eventos)
 - **Template Engine:** Blade (Laravel)
 
 ### DevOps & Infraestructura
@@ -80,6 +82,7 @@ Para llevar a cabo este ambicioso proyecto, hemos seleccionado un conjunto de te
 - **Sistema Operativo:** Ubuntu 24.04 / WSL2
 - **Editor de Código:** Visual Studio Code
 - **Gestores de Dependencias:** Composer 2.x (PHP) + npm (Node.js 22.x)
+ - **Automatizaciones:** n8n (workflows, notificaciones por correo, chatbot)
 
 #### 🔗 Enlace despliegue con Render
 https://sistema-asignacion-salones.onrender.com
@@ -326,14 +329,65 @@ sistema-asignacion-salones/
 └── README.md                     # Este archivo
 ```
 
+## 🤖 Chatbot y n8n AI Agent
+
+El sistema incluye un chatbot integrado con n8n que permite responder preguntas y automatizar notificaciones.
+
+- **Arquitectura:** Frontend (Blade) → API Laravel → n8n Chat Trigger → AI Agent → Tools (HTTP Request) → API Laravel.
+- **Tecnologías:** n8n (Chat Trigger + AI Agent), modelo LLM (p.ej. qwen3-next u OpenAI), HTTP Request tools a endpoints Laravel.
+- **Endpoints:** `routes/api.php` expone rutas tipo `/api/webhooks/n8n/...` para datos (asignaciones, conflictos, invitados por expirar).
+- **Seguridad:** Header `X-API-Token` validado en middleware para llamadas desde n8n.
+- **Configuración:** `.env` con `N8N_WEBHOOK_CHATBOT` apuntando al webhook del Chat Trigger.
+
+Documentación:
+- Esquema y conexiones: [documentation/informes/ESQUEMA_CHAT_N8N.md](documentation/informes/ESQUEMA_CHAT_N8N.md)
+- Plan de implementación: [documentation/informes/PLAN_N8N_IMPLEMENTATION.md](documentation/informes/PLAN_N8N_IMPLEMENTATION.md)
+
+### Prueba rápida del chatbot
+
+```bash
+# Iniciar n8n localmente
+
+# Abrir UI de n8n
+# http://localhost:5678
+
+# Probar endpoints Laravel desde WSL
 ## 🛠️ Instalación y Configuración
 
 ### Requisitos Previos
+
+En n8n, conecta el nodo "When chat message received" al "AI Agent" y declara las herramientas HTTP con el header `X-API-Token`.
+
+## 🎬 Guía de Demo Rápida
+
+Para presentar el proyecto en vivo:
+
+```bash
 
 - **PHP:** >= 8.2
 - **Composer:** >= 2.0
 - **Node.js:** >= 22.x
 - **PostgreSQL:** >= 15.x (o SQLite para desarrollo local)
+
+- Módulos a mostrar:
+  - Gestión Académica: Carreras, Semestres, Materias (CRUD con validaciones y paginación)
+  - Calendario semanal (FullCalendar) con eventos enriquecidos
+  - Asignación Manual con filtros por Carrera → Semestre
+  - Exportar PDF de asignaciones (respetando filtros)
+  - Chatbot (si n8n está activo) consultando datos vía tools
+
+## 📚 Documentación consolidada
+
+Accede al índice central: [documentation/INDICE_DOCUMENTACION.md](documentation/INDICE_DOCUMENTACION.md)
+
+- Guías: [documentation/guias](documentation/guias)
+- Resúmenes: [documentation/resumenes](documentation/resumenes)
+- Informes: [documentation/informes](documentation/informes)
+
+Enlaces útiles:
+- Arquitectura académica: [documentation/informes/ARQUITECTURA_GESTION_ACADEMICA.md](documentation/informes/ARQUITECTURA_GESTION_ACADEMICA.md)
+- Reporte de redistribución final: [documentation/informes/REPORTE_REDISTRIBUCION_FINAL.md](documentation/informes/REPORTE_REDISTRIBUCION_FINAL.md)
+- Finalización módulo Gestión Académica: [documentation/resumenes/FINALIZACION_GESTION_ACADEMICA.md](documentation/resumenes/FINALIZACION_GESTION_ACADEMICA.md)
 - **Git:** >= 2.30
 
 ### Instalación Rápida

@@ -1,6 +1,23 @@
-# Índice de Documentación - Release 2.0.0
+# Índice de Documentación - Sistema de Asignación de Salones
 
-Este documento sirve como índice central para toda la documentación relacionada con el Release 2.0.0 del Sistema de Asignación de Salones.
+Este documento sirve como índice central para toda la documentación del Sistema de Asignación de Salones.
+
+## 📚 Manuales de Usuario
+
+### Guías por Rol
+
+| Manual | Descripción | Para Quién |
+|--------|-------------|------------|
+| [MANUAL_USUARIO_PROFESOR.md](./MANUAL_USUARIO_PROFESOR.md) | Guía completa para profesores: actividades, calificaciones, reportes | 🎓 Profesores |
+| [MANUAL_USUARIO_COORDINADOR_ACADEMICO.md](./MANUAL_USUARIO_COORDINADOR_ACADEMICO.md) | Guía para coordinadores académicos: carreras, semestres, materias, grupos, estudiantes | 👨‍🎓 Coordinadores Académicos |
+| [MANUAL_USUARIO_INFRAESTRUCTURA.md](./MANUAL_USUARIO_INFRAESTRUCTURA.md) | Guía para coordinadores: salones, mantenimiento, reservas | 🏢 Coordinadores de Infraestructura |
+| [MANUAL_USUARIO_ADMINISTRADOR.md](./MANUAL_USUARIO_ADMINISTRADOR.md) | Guía de administración: usuarios, auditoría, configuración, backups | 👨‍💼 Administradores |
+
+### Actualizaciones Recientes
+
+| Documento | Descripción |
+|-----------|-------------|
+| [RESUMEN_ACTUALIZACIONES.md](./RESUMEN_ACTUALIZACIONES.md) | Resumen de todas las mejoras implementadas (Nov-Dic 2025) |
 
 ## 🚀 Documentos de Pull Requests
 
@@ -94,6 +111,37 @@ Este documento sirve como índice central para toda la documentación relacionad
 1. [EstrategiaDeBranching.md](./EstrategiaDeBranching.md) - Estrategia de ramas
 2. [github-actions-laravel.md](./github-actions-laravel.md) - CI/CD con GitHub Actions
 3. [Analisis Levantamiento de Requerimientos.md](./Analisis%20Levantamiento%20de%20Requerimientos.md) - Backlog y épicas
+
+## 📁 Organización de Documentación
+
+Para facilitar la navegación, toda la documentación se consolidó en tres carpetas:
+
+### Guías
+- [documentation/guias/INICIO_RAPIDO_GESTION_ACADEMICA.md](documentation/guias/INICIO_RAPIDO_GESTION_ACADEMICA.md)
+- [documentation/guias/GUIA_CONFIGURACION.md](documentation/guias/GUIA_CONFIGURACION.md)
+- [documentation/guias/GUIA_SINCRONIZACION.md](documentation/guias/GUIA_SINCRONIZACION.md)
+- [documentation/guias/GUIA_RAPIDA_HU8_FIX.md](documentation/guias/GUIA_RAPIDA_HU8_FIX.md)
+- [documentation/guias/GUIA_TESTING_CRUD_GESTION_ACADEMICA.md](documentation/guias/GUIA_TESTING_CRUD_GESTION_ACADEMICA.md)
+- [documentation/guias/COMANDOS_COPY_PASTE.md](documentation/guias/COMANDOS_COPY_PASTE.md)
+- [documentation/guias/SYNC_SUPABASE.md](documentation/guias/SYNC_SUPABASE.md)
+
+### Resúmenes
+- [documentation/resumenes/RESUMEN_GESTION_ACADEMICA_CRUD.md](documentation/resumenes/RESUMEN_GESTION_ACADEMICA_CRUD.md)
+- [documentation/resumenes/SESION_TRABAJO_RESUMIDA.md](documentation/resumenes/SESION_TRABAJO_RESUMIDA.md)
+- [documentation/resumenes/RESUMEN_FINAL_GESTION_ACADEMICA.md](documentation/resumenes/RESUMEN_FINAL_GESTION_ACADEMICA.md)
+- [documentation/resumenes/RESUMEN_FINAL_SESION.md](documentation/resumenes/RESUMEN_FINAL_SESION.md)
+- [documentation/resumenes/RESUMEN_HOTFIX_HU8.md](documentation/resumenes/RESUMEN_HOTFIX_HU8.md)
+- [documentation/resumenes/RESUMEN_AUDITORIA_HU18.md](documentation/resumenes/RESUMEN_AUDITORIA_HU18.md)
+- [documentation/resumenes/FINALIZACION_GESTION_ACADEMICA.md](documentation/resumenes/FINALIZACION_GESTION_ACADEMICA.md)
+
+### Informes
+- [documentation/informes/ARQUITECTURA_GESTION_ACADEMICA.md](documentation/informes/ARQUITECTURA_GESTION_ACADEMICA.md)
+- [documentation/informes/REPORTE_REDISTRIBUCION_FINAL.md](documentation/informes/REPORTE_REDISTRIBUCION_FINAL.md)
+- [documentation/informes/REPORTE_GESTION_USUARIOS.md](documentation/informes/REPORTE_GESTION_USUARIOS.md)
+- [documentation/informes/PLAN_N8N_IMPLEMENTATION.md](documentation/informes/PLAN_N8N_IMPLEMENTATION.md)
+- [documentation/informes/ESQUEMA_CHAT_N8N.md](documentation/informes/ESQUEMA_CHAT_N8N.md)
+- [documentation/informes/TESTING_CRUD_PROFESORES_INVITADOS.md](documentation/informes/TESTING_CRUD_PROFESORES_INVITADOS.md)
+- [documentation/informes/INFORME_CUENTAS_PROFESORES.md](documentation/informes/INFORME_CUENTAS_PROFESORES.md)
 
 ## 📋 Checklist de Documentación
 

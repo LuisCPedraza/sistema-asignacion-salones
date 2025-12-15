@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Career;
+use App\Models\Semester;
+use App\Models\CourseSchedule;
 
 class Subject extends Model
 {
@@ -18,7 +21,8 @@ class Subject extends Model
         'lecture_hours',
         'lab_hours',
         'semester_level',
-        'is_active',
+           'is_active',
+           'career_id',
     ];
 
     protected $casts = [
@@ -33,6 +37,11 @@ class Subject extends Model
     {
         return $this->hasMany(CourseSchedule::class);
     }
+
+        public function career()
+        {
+            return $this->belongsTo(Career::class);
+        }
 
     public function semesters()
     {

@@ -9,10 +9,11 @@ use App\Models\Teacher;
 use App\Modules\Infraestructura\Models\Classroom;
 use App\Models\TimeSlot;
 use App\Models\Activity;
+use App\Traits\AuditableModel;
 
 class Assignment extends Model
 {
-    use HasFactory;
+    use HasFactory, AuditableModel;
 
     protected $table = 'assignments';
 
@@ -74,6 +75,18 @@ class Assignment extends Model
     public function scopeConfirmed($query)
     {
         return $query->where('is_confirmed', true);
+    }
+
+    /**
+     * Descripción para auditoría
+     */
+    public function getAuditableDescription(): string
+    {
+        $subjectName = $this->subject->name ?? 'Materia';
+        $groupName = $this->group->name ?? 'Grupo';
+        $teacherName = $this->teacher->full_name ?? 'Profesor';
+        
+        return "Asignación: {$subjectName} - {$groupName} (Prof. {$teacherName})";
     }
 
     public function scopePending($query)
