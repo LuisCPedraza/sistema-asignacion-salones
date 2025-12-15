@@ -23,61 +23,91 @@
 
     <!-- Estadísticas Rápidas -->
     <div class="row g-3 mb-4">
-        <div class="col-md-3">
+        <div class="col-lg-2 col-md-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="text-muted mb-1 small">Total Profesores</p>
-                            <h3 class="mb-0">{{ $stats['total'] ?? 0 }}</h3>
+                            <p class="text-muted mb-1 small">Total</p>
+                            <h4 class="mb-0">{{ $stats['total'] ?? 0 }}</h4>
                         </div>
                         <div class="bg-primary bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-person-workspace fs-4 text-primary"></i>
+                            <i class="bi bi-person-workspace fs-5 text-primary"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-2 col-md-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="text-muted mb-1 small">Activos</p>
-                            <h3 class="mb-0 text-success">{{ $stats['active'] ?? 0 }}</h3>
+                            <h4 class="mb-0 text-success">{{ $stats['active'] ?? 0 }}</h4>
                         </div>
                         <div class="bg-success bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-check-circle fs-4 text-success"></i>
+                            <i class="bi bi-check-circle fs-5 text-success"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-2 col-md-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="text-muted mb-1 small">Experiencia Prom.</p>
-                            <h3 class="mb-0 text-info">{{ $stats['avg_experience'] ?? 0 }} años</h3>
+                            <p class="text-muted mb-1 small">Con Materias</p>
+                            <h4 class="mb-0 text-info">{{ $stats['with_assignments'] ?? 0 }}</h4>
                         </div>
                         <div class="bg-info bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-award fs-4 text-info"></i>
+                            <i class="bi bi-book fs-5 text-info"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-2 col-md-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="text-muted mb-1 small">Con Doctorado</p>
-                            <h3 class="mb-0 text-warning">{{ $stats['doctorate'] ?? 0 }}</h3>
+                            <p class="text-muted mb-1 small">Sobrecargados</p>
+                            <h4 class="mb-0 text-danger">{{ $stats['overloaded'] ?? 0 }}</h4>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-exclamation-triangle fs-5 text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Prom. Materias</p>
+                            <h4 class="mb-0 text-warning">{{ $stats['avg_subjects'] ?? 0 }}</h4>
                         </div>
                         <div class="bg-warning bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-mortarboard fs-4 text-warning"></i>
+                            <i class="bi bi-bar-chart fs-5 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Con Disponib.</p>
+                            <h4 class="mb-0 text-secondary">{{ $stats['with_availability'] ?? 0 }}</h4>
+                        </div>
+                        <div class="bg-secondary bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-calendar-check fs-5 text-secondary"></i>
                         </div>
                     </div>
                 </div>
@@ -89,7 +119,7 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('gestion-academica.teachers.index') }}" class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label small text-muted">Buscar</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0">
@@ -101,35 +131,44 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small text-muted">Estado</label>
-                    <select name="status" class="form-select">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
                         <option value="">Todos</option>
                         <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Activos</option>
                         <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactivos</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label small text-muted">Grado Académico</label>
-                    <select name="degree" class="form-select">
+                    <label class="form-label small text-muted">Carga Docente</label>
+                    <select name="workload" class="form-select" onchange="this.form.submit()">
                         <option value="">Todos</option>
-                        <option value="Licenciatura" {{ request('degree') == 'Licenciatura' ? 'selected' : '' }}>Licenciatura</option>
-                        <option value="Maestría" {{ request('degree') == 'Maestría' ? 'selected' : '' }}>Maestría</option>
-                        <option value="Doctorado" {{ request('degree') == 'Doctorado' ? 'selected' : '' }}>Doctorado</option>
+                        <option value="available" {{ request('workload') == 'available' ? 'selected' : '' }}>Disponibles</option>
+                        <option value="normal" {{ request('workload') == 'normal' ? 'selected' : '' }}>Carga Normal</option>
+                        <option value="overloaded" {{ request('workload') == 'overloaded' ? 'selected' : '' }}>Sobrecargados</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label small text-muted">Orden</label>
-                    <select name="sort" class="form-select">
+                    <label class="form-label small text-muted">Disponibilidad</label>
+                    <select name="availability" class="form-select" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        <option value="configured" {{ request('availability') == 'configured' ? 'selected' : '' }}>Configurada</option>
+                        <option value="pending" {{ request('availability') == 'pending' ? 'selected' : '' }}>Sin Configurar</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Ordenar</label>
+                    <select name="sort" class="form-select" onchange="this.form.submit()">
                         <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Nombre</option>
+                        <option value="workload" {{ request('sort') == 'workload' ? 'selected' : '' }}>Carga Horaria</option>
+                        <option value="subjects" {{ request('sort') == 'subjects' ? 'selected' : '' }}>N° Materias</option>
                         <option value="experience" {{ request('sort') == 'experience' ? 'selected' : '' }}>Experiencia</option>
-                        <option value="recent" {{ request('sort') == 'recent' ? 'selected' : '' }}>Más recientes</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <label class="form-label small text-muted">&nbsp;</label>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-funnel"></i> Filtrar
-                        </button>
+                    <div class="d-grid">
+                        <a href="{{ route('gestion-academica.teachers.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" title="Limpiar filtros">
+                            <i class="bi bi-x-circle me-1"></i> Limpiar
+                        </a>
                     </div>
                 </div>
             </form>
@@ -157,6 +196,12 @@
                             </th>
                             <th class="py-3 border-0">
                                 <i class="bi bi-mortarboard text-muted"></i> Grado
+                            </th>
+                            <th class="py-3 border-0 text-center">
+                                <i class="bi bi-book text-muted"></i> Materias
+                            </th>
+                            <th class="py-3 border-0 text-center">
+                                <i class="bi bi-clock text-muted"></i> Horas/Sem
                             </th>
                             <th class="py-3 border-0 text-center">
                                 <i class="bi bi-toggle-on text-muted"></i> Estado
@@ -219,6 +264,73 @@
                                     <span class="badge bg-{{ $badgeColor }}">
                                         {{ $teacher->academic_degree ?? 'N/A' }}
                                     </span>
+                                </td>
+                                <td class="text-center">
+                                    @php
+                                        $subjectCount = $teacher->assignments_count ?? $teacher->course_schedules_count ?? 0;
+                                        $subjectBadge = match(true) {
+                                            $subjectCount >= 5 => 'danger',
+                                            $subjectCount >= 3 => 'warning',
+                                            $subjectCount >= 1 => 'success',
+                                            default => 'secondary'
+                                        };
+                                    @endphp
+                                    @if($subjectCount > 0)
+                                        <span class="badge bg-{{ $subjectBadge }} rounded-pill fs-6" data-bs-toggle="tooltip" 
+                                              title="{{ $subjectCount >= 5 ? 'Sobrecarga' : ($subjectCount >= 3 ? 'Carga alta' : 'Carga normal') }}">
+                                            {{ $subjectCount }}
+                                            @if($subjectCount >= 5)<i class="bi bi-exclamation-triangle-fill ms-1"></i>@endif
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary rounded-pill" data-bs-toggle="tooltip" title="Sin asignaciones">
+                                            <i class="bi bi-dash-circle"></i>
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @php
+                                        // Calcular horas semanales basado en número de materias (estimado: 4h por materia)
+                                        $subjectCount = $teacher->assignments_count ?? $teacher->course_schedules_count ?? 0;
+                                        $hours = $subjectCount * 4;
+                                        $hoursBadge = match(true) {
+                                            $hours >= 20 => 'danger',
+                                            $hours >= 12 => 'warning',
+                                            $hours >= 4 => 'info',
+                                            $hours > 0 => 'success',
+                                            default => 'secondary'
+                                        };
+                                    @endphp
+                                    @if($hours > 0)
+                                        <span class="badge bg-{{ $hoursBadge }} rounded-pill fs-6" data-bs-toggle="tooltip" 
+                                              title="Estimado: {{ $hours }} horas semanales ({{ $subjectCount }} materias x 4h)">
+                                            {{ $hours }}h <small>(est.)</small>
+                                            @if($hours >= 20)<i class="bi bi-exclamation-triangle-fill ms-1"></i>@endif
+                                        </span>
+                                        @if($teacher->availabilities_count > 0)
+                                            <div class="mt-1">
+                                                <small class="badge bg-success bg-opacity-25 text-success">
+                                                    <i class="bi bi-calendar-check"></i> {{ $teacher->availabilities_count }}
+                                                </small>
+                                            </div>
+                                        @endif
+                                    @else
+                                        <span class="badge bg-secondary rounded-pill" data-bs-toggle="tooltip" title="Sin horas asignadas">
+                                            <i class="bi bi-dash-circle"></i>
+                                        </span>
+                                        @if($teacher->availabilities_count > 0)
+                                            <div class="mt-1">
+                                                <small class="badge bg-primary bg-opacity-25 text-primary">
+                                                    <i class="bi bi-calendar-check"></i> Configurada
+                                                </small>
+                                            </div>
+                                        @else
+                                            <div class="mt-1">
+                                                <small class="badge bg-warning bg-opacity-25 text-warning">
+                                                    <i class="bi bi-calendar-x"></i> Pendiente
+                                                </small>
+                                            </div>
+                                        @endif
+                                    @endif
                                 </td>
                                 <td class="text-center">
                                     @if($teacher->is_active)

@@ -7,6 +7,10 @@ use App\Http\Controllers\Profesor\AsistenciaController;
 use App\Http\Controllers\Profesor\EstudianteController;
 use App\Http\Controllers\Profesor\ActividadController;
 use App\Http\Controllers\Profesor\ReporteController;
+use App\Http\Controllers\Profesor\HorarioController as ProfesorHorarioController;
+use App\Http\Controllers\CareerController;
+use App\Http\Controllers\SemesterController;
+use App\Http\Controllers\SubjectController;
 use App\Modules\Auth\Models\Role;
 use App\Http\Middleware\AdminMiddleware;
 use App\Modules\Visualization\Controllers\HorarioController;
@@ -48,12 +52,57 @@ Route::middleware('auth')->group(function () {
     // Dashboards por rol
     Route::get('/academic/dashboard', fn() => view('academic.dashboard', ['user' => auth()->user()]))->name('academic.dashboard');
     Route::get('/infraestructura/dashboard', fn() => view('infraestructura.dashboard', ['user' => auth()->user()]))->name('infraestructura.dashboard');
-    Route::get('/profesor/dashboard', fn() => view('profesor.dashboard', ['user' => auth()->user()]))->name('profesor.dashboard');
+    Route::get('/profesor/dashboard', function() {
+        $user = auth()->user();
+        \Log::info('Dashboard - User ID: ' . $user->id . ', Teacher ID: ' . ($user->teacher_id ?? 'NULL'));
+        
+        $teacher = $user->teacher_id ? \App\Models\Teacher::find($user->teacher_id) : null;
+        \Log::info('Dashboard - Teacher found: ' . ($teacher ? 'YES (ID: '.$teacher->id.')' : 'NO'));
+        
+        $assignments = $teacher ? \App\Modules\Asignacion\Models\Assignment::where('teacher_id', $teacher->id)
+            ->with(['subject', 'group', 'timeSlot', 'classroom'])
+            ->get() : collect();
+        
+        \Log::info('Dashboard - Assignments count: ' . $assignments->count());
+        
+        $totalHours = $assignments->sum(function($a) {
+            if (!$a->start_time || !$a->end_time) return 0;
+            return \Carbon\Carbon::parse($a->start_time)->diffInHours(\Carbon\Carbon::parse($a->end_time));
+        });
+        
+        $subjects = $assignments->pluck('subject')->filter()->unique('id');
+        $groups = $assignments->pluck('group')->filter()->unique('id');
+        $totalStudents = $groups->sum('number_of_students');
+        
+        \Log::info('Dashboard - Stats: Subjects='.$subjects->count().', Hours='.$totalHours.', Students='.$totalStudents.', Groups='.$groups->count());
+        
+        return view('profesor.dashboard', [
+            'user' => $user,
+            'teacher' => $teacher,
+            'assignments' => $assignments,
+            'totalSubjects' => $subjects->count(),
+            'totalHours' => $totalHours,
+            'totalStudents' => $totalStudents,
+            'totalGroups' => $groups->count()
+        ]);
+    })->name('profesor.dashboard');
+
+    // Rutas de Gestión Académica (Carreras, Semestres, Materias)
+    Route::middleware('role:coordinador,secretaria_coordinacion')->group(function () {
+        Route::resource('careers', CareerController::class);
+        Route::resource('semesters', SemesterController::class);
+        Route::resource('subjects', SubjectController::class);
+    });
 
     // Rutas del módulo de profesor
     Route::prefix('profesor')->name('profesor.')->middleware(['auth', 'role:profesor,profesor_invitado'])->group(function () {
-        Route::get('/mis-cursos', [ProfesorController::class, 'misCursos'])->name('mis-cursos');
+        // Alias: mis-cursos redirige al horario (la vista principal)
+        Route::get('/mis-cursos', fn() => redirect()->route('profesor.horario'))->name('mis-cursos');
         Route::get('/curso/{assignmentId}', [ProfesorController::class, 'detalleCurso'])->name('detalle-curso');
+        
+        // Ruta para ver el horario del profesor y exportar a PDF
+        Route::get('/horario', [ProfesorHorarioController::class, 'index'])->name('horario');
+        Route::get('/horario/pdf', [ProfesorHorarioController::class, 'exportPdf'])->name('horario.pdf');
         
         // Rutas de Control de Asistencias
         Route::prefix('asistencias')->name('asistencias.')->group(function () {

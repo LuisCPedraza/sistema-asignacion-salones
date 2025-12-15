@@ -232,13 +232,13 @@
         
         .modules-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 2rem;
         }
         
         .module-card {
             background: white;
-            padding: 2.5rem;
+            padding: 1.8rem;
             border-radius: 14px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
             border-top: 5px solid #2563eb;
@@ -270,16 +270,16 @@
         
         .module-card h3 {
             color: #1e293b;
-            margin-bottom: 1.2rem;
-            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
             font-weight: 700;
         }
         
         .module-card p {
             color: #64748b;
-            margin-bottom: 1.8rem;
-            line-height: 1.7;
-            font-size: 0.98rem;
+            margin-bottom: 1.3rem;
+            line-height: 1.6;
+            font-size: 0.9rem;
         }
         
         .btn-module {
@@ -384,6 +384,14 @@
             align-items: center;
             justify-content: center;
         }
+
+        /* Tipografía accesible */
+        h1, h2 { font-size: 32px; }
+        h3 { font-size: 24px; }
+        h4, h5, h6 { font-size: 20px; }
+        p, span, a, button, .btn, .btn-logout, .btn-module, .assignment-btn, .visualization-btn, .sidebar-nav a,
+        .user-info, .stat-label, .section-title, .welcome-section p, .module-card p { font-size: 20px; }
+        small { font-size: 18px; }
     </style>
 </head>
 <body>
@@ -404,8 +412,24 @@
         <nav class="sidebar">
             <ul class="sidebar-nav">
                 <li><a href="{{ route('academic.dashboard') }}" class="active">📊 Dashboard</a></li>
+                
+                <!-- Gestión Académica -->
+                <li style="margin-top: 1.5rem; margin-bottom: 0.5rem; padding: 0 1.8rem;">
+                    <strong style="color: #64748b; font-size: 0.85rem; text-transform: uppercase;">GESTIÓN ACADÉMICA</strong>
+                </li>
+                <li><a href="{{ route('careers.index') }}">📚 Carreras</a></li>
+                <li><a href="{{ route('semesters.index') }}">📋 Semestres</a></li>
+                <li><a href="{{ route('subjects.index') }}">📖 Materias</a></li>
+                
+                <li style="margin-top: 1.5rem; margin-bottom: 0.5rem; padding: 0 1.8rem;">
+                    <strong style="color: #64748b; font-size: 0.85rem; text-transform: uppercase;">ESTUDIANTES Y PROFESORES</strong>
+                </li>
                 <li><a href="{{ route('gestion-academica.student-groups.index') }}">🎓 Grupos de Estudiantes</a></li>
                 <li><a href="{{ route('gestion-academica.teachers.index') }}">👨‍🏫 Gestión de Profesores</a></li>
+                
+                <li style="margin-top: 1.5rem; margin-bottom: 0.5rem; padding: 0 1.8rem;">
+                    <strong style="color: #64748b; font-size: 0.85rem; text-transform: uppercase;">ASIGNACIÓN Y HORARIOS</strong>
+                </li>
                 <li><a href="{{ route('asignacion.automatica') }}">🤖 Asignación Inteligente</a></li>
                 <li><a href="{{ route('visualizacion.horario.semestral') }}">📊 Visualización Horarios</a></li>
                 <li><a href="{{ route('gestion-academica.reports.index') }}">📈 Reportes Académicos</a></li>
@@ -451,21 +475,21 @@
                     <!-- Gestión de Grupos -->
                     <div class="module-card">
                         <h3>🎓 Gestión de Grupos</h3>
-                        <p>Administra grupos de estudiantes, niveles académicos, características especiales y periodos académicos de forma centralizada.</p>
+                        <p>Administra grupos de estudiantes, niveles académicos y periodos académicos.</p>
                         <a href="{{ route('gestion-academica.student-groups.index') }}" class="btn-module">Gestionar Grupos</a>
                     </div>
 
                     <!-- Gestión de Profesores -->
                     <div class="module-card">
                         <h3>👨‍🏫 Gestión de Profesores</h3>
-                        <p>Gestiona información completa de profesores, especialidades académicas, hojas de vida y disponibilidades horarias.</p>
+                        <p>Gestiona profesores, especialidades, hojas de vida y disponibilidades horarias.</p>
                         <a href="{{ route('gestion-academica.teachers.index') }}" class="btn-module">Gestionar Profesores</a>
                     </div>
 
                     <!-- Sistema de Asignación Inteligente -->
                     <div class="module-card">
-                        <h3>🤖 Sistema de Asignación Inteligente</h3>
-                        <p>Asignaciones automáticas optimizadas, gestión manual con arrastrar y soltar, configuración de reglas y detección de conflictos en tiempo real.</p>
+                        <h3>🤖 Asignación Inteligente</h3>
+                        <p>Asignaciones automáticas, manuales, reglas y detección de conflictos.</p>
                         
                         <div class="assignment-grid">
                             <a href="{{ route('asignacion.automatica') }}" class="assignment-btn assignment-btn-blue">
@@ -501,7 +525,7 @@
                     <!-- Visualización de Horarios -->
                     <div class="module-card">
                         <h3>📊 Visualización de Horarios</h3>
-                        <p>Vista consolidada completa para coordinadores y horarios personalizados individuales para cada profesor del departamento.</p>
+                        <p>Vista consolidada para coordinadores y horarios personalizados para profesores.</p>
                         
                         <div class="visualization-grid">
                             <a href="{{ route('visualizacion.horario.semestral') }}" class="visualization-btn visualization-btn-blue">
@@ -534,7 +558,7 @@
                     <!-- Reportes Académicos -->
                     <div class="module-card">
                         <h3>📈 Reportes Académicos</h3>
-                        <p>Genera reportes detallados de grupos estudiantiles, profesores asignados y estadísticas completas del departamento académico.</p>
+                        <p>Reportes detallados de grupos, profesores y estadísticas académicas.</p>
                         <a href="{{ route('gestion-academica.reports.index') }}" class="btn-module">Ver Reportes</a>
                     </div>
 

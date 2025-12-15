@@ -91,6 +91,34 @@
                                 <i class="fas fa-graduation-cap me-2"></i>Dashboard Académico
                             </a>
                         </li>
+                        
+                        <!-- Gestión Académica -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="#gestionAcademica" data-bs-toggle="collapse" role="button" aria-expanded="false">
+                                <i class="fas fa-cogs me-2"></i>Gestión Académica
+                                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.75rem;"></i>
+                            </a>
+                            <div class="collapse" id="gestionAcademica">
+                                <ul class="nav flex-column ms-3 mt-2">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('careers.index') }}">
+                                            <i class="fas fa-book me-2"></i>Carreras
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('semesters.index') }}">
+                                            <i class="fas fa-layer-group me-2"></i>Semestres
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('subjects.index') }}">
+                                            <i class="fas fa-book-open me-2"></i>Materias
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('gestion-academica.student-groups.index') }}">
                                 <i class="fas fa-users me-2"></i>Grupos Estudiantes

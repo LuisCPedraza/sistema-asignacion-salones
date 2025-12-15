@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    h1 { font-size: 32px; }
+    h3, h6 { font-size: 20px; }
+    .form-control, .form-select, .btn, table, th, td { font-size: 20px; }
+    .card-title, .card-body, strong { font-size: 20px; }
+    .badge { font-size: 18px; }
+    .text-muted, small { font-size: 18px; }
+</style>
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-8">

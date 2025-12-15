@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    h1 { font-size: 32px; }
+    h5 { font-size: 20px; }
+    p, strong { font-size: 20px; }
+    .card-body { font-size: 20px; }
+    .btn { font-size: 20px; }
+</style>
 <div class="container mt-4">
     <h1>👤 Detalle de Usuario: {{ $user->name }}</h1>
 

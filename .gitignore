@@ -22,3 +22,27 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Archivos temporales de pruebas y análisis
+test-*.php
+analyze-*.php
+cleanup-*.php
+fix-*.php
+realign-*.php
+link-*.php
+list-*.php
+create-*.php
+update-*.php
+audit-*.php
+check-*.php
+
+# Base de datos local
+database.sqlite
+database.sqlite-*
+
+# CSVs con credenciales
+*CREDENCIALES*.csv
+
+# Archivos con nombres corruptos
+"$t*
+"*n";

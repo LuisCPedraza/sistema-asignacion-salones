@@ -88,9 +88,16 @@ class ReportService
         $utilization = $query->groupBy('teacher_id')->get();
 
         return $utilization->map(function ($item) {
+            $teacher = $item->teacher;
+            $teacherName = $teacher 
+                ? trim(($teacher->first_name ?? '') . ' ' . ($teacher->last_name ?? '')) 
+                : 'Sin asignar';
+            
             return [
                 'teacher_id' => $item->teacher_id,
-                'teacher_name' => $item->teacher->name ?? 'N/A',
+                'teacher_name' => $teacherName ?: 'Sin nombre',
+                'teacher_email' => $teacher->email ?? 'N/A',
+                'teacher_code' => $teacher->id ? 'T-' . str_pad($teacher->id, 4, '0', STR_PAD_LEFT) : 'N/A',
                 'assignment_count' => $item->assignment_count,
                 'avg_score' => round($item->avg_score * 100, 1),
             ];

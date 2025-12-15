@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('special_features')->nullable()->after('location'); // Características especiales
             $table->boolean('is_active')->default(true)->after('special_features');
             $table->text('restrictions')->nullable()->after('is_active'); // Restricciones de uso
-            $table->enum('type', ['aula', 'laboratorio', 'auditorio', 'sala_reuniones', 'taller'])->default('aula')->after('restrictions');
+            $table->enum('type', ['aula', 'laboratorio', 'auditorio', 'sala_reuniones', 'taller', 'cancha_deportiva'])->default('aula')->after('restrictions');
             $table->integer('floor')->default(1)->after('type'); // Piso
             $table->string('wing')->nullable()->after('floor'); // Ala o sector
             

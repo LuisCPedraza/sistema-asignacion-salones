@@ -14,11 +14,15 @@ class CourseSchedule extends Model
         'semester_id',
         'position_in_semester',
         'required_teachers',
+        'teacher_id',
+        'jornada',
+        'cupo',
     ];
 
     protected $casts = [
         'position_in_semester' => 'integer',
         'required_teachers' => 'integer',
+        'cupo' => 'integer',
     ];
 
     // Relaciones
@@ -30,5 +34,10 @@ class CourseSchedule extends Model
     public function semester()
     {
         return $this->belongsTo(Semester::class);
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
     }
 }

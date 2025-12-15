@@ -36,10 +36,10 @@
         }
 
         .login-info h2 {
-            font-size: 2.5rem;
+            font-size: 32px;
             font-weight: 700;
             margin-bottom: 1.5rem;
-            line-height: 1.2;
+            line-height: 1.3;
         }
 
         .login-info-gradient {
@@ -50,7 +50,7 @@
         }
 
         .login-info p {
-            font-size: 1.1rem;
+            font-size: 20px;
             color: #cbd5e1;
             margin-bottom: 2rem;
             line-height: 1.6;
@@ -77,12 +77,12 @@
         .feature-content h4 {
             color: #e2e8f0;
             margin-bottom: 0.25rem;
-            font-size: 1rem;
+            font-size: 24px;
         }
 
         .feature-content p {
             color: #cbd5e1;
-            font-size: 0.9rem;
+            font-size: 20px;
             margin: 0;
         }
 
@@ -107,7 +107,7 @@
         }
 
         .login-title {
-            font-size: 1.75rem;
+            font-size: 24px;
             font-weight: 700;
             color: #e2e8f0;
             margin-bottom: 0.5rem;
@@ -115,7 +115,7 @@
 
         .login-subtitle {
             color: #cbd5e1;
-            font-size: 0.95rem;
+            font-size: 20px;
         }
 
         .form-group {
@@ -127,7 +127,7 @@
             color: #e2e8f0;
             font-weight: 600;
             margin-bottom: 0.75rem;
-            font-size: 0.95rem;
+            font-size: 20px;
         }
 
         .form-input {
@@ -137,7 +137,7 @@
             border: 1px solid rgba(148, 163, 184, 0.3);
             border-radius: 8px;
             color: #e2e8f0;
-            font-size: 0.95rem;
+            font-size: 20px;
             transition: all 0.3s ease;
         }
 
@@ -157,7 +157,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
-            font-size: 0.9rem;
+            font-size: 20px;
         }
 
         .remember-me {
@@ -196,7 +196,7 @@
             border: none;
             border-radius: 8px;
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
@@ -221,7 +221,7 @@
         .register-link-container p {
             color: #cbd5e1;
             margin-bottom: 1rem;
-            font-size: 0.9rem;
+            font-size: 20px;
         }
 
         .btn-register {
@@ -232,7 +232,7 @@
             border: none;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 20px;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.3s ease;
@@ -251,7 +251,7 @@
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1.5rem;
-            font-size: 0.9rem;
+            font-size: 20px;
         }
 
         .errors p {
@@ -273,7 +273,7 @@
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1.5rem;
-            font-size: 0.9rem;
+            font-size: 20px;
         }
 
         @media (max-width: 768px) {

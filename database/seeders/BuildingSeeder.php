@@ -10,38 +10,33 @@ class BuildingSeeder extends Seeder
 {
     public function run()
     {
+        // Datos reales proporcionados: sedes Bolivar y Balsas
         $buildings = [
             [
-                'name' => 'Edificio de Ingeniería',
-                'code' => 'EI',
-                'location' => 'Campus Central',
-                'floors' => 5,
-                'description' => 'Edificio principal de la facultad de ingeniería',
-                'facilities' => ['laboratorios', 'aulas', 'oficinas'],
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Edificio de Ciencias',
-                'code' => 'EC',
-                'location' => 'Campus Norte',
-                'floors' => 4,
-                'description' => 'Edificio para facultad de ciencias',
-                'facilities' => ['laboratorios', 'aulas', 'biblioteca'],
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Edificio de Administración',
-                'code' => 'EA',
-                'location' => 'Campus Central',
+                'name' => 'Bolivar',
+                'code' => 'BOL',
+                'location' => 'Bolivar',
                 'floors' => 3,
-                'description' => 'Edificio administrativo y de dirección',
-                'facilities' => ['oficinas', 'salas de reuniones'],
+                'description' => 'Sede Bolivar con aulas, laboratorios de cómputo, auditorio para eventos y sótanos',
+                'facilities' => ['aulas', 'laboratorios', 'auditorio', 'sotano'],
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Balsas',
+                'code' => 'BAL',
+                'location' => 'Balsas',
+                'floors' => 3,
+                'description' => 'Sede Balsas con aulas, laboratorios de cómputo y zona deportiva',
+                'facilities' => ['aulas', 'laboratorios', 'zona_deportiva'],
                 'is_active' => true,
             ],
         ];
 
         foreach ($buildings as $building) {
-            Building::create($building);
+            Building::updateOrCreate(
+                ['code' => $building['code']],
+                $building
+            );
         }
     }
 }

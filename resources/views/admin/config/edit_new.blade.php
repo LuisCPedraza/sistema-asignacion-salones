@@ -193,6 +193,9 @@
 </div>
 
 <style>
+    h1 { font-size: 32px; }
+    h5, h6 { font-size: 20px; }
+    p, label, .form-label, .form-control, .form-select, .btn, small, .form-text, .alert, table, th, td { font-size: 20px; }
     .card {
         border: none;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);

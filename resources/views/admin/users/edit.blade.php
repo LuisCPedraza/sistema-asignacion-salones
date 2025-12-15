@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    h1 { font-size: 32px; }
+    h5 { font-size: 20px; }
+    .form-label, .form-check-label, .form-text { font-size: 20px; }
+    .form-control, .form-select, .btn { font-size: 20px; }
+    .invalid-feedback { font-size: 20px; }
+    .alert { font-size: 20px; }
+    .alert strong { font-size: 20px; }
+    .alert p { font-size: 20px; }
+</style>
 <div class="container mt-4">
     <h1>✏️ Editar Usuario: {{ $user->name }}</h1>
 
