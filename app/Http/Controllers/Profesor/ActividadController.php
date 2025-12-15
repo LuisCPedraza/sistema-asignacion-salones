@@ -14,10 +14,21 @@ use Illuminate\Support\Facades\Redirect;
 
 class ActividadController extends Controller
 {
+    private function currentTeacher()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return null;
+        }
+
+        return $user->teacher_id
+            ? Teacher::find($user->teacher_id)
+            : Teacher::where('user_id', $user->id)->first();
+    }
+
     public function index()
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
-
+        $teacher = $this->currentTeacher();
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
                 ->with('error', 'No se encontró información del profesor.');
@@ -42,8 +53,7 @@ class ActividadController extends Controller
 
     public function create(Request $request)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
-
+        $teacher = $this->currentTeacher();
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
                 ->with('error', 'No se encontró información del profesor.');
@@ -63,8 +73,7 @@ class ActividadController extends Controller
 
     public function store(Request $request)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
-
+        $teacher = $this->currentTeacher();
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
                 ->with('error', 'No se encontró información del profesor.');
@@ -86,8 +95,8 @@ class ActividadController extends Controller
             'assignment_id' => $assignment->id,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
-            'due_date' => $validated['due_date'] ?? null,
             'max_score' => $validated['max_score'],
+            'due_date' => $validated['due_date'] ?? null,
             'created_by' => auth()->id(),
         ]);
 
@@ -97,16 +106,20 @@ class ActividadController extends Controller
 
     public function calificar($activityId)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
-
+        $teacher = $this->currentTeacher();
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
                 ->with('error', 'No se encontró información del profesor.');
         }
 
-        $activity = Activity::with(['assignment.subject', 'assignment.group.students' => function ($q) {
-            $q->orderBy('apellido')->orderBy('nombre');
-        }])
+        $activity = Activity::with([
+                'assignment.subject.career',
+                'assignment.group.semester.career',
+                'assignment.group.students' => function ($q) {
+                    $q->orderBy('apellido')->orderBy('nombre');
+                },
+                'assignment.classroom.building'
+            ])
             ->whereHas('assignment', fn ($q) => $q->where('teacher_id', $teacher->id))
             ->findOrFail($activityId);
 
@@ -118,13 +131,13 @@ class ActividadController extends Controller
             'activity' => $activity,
             'grades' => $grades,
             'maxScore' => $activity->max_score,
+            'teacher' => $teacher,
         ]);
     }
 
     public function guardarCalificaciones(Request $request, $activityId)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
-
+        $teacher = $this->currentTeacher();
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
                 ->with('error', 'No se encontró información del profesor.');
@@ -144,6 +157,7 @@ class ActividadController extends Controller
         ]);
 
         $studentIds = array_keys($validated['grades']);
+
         $validStudents = Student::whereIn('id', $studentIds)
             ->where('group_id', $activity->assignment->student_group_id)
             ->pluck('id')

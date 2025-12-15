@@ -15,12 +15,23 @@ use Carbon\Carbon;
 
 class ReporteController extends Controller
 {
+    private function currentTeacher()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return null;
+        }
+        return $user->teacher_id
+            ? Teacher::find($user->teacher_id)
+            : Teacher::where('user_id', $user->id)->first();
+    }
+
     /**
      * Mostrar página de reportes académicos
      */
     public function index()
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
@@ -28,12 +39,17 @@ class ReporteController extends Controller
         }
 
         $assignments = Assignment::where('teacher_id', $teacher->id)
-            ->with(['subject', 'group', 'group.semester'])
+            ->with([
+                'subject.career',
+                'group.semester.career',
+                'group.students',
+                'classroom.building'
+            ])
             ->orderBy('day')
             ->orderBy('start_time')
             ->get();
 
-        return view('profesor.reportes.index', compact('assignments'));
+        return view('profesor.reportes.index', compact('assignments', 'teacher'));
     }
 
     /**
@@ -41,7 +57,7 @@ class ReporteController extends Controller
      */
     public function asistencias($assignmentId)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
             return redirect()->route('profesor.dashboard');
@@ -102,10 +118,11 @@ class ReporteController extends Controller
      */
     public function actividades($assignmentId)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
-            return redirect()->route('profesor.dashboard');
+            return redirect()->route('profesor.dashboard')
+                ->with('error', 'No se encontró información del profesor.');
         }
 
         $assignment = Assignment::where('id', $assignmentId)
@@ -152,10 +169,11 @@ class ReporteController extends Controller
      */
     public function exportAsistenciasPdf($assignmentId)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
-            return redirect()->route('profesor.dashboard');
+            return redirect()->route('profesor.dashboard')
+                ->with('error', 'No se encontró información del profesor.');
         }
 
         $assignment = Assignment::where('id', $assignmentId)
@@ -212,7 +230,8 @@ class ReporteController extends Controller
             'fechaExporte' => Carbon::now()->format('d/m/Y H:i'),
         ]);
 
-        return $pdf->download('reporte-asistencias-' . $assignment->subject->codigo . '.pdf');
+        $fileName = 'reporte-asistencias-' . ($assignment->subject->code ?? 'curso') . '-' . now()->format('Y-m-d') . '.pdf';
+        return $pdf->download($fileName);
     }
 
     /**
@@ -220,10 +239,11 @@ class ReporteController extends Controller
      */
     public function exportActividadesPdf($assignmentId)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
-            return redirect()->route('profesor.dashboard');
+            return redirect()->route('profesor.dashboard')
+                ->with('error', 'No se encontró información del profesor.');
         }
 
         $assignment = Assignment::where('id', $assignmentId)
@@ -270,6 +290,7 @@ class ReporteController extends Controller
             'fechaExporte' => Carbon::now()->format('d/m/Y H:i'),
         ]);
 
-        return $pdf->download('reporte-actividades-' . $assignment->subject->codigo . '.pdf');
+        $fileName = 'reporte-actividades-' . ($assignment->subject->code ?? 'curso') . '-' . now()->format('Y-m-d') . '.pdf';
+        return $pdf->download($fileName);
     }
 }

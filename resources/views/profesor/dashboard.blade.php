@@ -329,6 +329,14 @@
             transform: none;
             box-shadow: none;
         }
+
+        /* Tipografía accesible */
+        h1, h2 { font-size: 32px; }
+        h3 { font-size: 24px; }
+        h4, h5, h6 { font-size: 20px; }
+        p, span, a, button, .btn, .btn-logout, .btn-module, .sidebar-nav a, .user-info, .stat-label, .welcome-section p,
+        .module-card p, .stat-number, .stat-icon, .module-icon, .user-badge { font-size: 20px; }
+        small { font-size: 18px; }
         
         /* Responsive */
         @media (max-width: 1024px) {
@@ -401,8 +409,8 @@
         <nav class="sidebar">
             <ul class="sidebar-nav">
                 <li><a href="{{ route('profesor.dashboard') }}" class="active">📊 Dashboard</a></li>
-                <li><a href="{{ route('visualizacion.horario.personal') }}">🕐 Mi Horario</a></li>
-                <li><a href="{{ route('profesor.mis-cursos') }}">📚 Mis Cursos</a></li>
+                <li><a href="{{ route('profesor.horario') }}">🕐 Mi Horario</a></li>
+
                 <li><a href="{{ route('gestion-academica.teachers.availabilities.my') }}">⏰ Disponibilidad</a></li>
                 <li><a href="{{ route('profesor.asistencias.index') }}">✅ Asistencias</a></li>
                 <li><a href="{{ route('profesor.actividades.index') }}">📝 Actividades</a></li>
@@ -420,24 +428,22 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">📖</div>
-                    <div class="stat-number">{{ $assignments->count() }}</div>
+                    <div class="stat-number">{{ $totalSubjects ?? 0 }}</div>
                     <div class="stat-label">Cursos Asignados</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">⏱️</div>
-                    <div class="stat-number">{{ $assignments->count() * 2 }}</div>
+                    <div class="stat-number">{{ $totalHours ?? 0 }}</div>
                     <div class="stat-label">Horas Semanales</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">🎓</div>
-                    <div class="stat-number">
-                        {{ $assignments->sum(fn($a) => $a->group?->student_count ?? 0) }}
-                    </div>
+                    <div class="stat-number">{{ $totalStudents ?? 0 }}</div>
                     <div class="stat-label">Total Estudiantes</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">✅</div>
-                    <div class="stat-number">{{ $assignments->count() }}</div>
+                    <div class="stat-number">{{ $totalGroups ?? 0 }}</div>
                     <div class="stat-label">Grupos Activos</div>
                 </div>
             </div>
@@ -447,15 +453,9 @@
                     <span class="module-icon">🕐</span>
                     <h3>Mi Horario Personal</h3>
                     <p>Consulta y gestiona tu calendario de clases, horarios de disponibilidad y carga académica semanal.</p>
-                    <a href="{{ route('visualizacion.horario.personal') }}" class="btn-module">Ver Mi Horario</a>
+                    <a href="{{ route('profesor.horario') }}" class="btn-module">Ver Mi Horario</a>
                 </div>
                 
-                <div class="module-card">
-                    <span class="module-icon">📚</span>
-                    <h3>Mis Cursos</h3>
-                    <p>Revisa la información detallada de los cursos asignados, grupos de estudiantes y aulas designadas.</p>
-                    <a href="{{ route('profesor.mis-cursos') }}" class="btn-module">Ver Mis Cursos</a>
-                </div>
 
                 <div class="module-card">
                     <span class="module-icon">⏰</span>

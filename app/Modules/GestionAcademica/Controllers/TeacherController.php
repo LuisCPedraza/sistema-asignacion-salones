@@ -20,7 +20,7 @@ class TeacherController extends Controller
 
     public function index(Request $request)
     {
-        $query = Teacher::query();
+        $query = Teacher::withCount(['courseSchedules', 'availabilities']);
 
         // Búsqueda por nombre, email o especialidad
         if ($search = $request->get('search')) {
@@ -44,8 +44,33 @@ class TeacherController extends Controller
             $query->where('academic_degree', $degree);
         }
 
+        // Filtro por carga horaria
+        if ($workload = $request->get('workload')) {
+            if ($workload === 'overloaded') {
+                $query->has('courseSchedules', '>=', 5);
+            } elseif ($workload === 'normal') {
+                $query->has('courseSchedules', '>=', 1)
+                      ->has('courseSchedules', '<', 5);
+            } elseif ($workload === 'available') {
+                $query->doesntHave('courseSchedules');
+            }
+        }
+
+        // Filtro por disponibilidad configurada
+        if ($request->get('availability') === 'configured') {
+            $query->has('availabilities');
+        } elseif ($request->get('availability') === 'pending') {
+            $query->doesntHave('availabilities');
+        }
+
         // Ordenamiento
         switch ($request->get('sort')) {
+            case 'workload':
+                $query->orderByDesc('total_hours');
+                break;
+            case 'subjects':
+                $query->orderByDesc('course_schedules_count');
+                break;
             case 'experience':
                 $query->orderByDesc('years_experience');
                 break;
@@ -58,12 +83,14 @@ class TeacherController extends Controller
 
         $teachers = $query->paginate(10)->appends($request->query());
 
-        // Estadísticas globales
+        // Estadísticas globales mejoradas
         $stats = [
             'total' => Teacher::count(),
             'active' => Teacher::where('is_active', true)->count(),
-            'avg_experience' => round(Teacher::avg('years_experience'), 1),
-            'doctorate' => Teacher::where('academic_degree', 'Doctorado')->count(),
+            'with_assignments' => Teacher::has('courseSchedules')->count(),
+            'overloaded' => Teacher::has('courseSchedules', '>=', 5)->count(),
+            'avg_subjects' => round(Teacher::withCount('courseSchedules')->avg('course_schedules_count'), 1),
+            'with_availability' => Teacher::has('availabilities')->count(),
         ];
 
         return view('gestion-academica.teachers.index', compact('teachers', 'stats'));

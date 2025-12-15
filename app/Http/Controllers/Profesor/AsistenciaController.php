@@ -13,12 +13,23 @@ use Carbon\Carbon;
 
 class AsistenciaController extends Controller
 {
+    private function currentTeacher()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return null;
+        }
+        return $user->teacher_id
+            ? Teacher::find($user->teacher_id)
+            : Teacher::where('user_id', $user->id)->first();
+    }
+
     /**
      * Mostrar lista de cursos para tomar asistencia
      */
     public function index()
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
@@ -28,10 +39,10 @@ class AsistenciaController extends Controller
         // Obtener asignaciones agrupadas por materia
         $assignments = Assignment::where('teacher_id', $teacher->id)
             ->with([
-                'subject',
-                'group.semester',
+                'subject.career',
+                'group.semester.career',
                 'group.career',
-                'classroom'
+                'classroom.building'
             ])
             ->orderBy('day')
             ->orderBy('start_time')
@@ -39,14 +50,20 @@ class AsistenciaController extends Controller
 
         $cursos = $assignments->groupBy('subject_id')->map(function ($assignmentGroup) {
             $firstAssignment = $assignmentGroup->first();
-            
+            $career = $firstAssignment->subject->career
+                ?? optional($firstAssignment->group->semester)->career
+                ?? $firstAssignment->group->career;
+
             return [
                 'subject' => $firstAssignment->subject,
+                'career' => $career,
                 'groups' => $assignmentGroup->map(function ($assignment) {
                     return [
                         'assignment_id' => $assignment->id,
                         'group' => $assignment->group,
                         'classroom' => $assignment->classroom,
+                        'building' => optional($assignment->classroom)->building,
+                        'semester' => optional($assignment->group)->semester,
                         'day' => $assignment->day,
                         'start_time' => $assignment->start_time,
                         'end_time' => $assignment->end_time,
@@ -68,7 +85,7 @@ class AsistenciaController extends Controller
      */
     public function tomarAsistencia($assignmentId)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
@@ -123,7 +140,7 @@ class AsistenciaController extends Controller
             'asistencias.*' => 'required|in:presente,ausente,tardanza,justificado',
         ]);
 
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
         
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')

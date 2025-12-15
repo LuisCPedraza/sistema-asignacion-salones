@@ -4,18 +4,29 @@ namespace App\Http\Controllers\Profesor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
-use App\Models\Teacher;
+use App\Modules\GestionAcademica\Models\Teacher;
 use App\Modules\Asignacion\Models\Assignment;
 use Illuminate\Http\Request;
 
 class EstudianteController extends Controller
 {
+    private function currentTeacher()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return null;
+        }
+        return $user->teacher_id
+            ? Teacher::find($user->teacher_id)
+            : Teacher::where('user_id', $user->id)->first();
+    }
+
     /**
      * Mostrar lista de estudiantes de los grupos del profesor
      */
     public function index()
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
 
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
@@ -24,9 +35,14 @@ class EstudianteController extends Controller
 
         // Obtener todos los assignments del profesor con sus grupos y estudiantes
         $assignments = Assignment::where('teacher_id', $teacher->id)
-            ->with(['subject', 'group.students' => function($query) {
-                $query->orderBy('apellido')->orderBy('nombre');
-            }, 'classroom'])
+            ->with([
+                'subject.career',
+                'group.semester.career',
+                'group.students' => function($query) {
+                    $query->orderBy('apellido')->orderBy('nombre');
+                },
+                'classroom'
+            ])
             ->get();
 
         // Agrupar por materia
@@ -35,8 +51,13 @@ class EstudianteController extends Controller
             $subjectId = $assignment->subject_id;
             
             if (!isset($cursos[$subjectId])) {
+                $career = $assignment->subject->career
+                    ?? optional($assignment->group->semester)->career
+                    ?? optional($assignment->group)->career;
+
                 $cursos[$subjectId] = [
                     'subject' => $assignment->subject,
+                    'career' => $career,
                     'groups' => [],
                     'total_students' => 0,
                 ];
@@ -48,6 +69,7 @@ class EstudianteController extends Controller
                 'assignment_id' => $assignment->id,
                 'group' => $assignment->group,
                 'classroom' => $assignment->classroom,
+                'semester' => optional($assignment->group)->semester,
                 'students' => $students,
                 'student_count' => $students->count(),
             ];
@@ -66,7 +88,7 @@ class EstudianteController extends Controller
      */
     public function create(Request $request)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
 
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
@@ -101,7 +123,7 @@ class EstudianteController extends Controller
      */
     public function store(Request $request)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
 
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
@@ -155,7 +177,7 @@ class EstudianteController extends Controller
      */
     public function edit($id)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
 
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
@@ -186,7 +208,7 @@ class EstudianteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
 
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
@@ -226,7 +248,7 @@ class EstudianteController extends Controller
      */
     public function destroy($id)
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = $this->currentTeacher();
 
         if (!$teacher) {
             return redirect()->route('profesor.dashboard')
