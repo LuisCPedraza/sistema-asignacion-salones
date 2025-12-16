@@ -374,7 +374,7 @@
                 <div class="hero-pretitle">Bienvenido a</div>
                 <h1 class="hero-title">
                     Sistema de 
-                    <span class="hero-title-gradient">Asignación de Salones para Institutos Educativos</span>
+                    <span class="hero-title-gradient">Asignación de Salones</span>
                 </h1>
                 
                 <p class="hero-description">
